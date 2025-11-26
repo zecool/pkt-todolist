@@ -1,0 +1,74 @@
+<svg width="1440" height="1024" viewBox="0 0 1440 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="1440" height="1024" fill="#F5F5F5"/>
+    
+    <!-- Main Container (Card) -->
+    <g filter="url(#filter0_d)">
+        <rect x="480" y="162" width="480" height="700" rx="16" fill="white"/>
+    </g>
+
+    <!-- Header Section -->
+    <text x="720" y="230" font-family="sans-serif" font-size="32" font-weight="bold" fill="#00C73C" text-anchor="middle">pkt-todolist</text>
+    <text x="720" y="270" font-family="sans-serif" font-size="24" font-weight="600" fill="#212121" text-anchor="middle">회원가입</text>
+
+    <!-- Form Fields Container -->
+    <g transform="translate(540, 320)">
+        
+        <!-- Name Field -->
+        <g>
+            <text x="0" y="0" font-family="sans-serif" font-size="14" font-weight="500" fill="#212121">이름</text>
+            <rect x="0" y="12" width="360" height="48" rx="8" stroke="#E0E0E0" fill="white"/>
+            <text x="16" y="41" font-family="sans-serif" font-size="16" fill="#212121">홍길동</text>
+        </g>
+
+        <!-- Email Field -->
+        <g transform="translate(0, 84)">
+            <text x="0" y="0" font-family="sans-serif" font-size="14" font-weight="500" fill="#212121">이메일</text>
+            <rect x="0" y="12" width="360" height="48" rx="8" stroke="#E0E0E0" fill="white"/>
+            <text x="16" y="41" font-family="sans-serif" font-size="16" fill="#212121">email@example.com</text>
+            <!-- Success Icon Check -->
+            <circle cx="336" cy="36" r="10" fill="#00C73C"/>
+            <path d="M331 36L334.5 39.5L341 33" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+
+        <!-- Password Field -->
+        <g transform="translate(0, 168)">
+            <text x="0" y="0" font-family="sans-serif" font-size="14" font-weight="500" fill="#212121">비밀번호 (최소 8자)</text>
+            <rect x="0" y="12" width="360" height="48" rx="8" stroke="#E0E0E0" fill="white"/>
+            <text x="16" y="44" font-family="sans-serif" font-size="24" fill="#212121" letter-spacing="2">••••••••••</text>
+        </g>
+
+        <!-- Password Confirm Field -->
+        <g transform="translate(0, 252)">
+            <text x="0" y="0" font-family="sans-serif" font-size="14" font-weight="500" fill="#212121">비밀번호 확인</text>
+            <rect x="0" y="12" width="360" height="48" rx="8" stroke="#E0E0E0" fill="white"/>
+            <text x="16" y="44" font-family="sans-serif" font-size="24" fill="#212121" letter-spacing="2">••••••••••</text>
+        </g>
+
+        <!-- Submit Button -->
+        <g transform="translate(0, 348)">
+            <rect width="360" height="56" rx="8" fill="#00C73C"/>
+            <text x="180" y="35" font-family="sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">회원가입</text>
+        </g>
+
+        <!-- Login Link -->
+        <g transform="translate(0, 428)">
+            <text x="180" y="0" font-family="sans-serif" font-size="14" fill="#757575" text-anchor="middle">
+                이미 회원이신가요? <tspan fill="#757575" text-decoration="underline" font-weight="600">로그인 하기</tspan>
+            </text>
+        </g>
+    </g>
+
+    <!-- Drop Shadow Definition -->
+    <defs>
+        <filter id="filter0_d" x="470" y="158" width="500" height="720" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+            <feOffset dy="4"/>
+            <feGaussianBlur stdDeviation="5"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+        </filter>
+    </defs>
+</svg>
