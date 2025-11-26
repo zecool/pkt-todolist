@@ -1,0 +1,4 @@
+{
+  "enabledMcpjsonServers": ["postgresql-mcp"],
+  "enableAllProjectMcpServers": true
+}

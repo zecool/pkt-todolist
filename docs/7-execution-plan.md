@@ -58,14 +58,14 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 
 **완료 조건**:
 
-- [ ] PostgreSQL 서비스 실행 중
-- [ ] `whs_todolist_dev` 데이터베이스 생성 완료
-- [ ] 연결 문자열 확인: `postgresql://localhost:5432/whs_todolist_dev`
-- [ ] 관리 도구로 접속 가능
+- [x] PostgreSQL 서비스 실행 중
+- [x] `whs_todolist_dev` 데이터베이스 생성 완료
+- [x] 연결 문자열 확인: `postgresql://localhost:5432/whs_todolist_dev`
+- [x] 관리 도구로 접속 가능
 
 **의존성**:
 
-- [ ] 없음 (독립 작업)
+- [x] 없음 (독립 작업)
 
 **산출물**:
 
