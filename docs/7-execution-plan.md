@@ -1,1655 +1,1693 @@
-# pkt-todolist 실행 계획서
+# pkt-todolist 프로젝트 실행계획
 
 **버전**: 1.0
 **작성일**: 2025-11-26
-**상태**: 최종
-**작성자**: Claude
-**참조 문서**:
-
-- [도메인 정의서](./1-domain-definition.md)
-- [PRD](./3-prd.md)
-- [프로젝트 구조](./5-project-structure.md)
-- [아키텍처 다이어그램](./5-arch-diagram.md)
+**상태**: 승인 대기
+**총 예상 기간**: 3-4일 (집중 개발 기준)
 
 ---
 
 ## 목차
 
-1. [프로젝트 개요](#1-프로젝트-개요)
-2. [전체 일정](#2-전체-일정)
-3. [Phase 1: 환경 설정](#phase-1-환경-설정)
-4. [Phase 2: 데이터베이스](#phase-2-데이터베이스)
-5. [Phase 3: 백엔드](#phase-3-백엔드)
-6. [Phase 4: 프론트엔드](#phase-4-프론트엔드)
-7. [Phase 5: 통합 및 배포](#phase-5-통합-및-배포)
-8. [리스크 관리](#리스크-관리)
+1. [프로젝트 개요](#프로젝트-개요)
+2. [Phase 1: 데이터베이스 구축](#phase-1-데이터베이스-구축)
+3. [Phase 2: 백엔드 개발](#phase-2-백엔드-개발)
+4. [Phase 3: 프론트엔드 개발](#phase-3-프론트엔드-개발)
+5. [Phase 4: 통합 및 배포](#phase-4-통합-및-배포)
+6. [전체 일정 요약](#전체-일정-요약)
+7. [리스크 관리](#리스크-관리)
 
 ---
 
-## 1. 프로젝트 개요
-
-### 프로젝트 목표
-
-- JWT 기반 인증이 포함된 할일 관리 애플리케이션 구축
-- 휴지통 기능(소프트 삭제)을 통한 복원 가능한 데이터 관리
-- 공통 국경일 정보 제공
-- MVP 범위 내에서 필수 기능만 구현
-
-### 개발 원칙
-
-- **단순성 우선**: 오버엔지니어링 금지
-- **MVP 집중**: P0 기능 우선 구현
-- **독립적 Task**: 각 Task는 독립적으로 실행 가능
-- **검증 가능성**: 완료 조건 명확히 정의
-
-### 우선순위 정의
-
-- **P0 (필수)**: MVP 출시에 반드시 필요한 기능
-- **P1 (중요)**: 시간 여유 시 구현
-- **P2 (선택)**: 2차 개발에서 고려
-
----
-
-## 2. 전체 일정
-
-### 마일스톤
-
-| Phase   | 기간  | 목표                   |
-| ------- | ----- | ---------------------- |
-| Phase 1 | 0.5일 | 환경 설정 완료         |
-| Phase 2 | 0.5일 | 데이터베이스 구축 완료 |
-| Phase 3 | 1.5일 | 백엔드 API 구현 완료   |
-| Phase 4 | 2일   | 프론트엔드 구현 완료   |
-| Phase 5 | 0.5일 | 통합 테스트 및 배포    |
-
-**총 예상 기간**: 5일 (여유 포함)
-
----
-
-## Phase 1: 환경 설정
+## 프로젝트 개요
 
 ### 목표
 
-프로젝트 초기 설정 및 개발 환경 구축
+JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능을 제공하는 풀스택 웹 애플리케이션 개발
+
+### 핵심 원칙
+
+- **오버엔지니어링 금지**: 필요한 기능만 단순하게 구현
+- **P0 우선순위**: MVP 필수 기능에 집중
+- **병렬 작업 최대화**: 독립적인 Task는 동시 진행
+- **테스트 기반**: 핵심 로직은 테스트로 검증
 
 ---
 
-### [TASK-001] Git 저장소 및 프로젝트 구조 생성
+## Phase 1: 데이터베이스 구축
 
-**우선순위**: P0
-**예상 시간**: 30분
-**담당 영역**: 전체
-**의존성**: 없음
-
-#### 작업 내용
-
-- Git 저장소 초기화
-- `.gitignore` 파일 생성 (Node.js, React 템플릿)
-- 프로젝트 루트 디렉토리 구조 생성 (`frontend/`, `backend/`, `docs/`)
-- README.md 기본 구조 작성
-
-#### 완료 조건
-
-- [ ] Git 저장소 초기화 완료 (`git init`)
-- [ ] `.gitignore` 파일 생성 (`.env`, `node_modules`, `dist` 포함)
-- [ ] 프로젝트 루트에 `frontend/`, `backend/`, `docs/` 폴더 생성
-- [ ] README.md에 프로젝트 제목, 설명, 기술 스택 작성
-
-#### 산출물
-
-- `.gitignore`
-- `README.md`
-- 프로젝트 디렉토리 구조
-
-#### 참고 사항
-
-- `.gitignore`에는 `.env`, `node_modules/`, `dist/`, `build/` 반드시 포함
-- README에는 프로젝트 실행 방법 작성 (추후 업데이트)
+**총 예상 시간**: 3-4시간
+**담당**: 백엔드 개발자
+**목표**: PostgreSQL 데이터베이스 스키마 구축 및 초기 데이터 삽입
 
 ---
 
-### [TASK-002] 백엔드 프로젝트 초기 설정
+### Task 1.1: 로컬 PostgreSQL 설치 및 설정
 
-**우선순위**: P0
+**담당**: 백엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-001
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- `backend/` 폴더에서 Node.js 프로젝트 초기화
-- Express.js 및 필수 의존성 설치
-- 디렉토리 구조 생성 (`src/controllers`, `src/services`, `src/routes` 등)
-- 환경 변수 파일 설정 (`.env`, `.env.example`)
-- ESLint, Prettier 설정
+- PostgreSQL 15+ 설치 (Windows 환경)
+- pgAdmin 또는 DBeaver 설치 (DB 관리 도구)
+- 로컬 PostgreSQL 서버 실행 확인
+- 데이터베이스 생성 (`whs_todolist_dev`)
+- 연결 테스트 (`psql` 또는 GUI 도구)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `package.json` 생성 (`npm init -y`)
-- [ ] 필수 패키지 설치 완료
-  - express
-  - cors
-  - helmet
-  - dotenv
-  - bcrypt
-  - jsonwebtoken
-  - express-validator
-  - express-rate-limit
-- [ ] 개발 도구 설치 완료
-  - nodemon
-  - eslint
-  - prettier
-- [ ] `src/` 폴더 및 하위 디렉토리 생성
-  - `controllers/`, `services/`, `repositories/`, `routes/`, `middlewares/`, `utils/`, `config/`
-- [ ] `.env.example` 파일 생성 (필요한 환경 변수 목록)
-- [ ] `.eslintrc.json`, `.prettierrc` 설정 파일 생성
-- [ ] `src/app.js` 및 `src/server.js` 기본 구조 작성
+- [ ] PostgreSQL 서비스 실행 중
+- [ ] `whs_todolist_dev` 데이터베이스 생성 완료
+- [ ] 연결 문자열 확인: `postgresql://localhost:5432/whs_todolist_dev`
+- [ ] 관리 도구로 접속 가능
 
-#### 산출물
+**의존성**:
+
+- [ ] 없음 (독립 작업)
+
+**산출물**:
+
+- PostgreSQL 설치 완료
+- 데이터베이스: `whs_todolist_dev`
+- 연결 정보 메모 (`.env` 작성용)
+
+---
+
+### Task 1.2: 데이터베이스 스키마 작성 (schema.sql)
+
+**담당**: 백엔드 개발자
+**예상 시간**: 2시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- User 테이블 정의 (userId, email, password, username, role, createdAt, updatedAt)
+- Todo 테이블 정의 (todoId, userId, title, content, startDate, dueDate, status, isCompleted, createdAt, updatedAt, deletedAt)
+- Holiday 테이블 정의 (holidayId, title, date, description, isRecurring, createdAt, updatedAt)
+- UNIQUE INDEX 추가: User.email
+- INDEX 추가: Todo(userId, status), Todo(dueDate), Holiday(date)
+- FOREIGN KEY 설정: Todo.userId → User.userId (ON DELETE CASCADE)
+- CHECK 제약: dueDate >= startDate
+
+**완료 조건**:
+
+- [x] `schema.sql` 파일 작성 완료
+- [x] UUID 기본 키 설정
+- [x] 인덱스 설정 완료
+- [x] 외래 키 제약 조건 설정
+- [x] CHECK 제약 조건 추가
+
+**의존성**:
+
+- [x] Task 1.1 완료 (데이터베이스 생성)
+
+**산출물**:
+
+- `backend/prisma/schema.sql`
+
+---
+
+### Task 1.3: 스키마 실행 및 검증
+
+**담당**: 백엔드 개발자
+**예상 시간**: 0.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `schema.sql` 실행 (`psql -U postgres -d whs_todolist_dev -f schema.sql`)
+- 테이블 생성 확인 (User, Todo, Holiday)
+- 인덱스 생성 확인
+- 제약 조건 테스트 (이메일 중복, 날짜 검증)
+
+**완료 조건**:
+
+- [x] 3개 테이블 생성 확인
+- [x] 인덱스 6개 생성 확인
+- [x] CHECK 제약 동작 확인 (잘못된 날짜 입력 시 에러)
+- [x] UNIQUE 제약 동작 확인 (이메일 중복 시 에러)
+
+**의존성**:
+
+- [x] Task 1.2 완료 (schema.sql 작성)
+
+**산출물**:
+
+- 데이터베이스 테이블 3개
+- 검증 완료 보고서 (간단한 메모)
+
+---
+
+### Task 1.4: 초기 데이터 삽입 (국경일)
+
+**담당**: 백엔드 개발자
+**예상 시간**: 0.5시간
+**우선순위**: P1
+
+**작업 내용**:
+
+- 2025년 주요 국경일 데이터 삽입
+- 신정(1/1), 삼일절(3/1), 어린이날(5/5), 석가탄신일(5/5), 현충일(6/6), 광복절(8/15), 추석(10/6-8), 개천절(10/3), 한글날(10/9), 크리스마스(12/25)
+- `isRecurring=true` 설정
+
+**완료 조건**:
+
+- [x] 최소 10개 국경일 데이터 삽입
+- [x] Holiday 테이블 조회로 확인
+- [x] 날짜 정렬 확인
+
+**의존성**:
+
+- [x] Task 1.3 완료 (테이블 생성)
+
+**산출물**:
+
+- 국경일 데이터 10+개
+- `seed-holidays.sql` (선택)
+
+---
+
+## Phase 2: 백엔드 개발
+
+**총 예상 시간**: 16-18시간 (2일)
+**담당**: 백엔드 개발자
+**목표**: RESTful API 구현 및 JWT 인증 시스템 구축
+
+---
+
+### Task 2.1: 백엔드 프로젝트 초기화
+
+**담당**: 백엔드 개발자
+**예상 시간**: 1시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `backend/` 디렉토리 생성
+- `npm init -y` 실행
+- 필수 패키지 설치:
+  - `express` (4.x)
+  - `pg` (node-postgres)
+  - `jsonwebtoken` (JWT)
+  - `bcrypt` (비밀번호 해싱)
+  - `express-validator` (검증)
+  - `cors` (CORS 설정)
+  - `helmet` (보안 헤더)
+  - `express-rate-limit` (Rate Limiting)
+  - `dotenv` (환경 변수)
+- `package.json` 스크립트 설정 (`dev`, `start`)
+- `.env` 파일 생성 및 설정
+
+**완료 조건**:
+
+- [ ] `package.json` 생성 완료
+- [ ] 필수 패키지 8개 설치 완료
+- [ ] `.env` 파일 작성 (DATABASE_URL, JWT_SECRET 등)
+- [ ] `.env.example` 파일 생성
+- [ ] `.gitignore` 설정 (node_modules, .env)
+
+**의존성**:
+
+- [ ] Task 1.3 완료 (DB 준비)
+
+**산출물**:
 
 - `backend/package.json`
+- `backend/.env`
 - `backend/.env.example`
-- `backend/src/` 디렉토리 구조
-- `backend/.eslintrc.json`
-- `backend/.prettierrc`
-
-#### 참고 사항
-
-- `.env.example`에는 실제 값 대신 설명 작성
-- nodemon 설정: `"dev": "nodemon src/server.js"`
 
 ---
 
-### [TASK-003] 프론트엔드 프로젝트 초기 설정
+### Task 2.2: 디렉토리 구조 생성
 
+**담당**: 백엔드 개발자
+**예상 시간**: 0.5시간
 **우선순위**: P0
+
+**작업 내용**:
+
+- 프로젝트 구조 설계 원칙에 따라 폴더 생성
+- `src/controllers/` (컨트롤러)
+- `src/services/` (비즈니스 로직)
+- `src/routes/` (라우트)
+- `src/middlewares/` (미들웨어)
+- `src/config/` (설정)
+- `src/utils/` (유틸리티)
+- `src/app.js` (Express 앱)
+- `src/server.js` (서버 진입점)
+
+**완료 조건**:
+
+- [ ] 7개 디렉토리 생성
+- [ ] 기본 파일 생성 (`app.js`, `server.js`)
+- [ ] 디렉토리 구조가 설계 원칙과 일치
+
+**의존성**:
+
+- [ ] Task 2.1 완료 (프로젝트 초기화)
+
+**산출물**:
+
+- 백엔드 디렉토리 구조
+
+---
+
+### Task 2.3: 데이터베이스 연결 설정
+
+**담당**: 백엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-001
-
-#### 작업 내용
-
-- Vite로 React 프로젝트 생성
-- Tailwind CSS 설정
-- 필수 의존성 설치
-- 디렉토리 구조 생성
-- ESLint, Prettier 설정
-
-#### 완료 조건
-
-- [ ] Vite React 프로젝트 생성 (`npm create vite@latest frontend -- --template react`)
-- [ ] Tailwind CSS 설치 및 설정
-  - `tailwindcss`, `postcss`, `autoprefixer` 설치
-  - `tailwind.config.js` 생성
-- [ ] 필수 패키지 설치 완료
-  - react-router-dom
-  - zustand
-  - axios
-  - react-hook-form
-  - zod
-  - date-fns
-  - lucide-react
-- [ ] `src/` 폴더 구조 생성
-  - `components/`, `pages/`, `stores/`, `services/`, `hooks/`, `utils/`, `constants/`
-- [ ] `.env.example` 파일 생성
-- [ ] ESLint, Prettier 설정
-- [ ] Vite 설정 파일 확인 (`vite.config.js`)
-
-#### 산출물
-
-- `frontend/package.json`
-- `frontend/tailwind.config.js`
-- `frontend/src/` 디렉토리 구조
-- `frontend/.env.example`
-
-#### 참고 사항
-
-- Tailwind CSS 설정 후 `src/index.css`에 directives 추가
-- Vite 프록시 설정 (개발 환경에서 백엔드 API 호출용)
-
----
-
-### [TASK-004] 개발 도구 설정
-
-**우선순위**: P1
-**예상 시간**: 30분
-**담당 영역**: 전체
-**의존성**: TASK-002, TASK-003
-
-#### 작업 내용
-
-- VS Code 설정 파일 생성 (워크스페이스 설정)
-- 코드 스타일 가이드 설정
-- Git pre-commit hook 설정 (선택)
-
-#### 완료 조건
-
-- [ ] `.vscode/settings.json` 생성 (ESLint, Prettier 자동 포맷팅)
-- [ ] `.vscode/extensions.json` 생성 (권장 확장 프로그램)
-- [ ] 코드 스타일 가이드 문서화
-- [ ] (선택) Husky + lint-staged 설정
-
-#### 산출물
-
-- `.vscode/settings.json`
-- `.vscode/extensions.json`
-
-#### 참고 사항
-
-- VS Code 설정에서 `editor.formatOnSave: true` 권장
-- Git hook은 시간 여유 시 설정
-
----
-
-## Phase 2: 데이터베이스
-
-### 목표
-
-PostgreSQL 데이터베이스 스키마 설계 및 Prisma ORM 설정
-
----
-
-### [TASK-005] Supabase 프로젝트 생성 및 연결
-
 **우선순위**: P0
-**예상 시간**: 30분
-**담당 영역**: 데이터베이스
-**의존성**: TASK-002
 
-#### 작업 내용
+**작업 내용**:
 
-- Supabase 계정 생성 및 프로젝트 생성
-- PostgreSQL 데이터베이스 연결 정보 확인
-- 백엔드 `.env` 파일에 `DATABASE_URL` 설정
+- `src/config/database.js` 작성
+- `pg.Pool` 설정 (Connection Pool)
+- 연결 문자열 환경 변수로 관리
+- 연결 테스트 함수 작성 (`testConnection()`)
+- 에러 핸들링 추가
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] Supabase 프로젝트 생성 완료
-- [ ] PostgreSQL Connection String 확보
-- [ ] `backend/.env` 파일에 `DATABASE_URL` 추가
-- [ ] Supabase 대시보드 접속 확인
+- [ ] `database.js` 작성 완료
+- [ ] Connection Pool 설정 (max: 10)
+- [ ] 연결 테스트 성공
+- [ ] 에러 로그 출력 확인
 
-#### 산출물
+**의존성**:
 
-- `backend/.env` (DATABASE_URL 포함)
+- [ ] Task 2.2 완료 (디렉토리 구조)
+- [ ] Task 1.3 완료 (DB 준비)
 
-#### 참고 사항
+**산출물**:
 
-- Connection String 형식: `postgresql://[user]:[password]@[host]:[port]/[database]`
-- Supabase는 자동 백업 제공 (설정 확인)
+- `backend/src/config/database.js`
 
 ---
 
-### [TASK-006] Prisma 설치 및 스키마 작성
+### Task 2.4: JWT 유틸리티 작성
 
-**우선순위**: P0
+**담당**: 백엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 데이터베이스
-**의존성**: TASK-005
-
-#### 작업 내용
-
-- Prisma 설치 및 초기화
-- Prisma 스키마 작성 (User, Todo, Holiday 모델)
-- Enum 타입 정의 (Role, TodoStatus)
-- 인덱스 설정
-
-#### 완료 조건
-
-- [ ] Prisma 설치 (`npm install prisma @prisma/client --save`)
-- [ ] Prisma 초기화 (`npx prisma init`)
-- [ ] `prisma/schema.prisma` 파일 작성 완료
-  - User 모델 (userId, email, password, username, role, createdAt, updatedAt)
-  - Todo 모델 (todoId, userId, title, content, startDate, dueDate, status, isCompleted, createdAt, updatedAt, deletedAt)
-  - Holiday 모델 (holidayId, title, date, description, isRecurring, createdAt, updatedAt)
-  - Role enum (USER, ADMIN)
-  - TodoStatus enum (ACTIVE, COMPLETED, DELETED)
-- [ ] 인덱스 설정 완료
-  - User: email (unique), role
-  - Todo: userId+status, dueDate, deletedAt
-  - Holiday: date
-- [ ] 관계 설정 (User 1:N Todo, onDelete: Cascade)
-
-#### 산출물
-
-- `backend/prisma/schema.prisma`
-
-#### 참고 사항
-
-- PRD 8.3 섹션 Prisma 스키마 참조
-- UUID 사용 (`@default(uuid())`)
-- Timestamp 자동 관리 (`@default(now())`, `@updatedAt`)
-
----
-
-### [TASK-007] Prisma 마이그레이션 실행
-
 **우선순위**: P0
-**예상 시간**: 30분
-**담당 영역**: 데이터베이스
-**의존성**: TASK-006
 
-#### 작업 내용
+**작업 내용**:
 
-- Prisma 마이그레이션 생성 및 실행
-- Prisma Client 생성
-- 데이터베이스 연결 테스트
+- `src/utils/jwtHelper.js` 작성
+- `generateAccessToken(payload)` 함수 (15분 만료)
+- `generateRefreshToken(payload)` 함수 (7일 만료)
+- `verifyAccessToken(token)` 함수
+- `verifyRefreshToken(token)` 함수
+- 에러 핸들링 (TokenExpiredError, JsonWebTokenError)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] Prisma 마이그레이션 생성 (`npx prisma migrate dev --name init`)
-- [ ] 마이그레이션 성공적으로 적용 확인
-- [ ] Prisma Client 생성 확인 (`node_modules/@prisma/client`)
-- [ ] Prisma Studio로 테이블 확인 (`npx prisma studio`)
-- [ ] 데이터베이스에 User, Todo, Holiday 테이블 생성 확인
+- [ ] 4개 함수 작성 완료
+- [ ] Access Token 만료 시간: 15분
+- [ ] Refresh Token 만료 시간: 7일
+- [ ] 토큰 검증 에러 처리 완료
 
-#### 산출물
+**의존성**:
 
-- `backend/prisma/migrations/` (마이그레이션 파일)
-- Prisma Client
+- [ ] Task 2.2 완료 (디렉토리 구조)
 
-#### 참고 사항
-
-- 마이그레이션 실패 시 `prisma migrate reset` 후 재시도
-- Supabase 대시보드에서 테이블 구조 확인 가능
-
----
-
-### [TASK-008] 시드 데이터 작성 (선택)
-
-**우선순위**: P1
-**예상 시간**: 30분
-**담당 영역**: 데이터베이스
-**의존성**: TASK-007
-
-#### 작업 내용
-
-- 테스트용 사용자 데이터 생성
-- 샘플 할일 데이터 생성
-- 한국 국경일 데이터 생성
-
-#### 완료 조건
-
-- [ ] `prisma/seed.js` 파일 생성
-- [ ] 관리자 계정 생성 (email: admin@example.com, role: ADMIN)
-- [ ] 일반 사용자 계정 생성 (email: user@example.com, role: USER)
-- [ ] 샘플 할일 데이터 3-5개 생성
-- [ ] 2025년 한국 국경일 데이터 추가 (신정, 설날, 삼일절, 어린이날, 광복절, 추석, 개천절, 한글날, 성탄절)
-- [ ] `package.json`에 `"prisma": { "seed": "node prisma/seed.js" }` 추가
-- [ ] 시드 실행 (`npx prisma db seed`)
-
-#### 산출물
-
-- `backend/prisma/seed.js`
-
-#### 참고 사항
-
-- 비밀번호는 bcrypt로 해싱 필요
-- 시드 데이터는 개발 환경에서만 사용
-
----
-
-## Phase 3: 백엔드
-
-### 목표
-
-REST API 구현 및 비즈니스 로직 완성
-
----
-
-### [TASK-009] Express 앱 기본 설정
-
-**우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-002, TASK-007
-
-#### 작업 내용
-
-- Express 앱 초기화
-- 미들웨어 설정 (CORS, Helmet, JSON parser)
-- 에러 핸들러 미들웨어 작성
-- 서버 시작 코드 작성
-
-#### 완료 조건
-
-- [ ] `src/app.js` 작성 완료
-  - Express 앱 인스턴스 생성
-  - CORS 미들웨어 설정 (허용 Origin 환경 변수로 관리)
-  - Helmet 미들웨어 적용
-  - JSON body parser 설정
-  - URL-encoded parser 설정
-- [ ] `src/server.js` 작성 완료
-  - 환경 변수에서 PORT 읽기 (기본값: 3000)
-  - 서버 시작 로그
-- [ ] `src/middlewares/errorMiddleware.js` 작성
-  - 전역 에러 핸들러
-  - 에러 로그 출력
-  - 클라이언트에 JSON 형식 에러 응답
-- [ ] 서버 실행 확인 (`npm run dev`)
-- [ ] `http://localhost:3000` 접속 확인
-
-#### 산출물
-
-- `backend/src/app.js`
-- `backend/src/server.js`
-- `backend/src/middlewares/errorMiddleware.js`
-
-#### 참고 사항
-
-- CORS 설정: 프론트엔드 URL 허용 (개발: `http://localhost:5173`)
-- Helmet은 기본 설정 사용
-
----
-
-### [TASK-010] 유틸리티 함수 작성
-
-**우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-009
-
-#### 작업 내용
-
-- JWT 헬퍼 함수 작성 (토큰 생성, 검증)
-- 비밀번호 헬퍼 함수 작성 (해싱, 비교)
-- 응답 포맷 헬퍼 작성
-- 환경 변수 설정 파일 작성
-
-#### 완료 조건
-
-- [ ] `src/utils/jwtHelper.js` 작성
-  - `generateAccessToken(userId, email, role)` - Access Token 생성 (15분 만료)
-  - `generateRefreshToken(userId)` - Refresh Token 생성 (7일 만료)
-  - `verifyToken(token)` - 토큰 검증
-- [ ] `src/utils/passwordHelper.js` 작성
-  - `hashPassword(password)` - bcrypt 해싱 (saltRounds: 10)
-  - `comparePassword(password, hash)` - 비밀번호 비교
-- [ ] `src/utils/responseHelper.js` 작성
-  - `successResponse(data, message)` - 성공 응답 포맷
-  - `errorResponse(code, message)` - 에러 응답 포맷
-- [ ] `src/config/jwt.js` 작성
-  - JWT_SECRET, ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY 환경 변수 관리
-- [ ] `.env`에 `JWT_SECRET` 추가 (최소 32자 랜덤 문자열)
-
-#### 산출물
+**산출물**:
 
 - `backend/src/utils/jwtHelper.js`
-- `backend/src/utils/passwordHelper.js`
-- `backend/src/utils/responseHelper.js`
-- `backend/src/config/jwt.js`
-
-#### 참고 사항
-
-- JWT_SECRET은 절대 Git에 커밋하지 않음
-- bcrypt saltRounds는 10 사용 (보안과 성능 균형)
 
 ---
 
-### [TASK-011] 인증 미들웨어 작성
+### Task 2.5: 비밀번호 해싱 유틸리티 작성
 
+**담당**: 백엔드 개발자
+**예상 시간**: 0.5시간
 **우선순위**: P0
+
+**작업 내용**:
+
+- `src/utils/passwordHelper.js` 작성
+- `hashPassword(plainPassword)` 함수 (bcrypt, salt rounds: 10)
+- `comparePassword(plainPassword, hashedPassword)` 함수
+- 에러 핸들링
+
+**완료 조건**:
+
+- [ ] 2개 함수 작성 완료
+- [ ] Salt rounds: 10
+- [ ] 비밀번호 해싱/비교 테스트 성공
+
+**의존성**:
+
+- [ ] Task 2.2 완료 (디렉토리 구조)
+
+**산출물**:
+
+- `backend/src/utils/passwordHelper.js`
+
+---
+
+### Task 2.6: 인증 미들웨어 작성
+
+**담당**: 백엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-010
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- JWT 인증 미들웨어 작성
-- 관리자 권한 확인 미들웨어 작성
-- Request 객체에 사용자 정보 추가
+- `src/middlewares/authMiddleware.js` 작성
+- `authenticate` 미들웨어: JWT 검증 후 `req.user`에 사용자 정보 저장
+- `requireAdmin` 미들웨어: 관리자 권한 확인
+- Authorization 헤더 파싱 (`Bearer <token>`)
+- 에러 응답 처리 (401 Unauthorized)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/middlewares/authMiddleware.js` 작성
-  - `authenticate` 미들웨어: Authorization 헤더에서 JWT 토큰 추출 및 검증
-  - 토큰 검증 성공 시 `req.user`에 사용자 정보 추가
-  - 토큰 없음/만료/유효하지 않음 시 401 응답
-- [ ] `src/middlewares/adminMiddleware.js` 작성
-  - `requireAdmin` 미들웨어: `req.user.role`이 ADMIN인지 확인
-  - 권한 없으면 403 응답
-- [ ] `src/middlewares/validationMiddleware.js` 작성
-  - `validateRequest` 미들웨어: express-validator 결과 확인
-  - 검증 실패 시 400 응답
+- [ ] `authenticate` 미들웨어 작성
+- [ ] `requireAdmin` 미들웨어 작성
+- [ ] 토큰 없을 시 401 반환
+- [ ] 토큰 만료 시 401 반환
+- [ ] `req.user`에 userId, role 저장
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 2.4 완료 (JWT 유틸리티)
+
+**산출물**:
 
 - `backend/src/middlewares/authMiddleware.js`
-- `backend/src/middlewares/adminMiddleware.js`
-- `backend/src/middlewares/validationMiddleware.js`
-
-#### 참고 사항
-
-- Authorization 헤더 형식: `Bearer {token}`
-- 토큰 검증 실패 시 명확한 에러 메시지 반환
 
 ---
 
-### [TASK-012] 인증 API 구현 (회원가입, 로그인)
+### Task 2.7: 에러 핸들링 미들웨어 작성
 
+**담당**: 백엔드 개발자
+**예상 시간**: 1시간
 **우선순위**: P0
-**예상 시간**: 2시간
-**담당 영역**: 백엔드
-**의존성**: TASK-011
 
-#### 작업 내용
+**작업 내용**:
 
-- 회원가입 API 구현
-- 로그인 API 구현
-- 토큰 갱신 API 구현
-- 로그아웃 API 구현 (선택)
+- `src/middlewares/errorMiddleware.js` 작성
+- 통일된 에러 응답 형식 (`{success: false, error: {code, message}}`)
+- HTTP 상태 코드 매핑
+- 에러 로깅 (console.error)
+- 프로덕션 환경에서는 스택 트레이스 숨김
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/services/authService.js` 작성
-  - `register(email, password, username)` - 회원가입 로직
-    - 이메일 중복 확인
-    - 비밀번호 해싱
-    - 사용자 생성
-  - `login(email, password)` - 로그인 로직
-    - 사용자 조회
-    - 비밀번호 검증
-    - Access Token, Refresh Token 생성
-  - `refreshToken(refreshToken)` - 토큰 갱신 로직
-    - Refresh Token 검증
-    - 새로운 Access Token 발급
-- [ ] `src/controllers/authController.js` 작성
-  - `register` - POST /api/auth/register
-  - `login` - POST /api/auth/login
-  - `refresh` - POST /api/auth/refresh
-  - `logout` - POST /api/auth/logout (선택)
-- [ ] `src/routes/authRoutes.js` 작성
-  - 라우트 정의 및 검증 규칙 추가 (express-validator)
-- [ ] `src/app.js`에 authRoutes 연결 (`app.use('/api/auth', authRoutes)`)
-- [ ] Postman으로 API 테스트 완료
-  - 회원가입 성공 (201 Created)
-  - 이메일 중복 에러 (409 Conflict)
-  - 로그인 성공 (200 OK, tokens 반환)
-  - 잘못된 비밀번호 (401 Unauthorized)
-  - 토큰 갱신 성공 (200 OK)
+- [ ] 에러 핸들러 작성 완료
+- [ ] 에러 응답 형식 통일
+- [ ] 로그 출력 확인
+- [ ] 환경별 응답 차이 구현 (dev/prod)
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 2.2 완료 (디렉토리 구조)
+
+**산출물**:
+
+- `backend/src/middlewares/errorMiddleware.js`
+
+---
+
+### Task 2.8: 인증 API 구현 (회원가입, 로그인, 토큰 갱신)
+
+**담당**: 백엔드 개발자
+**예상 시간**: 3시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/services/authService.js` 작성
+  - `register(email, password, username)`: 회원가입
+  - `login(email, password)`: 로그인
+  - `refreshAccessToken(refreshToken)`: 토큰 갱신
+- `src/controllers/authController.js` 작성
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `POST /api/auth/refresh`
+  - `POST /api/auth/logout` (클라이언트 토큰 삭제 안내)
+- `src/routes/authRoutes.js` 작성
+- 입력 검증 (express-validator)
+
+**완료 조건**:
+
+- [ ] 회원가입 API 동작 확인 (이메일 중복 체크)
+- [ ] 로그인 API 동작 확인 (Access + Refresh Token 발급)
+- [ ] 토큰 갱신 API 동작 확인
+- [ ] 비밀번호 bcrypt 해싱 확인
+- [ ] 에러 응답 확인 (400, 401, 409)
+
+**의존성**:
+
+- [ ] Task 2.3 완료 (DB 연결)
+- [ ] Task 2.4 완료 (JWT 유틸리티)
+- [ ] Task 2.5 완료 (비밀번호 해싱)
+
+**산출물**:
 
 - `backend/src/services/authService.js`
 - `backend/src/controllers/authController.js`
 - `backend/src/routes/authRoutes.js`
 
-#### 참고 사항
-
-- 비밀번호는 절대 응답에 포함하지 않음
-- express-validator로 이메일 형식, 비밀번호 길이 검증
-
 ---
 
-### [TASK-013] 할일 CRUD API 구현
+### Task 2.9: 할일 CRUD API 구현
 
+**담당**: 백엔드 개발자
+**예상 시간**: 4시간
 **우선순위**: P0
-**예상 시간**: 3시간
-**담당 영역**: 백엔드
-**의존성**: TASK-011, TASK-012
 
-#### 작업 내용
+**작업 내용**:
 
-- 할일 생성, 조회, 수정, 삭제 API 구현
-- 할일 완료 처리 API 구현
-- 사용자별 권한 검증 로직 추가
+- `src/services/todoService.js` 작성
+  - `getTodos(userId, filters)`: 할일 목록 조회
+  - `getTodoById(todoId, userId)`: 할일 상세 조회
+  - `createTodo(userId, todoData)`: 할일 생성
+  - `updateTodo(todoId, userId, updateData)`: 할일 수정
+  - `completeTodo(todoId, userId)`: 할일 완료
+  - `deleteTodo(todoId, userId)`: 휴지통 이동 (소프트 삭제)
+  - `restoreTodo(todoId, userId)`: 할일 복원
+- `src/controllers/todoController.js` 작성
+  - `GET /api/todos` (쿼리: status, search, sortBy, order)
+  - `GET /api/todos/:id`
+  - `POST /api/todos`
+  - `PUT /api/todos/:id`
+  - `PATCH /api/todos/:id/complete`
+  - `DELETE /api/todos/:id`
+  - `PATCH /api/todos/:id/restore`
+- `src/routes/todoRoutes.js` 작성
+- 비즈니스 규칙 적용 (dueDate >= startDate, 권한 체크)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/repositories/todoRepository.js` 작성
-  - `findByUserId(userId, status)` - 사용자별 할일 조회
-  - `findById(todoId)` - 할일 상세 조회
-  - `create(userId, data)` - 할일 생성
-  - `update(todoId, data)` - 할일 수정
-  - `softDelete(todoId)` - 소프트 삭제 (status='DELETED', deletedAt 설정)
-  - `restore(todoId)` - 복원 (status='ACTIVE', deletedAt=null)
-  - `hardDelete(todoId)` - 영구 삭제
-  - `updateStatus(todoId, status, isCompleted)` - 상태 변경
-- [ ] `src/services/todoService.js` 작성
-  - 비즈니스 로직 (권한 검증, 날짜 유효성 검증)
-  - dueDate >= startDate 검증
-  - 사용자 소유권 확인 (userId 일치 여부)
-- [ ] `src/controllers/todoController.js` 작성
-  - `getTodos` - GET /api/todos (쿼리: status, search, sortBy, order)
-  - `getTodoById` - GET /api/todos/:id
-  - `createTodo` - POST /api/todos
-  - `updateTodo` - PUT /api/todos/:id
-  - `deleteTodo` - DELETE /api/todos/:id (소프트 삭제)
-  - `completeTodo` - PATCH /api/todos/:id/complete
-  - `restoreTodo` - PATCH /api/todos/:id/restore
-- [ ] `src/routes/todoRoutes.js` 작성
-  - 모든 라우트에 `authenticate` 미들웨어 적용
-  - 검증 규칙 추가 (title 필수, dueDate 형식 등)
-- [ ] `src/app.js`에 todoRoutes 연결
-- [ ] Postman으로 API 테스트 완료
-  - 할일 생성 성공
-  - 할일 목록 조회 (필터링, 정렬 테스트)
-  - 할일 수정 성공
-  - 할일 완료 처리
-  - 할일 삭제 (휴지통 이동)
-  - 할일 복원
-  - 권한 없는 사용자 접근 차단 (403)
+- [ ] 7개 API 엔드포인트 동작 확인
+- [ ] 인증 미들웨어 적용
+- [ ] 권한 체크 (타인의 할일 접근 금지)
+- [ ] 소프트 삭제 동작 확인 (status='deleted', deletedAt 기록)
+- [ ] 날짜 검증 동작 확인
+- [ ] 에러 응답 확인 (400, 403, 404)
 
-#### 산출물
+**의존성**:
 
-- `backend/src/repositories/todoRepository.js`
+- [ ] Task 2.3 완료 (DB 연결)
+- [ ] Task 2.6 완료 (인증 미들웨어)
+
+**산출물**:
+
 - `backend/src/services/todoService.js`
 - `backend/src/controllers/todoController.js`
 - `backend/src/routes/todoRoutes.js`
 
-#### 참고 사항
-
-- 소프트 삭제: 데이터 실제 삭제하지 않고 status만 변경
-- 사용자는 타인의 할일 접근 불가 (권한 검증 필수)
-
 ---
 
-### [TASK-014] 휴지통 API 구현
+### Task 2.10: 휴지통 API 구현
 
+**담당**: 백엔드 개발자
+**예상 시간**: 1.5시간
 **우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-013
 
-#### 작업 내용
+**작업 내용**:
 
-- 휴지통 조회 API 구현
-- 영구 삭제 API 구현
+- `src/services/trashService.js` 작성
+  - `getTrash(userId)`: 휴지통 조회 (status='deleted')
+  - `permanentlyDelete(todoId, userId)`: 영구 삭제
+- `src/controllers/trashController.js` 작성
+  - `GET /api/trash`
+  - `DELETE /api/trash/:id`
+- `src/routes/trashRoutes.js` 작성
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/controllers/trashController.js` 작성
-  - `getTrash` - GET /api/trash (status='DELETED'인 할일 조회)
-  - `permanentDelete` - DELETE /api/trash/:id (DB에서 완전히 제거)
-- [ ] `src/routes/trashRoutes.js` 작성
-  - `authenticate` 미들웨어 적용
-- [ ] `src/app.js`에 trashRoutes 연결
-- [ ] Postman으로 API 테스트 완료
-  - 휴지통 조회 성공
-  - 영구 삭제 성공
-  - 활성 상태 할일 영구 삭제 시 에러 (400)
+- [ ] 휴지통 조회 API 동작 확인
+- [ ] 영구 삭제 API 동작 확인 (DB에서 완전히 제거)
+- [ ] 권한 체크 동작 확인
+- [ ] 에러 응답 확인 (404, 400)
 
-#### 산출물
+**의존성**:
 
+- [ ] Task 2.9 완료 (할일 API)
+
+**산출물**:
+
+- `backend/src/services/trashService.js`
 - `backend/src/controllers/trashController.js`
 - `backend/src/routes/trashRoutes.js`
 
-#### 참고 사항
-
-- 영구 삭제는 status='DELETED'인 할일만 가능
-- 휴지통은 사용자별로 분리 (본인 할일만 조회)
-
 ---
 
-### [TASK-015] 국경일 API 구현
+### Task 2.11: 국경일 API 구현
 
+**담당**: 백엔드 개발자
+**예상 시간**: 2시간
 **우선순위**: P0
-**예상 시간**: 1.5시간
-**담당 영역**: 백엔드
-**의존성**: TASK-011
 
-#### 작업 내용
+**작업 내용**:
 
-- 국경일 조회 API 구현
-- 국경일 추가/수정 API 구현 (관리자 전용)
+- `src/services/holidayService.js` 작성
+  - `getHolidays(year, month)`: 국경일 조회
+  - `createHoliday(holidayData)`: 국경일 추가 (관리자 전용)
+  - `updateHoliday(holidayId, updateData)`: 국경일 수정 (관리자 전용)
+- `src/controllers/holidayController.js` 작성
+  - `GET /api/holidays` (쿼리: year, month)
+  - `POST /api/holidays` (관리자 전용)
+  - `PUT /api/holidays/:id` (관리자 전용)
+- `src/routes/holidayRoutes.js` 작성
+- 관리자 권한 미들웨어 적용
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/repositories/holidayRepository.js` 작성
-  - `findByYear(year)` - 연도별 국경일 조회
-  - `findByMonth(year, month)` - 월별 국경일 조회
-  - `create(data)` - 국경일 추가
-  - `update(holidayId, data)` - 국경일 수정
-- [ ] `src/services/holidayService.js` 작성
-  - 비즈니스 로직
-- [ ] `src/controllers/holidayController.js` 작성
-  - `getHolidays` - GET /api/holidays (쿼리: year, month)
-  - `createHoliday` - POST /api/holidays (관리자 전용)
-  - `updateHoliday` - PUT /api/holidays/:id (관리자 전용)
-- [ ] `src/routes/holidayRoutes.js` 작성
-  - GET은 `authenticate`만 적용
-  - POST, PUT은 `authenticate` + `requireAdmin` 적용
-- [ ] `src/app.js`에 holidayRoutes 연결
-- [ ] Postman으로 API 테스트 완료
-  - 국경일 조회 성공 (인증된 사용자)
-  - 국경일 추가 성공 (관리자)
-  - 일반 사용자 추가 시도 시 403
+- [ ] 국경일 조회 API 동작 확인 (인증 필요)
+- [ ] 국경일 추가 API 동작 확인 (관리자만 가능)
+- [ ] 국경일 수정 API 동작 확인 (관리자만 가능)
+- [ ] 연도/월 필터링 동작 확인
+- [ ] 에러 응답 확인 (403, 404)
 
-#### 산출물
+**의존성**:
 
-- `backend/src/repositories/holidayRepository.js`
+- [ ] Task 2.3 완료 (DB 연결)
+- [ ] Task 2.6 완료 (인증 미들웨어)
+
+**산출물**:
+
 - `backend/src/services/holidayService.js`
 - `backend/src/controllers/holidayController.js`
 - `backend/src/routes/holidayRoutes.js`
 
-#### 참고 사항
-
-- 국경일 삭제 기능은 MVP에서 제외
-- isRecurring=true는 매년 반복되는 국경일
-
 ---
 
-### [TASK-016] 사용자 프로필 API 구현
+### Task 2.12: Rate Limiting 미들웨어 추가
 
+**담당**: 백엔드 개발자
+**예상 시간**: 0.5시간
 **우선순위**: P1
-**예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-011
 
-#### 작업 내용
+**작업 내용**:
 
-- 현재 사용자 프로필 조회 API 구현
-- 프로필 수정 API 구현 (사용자 이름, 비밀번호 변경)
+- `src/middlewares/rateLimitMiddleware.js` 작성
+- 일반 API: 100 req/min per IP
+- 인증 API: 5 req/15min per IP
+- `express-rate-limit` 사용
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/services/userService.js` 작성
-  - `getProfile(userId)` - 사용자 정보 조회 (비밀번호 제외)
-  - `updateProfile(userId, data)` - 사용자 정보 수정
-- [ ] `src/controllers/userController.js` 작성
-  - `getMe` - GET /api/users/me
-  - `updateMe` - PATCH /api/users/me
-- [ ] `src/routes/userRoutes.js` 작성
-  - `authenticate` 미들웨어 적용
-- [ ] `src/app.js`에 userRoutes 연결
-- [ ] Postman으로 API 테스트 완료
-  - 프로필 조회 성공
-  - 사용자 이름 수정 성공
-  - 비밀번호 변경 성공 (해싱 확인)
-
-#### 산출물
-
-- `backend/src/services/userService.js`
-- `backend/src/controllers/userController.js`
-- `backend/src/routes/userRoutes.js`
-
-#### 참고 사항
-
-- 비밀번호 변경 시 bcrypt 해싱 필수
-- 응답에 비밀번호 포함하지 않음
-
----
-
-### [TASK-017] Rate Limiting 미들웨어 추가
-
-**우선순위**: P1
-**예상 시간**: 30분
-**담당 영역**: 백엔드
-**의존성**: TASK-009
-
-#### 작업 내용
-
-- express-rate-limit 설정
-- 인증 API에 엄격한 제한 적용
-
-#### 완료 조건
-
-- [ ] `src/middlewares/rateLimitMiddleware.js` 작성
-  - 일반 API: 100 req/min per IP
-  - 인증 API: 10 req/min per IP
-- [ ] `src/routes/authRoutes.js`에 Rate Limiter 적용
+- [ ] Rate Limiter 설정 완료
+- [ ] 인증 API에 적용
 - [ ] 제한 초과 시 429 응답 확인
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 2.2 완료 (디렉토리 구조)
+
+**산출물**:
 
 - `backend/src/middlewares/rateLimitMiddleware.js`
 
-#### 참고 사항
+---
 
-- 개발 환경에서는 제한 완화 가능
-- 프로덕션에서는 엄격히 적용
+### Task 2.13: Express 앱 통합 및 라우트 연결
+
+**담당**: 백엔드 개발자
+**예상 시간**: 1시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/app.js` 작성
+  - CORS 설정 (cors 미들웨어)
+  - Helmet 설정 (보안 헤더)
+  - JSON 파싱 (express.json())
+  - 라우트 연결 (`/api/auth`, `/api/todos`, `/api/trash`, `/api/holidays`)
+  - 에러 핸들러 적용 (가장 마지막)
+- `src/server.js` 작성
+  - 포트 설정 (3000)
+  - 서버 시작
+
+**완료 조건**:
+
+- [ ] CORS 설정 완료
+- [ ] 보안 헤더 적용 확인
+- [ ] 4개 라우트 연결 확인
+- [ ] 에러 핸들러 동작 확인
+- [ ] 서버 실행 확인 (`http://localhost:3000`)
+
+**의존성**:
+
+- [ ] Task 2.8, 2.9, 2.10, 2.11 완료 (모든 라우트)
+
+**산출물**:
+
+- `backend/src/app.js`
+- `backend/src/server.js`
 
 ---
 
-### [TASK-018] 백엔드 통합 테스트 (선택)
+### Task 2.14: API 테스트 (Postman/Thunder Client)
 
-**우선순위**: P2
+**담당**: 백엔드 개발자
 **예상 시간**: 2시간
-**담당 영역**: 백엔드
-**의존성**: TASK-012, TASK-013, TASK-015
-
-#### 작업 내용
-
-- Jest 설정
-- 주요 API 엔드포인트 통합 테스트 작성
-
-#### 완료 조건
-
-- [ ] Jest, supertest 설치
-- [ ] `tests/integration/` 폴더 생성
-- [ ] 인증 API 테스트 작성 (`authApi.test.js`)
-- [ ] 할일 CRUD API 테스트 작성 (`todoApi.test.js`)
-- [ ] 테스트 실행 성공 (`npm test`)
-
-#### 산출물
-
-- `backend/tests/integration/authApi.test.js`
-- `backend/tests/integration/todoApi.test.js`
-
-#### 참고 사항
-
-- 시간 부족 시 생략 가능
-- 테스트 DB 별도 설정 필요
-
----
-
-## Phase 4: 프론트엔드
-
-### 목표
-
-React 기반 사용자 인터페이스 구현 및 API 연동
-
----
-
-### [TASK-019] Axios 인스턴스 및 인터셉터 설정
-
 **우선순위**: P0
+
+**작업 내용**:
+
+- Postman 또는 Thunder Client 컬렉션 생성
+- 모든 API 엔드포인트 테스트
+  - 회원가입 → 로그인 → 할일 생성 → 조회 → 수정 → 삭제 → 복원 → 영구 삭제
+  - 국경일 조회
+  - 토큰 갱신
+- 성공 케이스 및 실패 케이스 테스트
+- 에러 응답 확인
+
+**완료 조건**:
+
+- [ ] 모든 API 엔드포인트 테스트 완료
+- [ ] 성공 케이스 동작 확인
+- [ ] 실패 케이스 에러 응답 확인
+- [ ] JWT 인증 동작 확인
+- [ ] 권한 체크 동작 확인
+
+**의존성**:
+
+- [ ] Task 2.13 완료 (서버 실행)
+
+**산출물**:
+
+- Postman/Thunder Client 컬렉션 (선택)
+- 테스트 결과 메모
+
+---
+
+## Phase 3: 프론트엔드 개발
+
+**총 예상 시간**: 28-32시간 (2일)
+**담당**: 프론트엔드 개발자
+**목표**: React 기반 사용자 인터페이스 구현 및 API 연동
+
+---
+
+### Task 3.1: 프론트엔드 프로젝트 초기화 (React + Vite + Tailwind)
+
+**담당**: 프론트엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-003
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- Axios 인스턴스 생성
-- Request 인터셉터 (JWT 토큰 자동 첨부)
-- Response 인터셉터 (토큰 갱신, 에러 처리)
+- `npm create vite@latest frontend -- --template react` 실행
+- Tailwind CSS 설치 및 설정
+- 필수 패키지 설치:
+  - `react-router-dom` (라우팅)
+  - `zustand` (상태 관리)
+  - `axios` (HTTP 클라이언트)
+  - `react-hook-form` (폼 관리)
+  - `zod` (스키마 검증)
+  - `date-fns` (날짜 처리)
+  - `lucide-react` (아이콘)
+- `tailwind.config.js` 설정 (색상, 폰트)
+- `.env` 파일 생성 (`VITE_API_BASE_URL`)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/services/api.js` 작성
-  - Axios 인스턴스 생성 (`axios.create`)
-  - baseURL 설정 (환경 변수: `VITE_API_URL`)
-  - Request 인터셉터: Authorization 헤더에 Access Token 자동 추가
-  - Response 인터셉터:
-    - 401 에러 감지 시 토큰 갱신 시도
-    - 토큰 갱신 성공 시 원래 요청 재시도
-    - 토큰 갱신 실패 시 로그아웃 처리
-- [ ] `.env`에 `VITE_API_URL` 추가 (개발: `http://localhost:3000/api`)
-- [ ] LocalStorage에서 토큰 읽기/쓰기 함수 작성 (`src/utils/tokenManager.js`)
+- [ ] Vite 프로젝트 생성 완료
+- [ ] Tailwind CSS 설정 완료
+- [ ] 필수 패키지 7개 설치 완료
+- [ ] `.env` 파일 작성
+- [ ] 개발 서버 실행 확인 (`npm run dev`)
 
-#### 산출물
+**의존성**:
 
+- [ ] 없음 (독립 작업, 백엔드와 병렬 가능)
+
+**산출물**:
+
+- `frontend/package.json`
+- `frontend/tailwind.config.js`
+- `frontend/.env`
+
+---
+
+### Task 3.2: 디렉토리 구조 생성
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 0.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- 프로젝트 구조 설계 원칙에 따라 폴더 생성
+- `src/components/` (공통, todo, holiday, layout)
+- `src/pages/`
+- `src/stores/`
+- `src/services/`
+- `src/hooks/`
+- `src/utils/`
+- `src/constants/`
+- 기본 파일 생성 (`App.jsx`, `main.jsx`)
+
+**완료 조건**:
+
+- [ ] 7개 디렉토리 생성
+- [ ] 디렉토리 구조가 설계 원칙과 일치
+
+**의존성**:
+
+- [ ] Task 3.1 완료 (프로젝트 초기화)
+
+**산출물**:
+
+- 프론트엔드 디렉토리 구조
+
+---
+
+### Task 3.3: 상수 정의 및 Axios 인스턴스 설정
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 1시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/constants/apiEndpoints.js` 작성 (API 엔드포인트 상수)
+- `src/constants/todoStatus.js` 작성 (active, completed, deleted)
+- `src/services/api.js` 작성
+  - Axios 인스턴스 생성
+  - 요청 인터셉터: Authorization 헤더 자동 추가
+  - 응답 인터셉터: 401 에러 시 토큰 갱신 시도
+  - 에러 핸들링
+
+**완료 조건**:
+
+- [ ] 상수 파일 2개 작성 완료
+- [ ] Axios 인스턴스 설정 완료
+- [ ] 인터셉터 동작 확인
+- [ ] 환경 변수 (`VITE_API_BASE_URL`) 사용 확인
+
+**의존성**:
+
+- [ ] Task 3.2 완료 (디렉토리 구조)
+
+**산출물**:
+
+- `frontend/src/constants/apiEndpoints.js`
+- `frontend/src/constants/todoStatus.js`
 - `frontend/src/services/api.js`
-- `frontend/src/utils/tokenManager.js`
-
-#### 참고 사항
-
-- Access Token은 LocalStorage에 저장
-- Refresh Token은 HttpOnly Cookie 또는 LocalStorage (MVP에서는 LocalStorage)
 
 ---
 
-### [TASK-020] 인증 상태 관리 (Zustand)
+### Task 3.4: 유틸리티 함수 작성
 
-**우선순위**: P0
+**담당**: 프론트엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-019
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- Zustand authStore 생성
-- 로그인, 로그아웃, 토큰 갱신 액션 작성
-- 사용자 정보 상태 관리
+- `src/utils/dateFormatter.js` 작성 (날짜 포맷팅)
+- `src/utils/tokenManager.js` 작성 (LocalStorage에 토큰 저장/조회/삭제)
+- `src/utils/validator.js` 작성 (이메일, 비밀번호 검증)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/stores/authStore.js` 작성
-  - 상태: `user`, `isAuthenticated`, `accessToken`, `refreshToken`
-  - 액션:
-    - `login(email, password)` - 로그인 API 호출 후 토큰 저장
-    - `logout()` - 토큰 삭제 및 상태 초기화
-    - `setTokens(accessToken, refreshToken)` - 토큰 저장
-    - `setUser(user)` - 사용자 정보 저장
-    - `checkAuth()` - 토큰 존재 여부 확인 (앱 시작 시)
-- [ ] LocalStorage에서 토큰 자동 로드 (persist)
-- [ ] 로그인 상태 확인 훅 작성 (`src/hooks/useAuth.js`)
+- [ ] 3개 유틸리티 파일 작성 완료
+- [ ] 토큰 저장/조회 동작 확인
+- [ ] 날짜 포맷팅 동작 확인
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 3.2 완료 (디렉토리 구조)
+
+**산출물**:
+
+- `frontend/src/utils/dateFormatter.js`
+- `frontend/src/utils/tokenManager.js`
+- `frontend/src/utils/validator.js`
+
+---
+
+### Task 3.5: Zustand 스토어 설정 (authStore)
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 1.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/stores/authStore.js` 작성
+  - State: `user`, `isAuthenticated`, `isLoading`, `error`
+  - Actions: `login(email, password)`, `register(email, password, username)`, `logout()`, `refreshToken()`
+  - API 호출 (authService)
+  - 토큰 저장 (tokenManager)
+
+**완료 조건**:
+
+- [ ] authStore 작성 완료
+- [ ] 로그인/회원가입/로그아웃 동작 확인
+- [ ] 토큰 저장 확인
+- [ ] 에러 상태 관리 확인
+
+**의존성**:
+
+- [ ] Task 3.3 완료 (Axios 인스턴스)
+- [ ] Task 3.4 완료 (tokenManager)
+
+**산출물**:
 
 - `frontend/src/stores/authStore.js`
-- `frontend/src/hooks/useAuth.js`
-
-#### 참고 사항
-
-- Zustand persist 미들웨어 사용 권장
-- 로그아웃 시 LocalStorage 완전히 정리
 
 ---
 
-### [TASK-021] 라우팅 설정
+### Task 3.6: API 서비스 레이어 작성
 
-**우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-020
-
-#### 작업 내용
-
-- React Router 설정
-- Protected Route 컴포넌트 작성
-- 라우트 정의
-
-#### 완료 조건
-
-- [ ] `src/routes.jsx` 작성
-  - `/login` - 로그인 페이지
-  - `/register` - 회원가입 페이지
-  - `/` - 할일 목록 (Protected)
-  - `/trash` - 휴지통 (Protected)
-  - `/holidays` - 국경일 (Protected)
-  - `/profile` - 프로필 (Protected, P1)
-- [ ] `src/components/common/ProtectedRoute.jsx` 작성
-  - 인증되지 않은 사용자는 `/login`으로 리다이렉트
-  - `useAuth` 훅으로 로그인 상태 확인
-- [ ] `src/App.jsx`에 라우터 설정
-- [ ] 라우트 이동 테스트 완료
-
-#### 산출물
-
-- `frontend/src/routes.jsx`
-- `frontend/src/components/common/ProtectedRoute.jsx`
-- `frontend/src/App.jsx`
-
-#### 참고 사항
-
-- BrowserRouter 사용
-- 404 페이지 추가 (선택)
-
----
-
-### [TASK-022] 공통 컴포넌트 구현
-
-**우선순위**: P0
+**담당**: 프론트엔드 개발자
 **예상 시간**: 2시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-003
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- Button, Input, Modal 등 재사용 가능한 컴포넌트 작성
-- Tailwind CSS로 스타일링
+- `src/services/authService.js` 작성
+  - `login(email, password)`
+  - `register(email, password, username)`
+  - `refreshToken(refreshToken)`
+- `src/services/todoService.js` 작성
+  - `getTodos(filters)`
+  - `getTodoById(id)`
+  - `createTodo(todoData)`
+  - `updateTodo(id, updateData)`
+  - `completeTodo(id)`
+  - `deleteTodo(id)`
+  - `restoreTodo(id)`
+- `src/services/holidayService.js` 작성
+  - `getHolidays(year, month)`
+- `src/services/userService.js` 작성
+  - `getProfile()`
+  - `updateProfile(updateData)`
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/components/common/Button.jsx` 작성
-  - Props: variant (primary, secondary), size, onClick, disabled, children
-  - Tailwind 스타일 적용 (호버, 포커스 상태)
-- [ ] `src/components/common/Input.jsx` 작성
-  - Props: type, placeholder, value, onChange, error
+- [ ] 4개 서비스 파일 작성 완료
+- [ ] Axios 인스턴스 사용 확인
+- [ ] API 엔드포인트 상수 사용 확인
+
+**의존성**:
+
+- [ ] Task 3.3 완료 (Axios 인스턴스)
+
+**산출물**:
+
+- `frontend/src/services/authService.js`
+- `frontend/src/services/todoService.js`
+- `frontend/src/services/holidayService.js`
+- `frontend/src/services/userService.js`
+
+---
+
+### Task 3.7: Zustand 스토어 설정 (todoStore, holidayStore, uiStore)
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 2시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/stores/todoStore.js` 작성
+  - State: `todos`, `isLoading`, `error`, `filters`
+  - Actions: `fetchTodos()`, `createTodo()`, `updateTodo()`, `deleteTodo()`, `restoreTodo()`, `setFilters()`
+- `src/stores/holidayStore.js` 작성
+  - State: `holidays`, `isLoading`, `error`
+  - Actions: `fetchHolidays(year, month)`
+- `src/stores/uiStore.js` 작성
+  - State: `isModalOpen`, `modalType`, `selectedTodo`, `isDarkMode`
+  - Actions: `openModal()`, `closeModal()`, `toggleDarkMode()`
+
+**완료 조건**:
+
+- [ ] 3개 스토어 작성 완료
+- [ ] 서비스 레이어 호출 확인
+- [ ] 상태 업데이트 동작 확인
+
+**의존성**:
+
+- [ ] Task 3.6 완료 (서비스 레이어)
+
+**산출물**:
+
+- `frontend/src/stores/todoStore.js`
+- `frontend/src/stores/holidayStore.js`
+- `frontend/src/stores/uiStore.js`
+
+---
+
+### Task 3.8: 공통 컴포넌트 구현 (Button, Input, Modal)
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 3시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/components/common/Button.jsx` 작성
+  - 버튼 variants (primary, secondary, danger)
+  - 크기 옵션 (sm, md, lg)
+  - 로딩 상태 지원
+- `src/components/common/Input.jsx` 작성
+  - 입력 필드 (text, email, password, date)
   - 에러 상태 표시
-- [ ] `src/components/common/Modal.jsx` 작성
-  - Props: isOpen, onClose, title, children
-  - ESC 키로 닫기
-  - 배경 클릭 시 닫기
-- [ ] `src/components/common/Loading.jsx` 작성
-  - 스피너 애니메이션
-- [ ] Storybook 또는 간단한 테스트 페이지로 확인 (선택)
+  - 레이블 지원
+- `src/components/common/Modal.jsx` 작성
+  - 모달 오버레이
+  - 닫기 버튼
+  - 제목, 본문, 액션 슬롯
+- `src/components/common/Loading.jsx` 작성 (로딩 스피너)
 
-#### 산출물
+**완료 조건**:
+
+- [ ] 4개 공통 컴포넌트 작성 완료
+- [ ] Tailwind CSS 스타일링 적용
+- [ ] Props 검증 (PropTypes 또는 주석)
+- [ ] 재사용성 확인
+
+**의존성**:
+
+- [ ] Task 3.2 완료 (디렉토리 구조)
+
+**산출물**:
 
 - `frontend/src/components/common/Button.jsx`
 - `frontend/src/components/common/Input.jsx`
 - `frontend/src/components/common/Modal.jsx`
 - `frontend/src/components/common/Loading.jsx`
 
-#### 참고 사항
+---
 
-- 스타일 가이드 참조 (docs/4-style-guide.md)
-- 접근성 고려 (aria-label, role)
+### Task 3.9: 라우팅 설정 (React Router)
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 1.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/routes.jsx` 작성
+- 라우트 정의:
+  - `/login` (LoginPage)
+  - `/register` (RegisterPage)
+  - `/` (TodoListPage) - 인증 필요
+  - `/trash` (TrashPage) - 인증 필요
+  - `/holidays` (HolidayPage) - 인증 필요
+  - `/profile` (ProfilePage) - 인증 필요
+- Protected Route 컴포넌트 작성 (인증 체크)
+- 인증되지 않은 사용자는 `/login`으로 리다이렉트
+
+**완료 조건**:
+
+- [ ] 6개 라우트 정의 완료
+- [ ] Protected Route 동작 확인
+- [ ] 인증 체크 동작 확인
+- [ ] 리다이렉트 동작 확인
+
+**의존성**:
+
+- [ ] Task 3.5 완료 (authStore)
+
+**산출물**:
+
+- `frontend/src/routes.jsx`
+- `frontend/src/components/ProtectedRoute.jsx` (선택)
 
 ---
 
-### [TASK-023] 레이아웃 컴포넌트 구현
+### Task 3.10: 레이아웃 컴포넌트 구현 (Header, MainLayout)
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 2시간
 **우선순위**: P0
-**예상 시간**: 1.5시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-022
 
-#### 작업 내용
+**작업 내용**:
 
-- Header, MainLayout 컴포넌트 작성
-- 로그아웃 버튼 추가
-
-#### 완료 조건
-
-- [ ] `src/components/layout/Header.jsx` 작성
-  - 로고 또는 프로젝트 제목
-  - 사용자 이름 표시
+- `src/components/layout/Header.jsx` 작성
+  - 로고
+  - 네비게이션 링크 (할일 목록, 휴지통, 국경일, 프로필)
   - 로그아웃 버튼
-  - 네비게이션 링크 (할일 목록, 휴지통, 국경일)
-- [ ] `src/components/layout/MainLayout.jsx` 작성
-  - Header 포함
-  - children 렌더링 (페이지 컨텐츠)
-  - 반응형 레이아웃 (Tailwind)
-- [ ] 헤더 클릭 시 라우트 이동 확인
+  - 다크모드 토글 (선택)
+- `src/components/layout/MainLayout.jsx` 작성
+  - Header + 콘텐츠 영역
+  - 반응형 디자인
 
-#### 산출물
+**완료 조건**:
+
+- [ ] Header 컴포넌트 작성 완료
+- [ ] MainLayout 컴포넌트 작성 완료
+- [ ] 네비게이션 링크 동작 확인
+- [ ] 로그아웃 동작 확인
+- [ ] 반응형 디자인 확인
+
+**의존성**:
+
+- [ ] Task 3.5 완료 (authStore)
+- [ ] Task 3.9 완료 (라우팅)
+
+**산출물**:
 
 - `frontend/src/components/layout/Header.jsx`
 - `frontend/src/components/layout/MainLayout.jsx`
 
-#### 참고 사항
-
-- 모바일 반응형 고려 (햄버거 메뉴는 선택)
-- 헤더는 모든 페이지에서 공통 사용
-
 ---
 
-### [TASK-024] 로그인 및 회원가입 페이지 구현
+### Task 3.11: 인증 화면 구현 (로그인, 회원가입)
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 3시간
 **우선순위**: P0
-**예상 시간**: 2시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-020, TASK-022
 
-#### 작업 내용
+**작업 내용**:
 
-- 로그인 페이지 구현
-- 회원가입 페이지 구현
-- React Hook Form + Zod 검증
-
-#### 완료 조건
-
-- [ ] `src/pages/LoginPage.jsx` 작성
-  - 이메일, 비밀번호 입력 폼
-  - React Hook Form 사용
-  - Zod 스키마 검증
-  - 로그인 버튼 클릭 시 authStore.login() 호출
-  - 로그인 성공 시 `/`로 리다이렉트
-  - 에러 메시지 표시
-- [ ] `src/pages/RegisterPage.jsx` 작성
-  - 이메일, 비밀번호, 사용자 이름 입력 폼
+- `src/pages/LoginPage.jsx` 작성
+  - 이메일, 비밀번호 입력 필드
+  - 로그인 버튼
+  - 회원가입 링크
   - React Hook Form + Zod 검증
-  - 회원가입 API 호출 (`src/services/authService.js`)
-  - 성공 시 `/login`으로 리다이렉트
-- [ ] `src/services/authService.js` 작성
-  - `register(email, password, username)` - POST /api/auth/register
-  - `login(email, password)` - POST /api/auth/login
-- [ ] 로그인 및 회원가입 플로우 테스트
+  - authStore 연동
+  - 로그인 성공 시 `/` 이동
+- `src/pages/RegisterPage.jsx` 작성
+  - 이메일, 비밀번호, 사용자 이름 입력 필드
+  - 회원가입 버튼
+  - 로그인 링크
+  - React Hook Form + Zod 검증
+  - authStore 연동
+  - 회원가입 성공 시 `/login` 이동
+- 에러 메시지 표시
 
-#### 산출물
+**완료 조건**:
+
+- [ ] 로그인 페이지 작성 완료
+- [ ] 회원가입 페이지 작성 완료
+- [ ] 폼 검증 동작 확인
+- [ ] API 연동 확인
+- [ ] 에러 메시지 표시 확인
+- [ ] 페이지 전환 확인
+
+**의존성**:
+
+- [ ] Task 3.5 완료 (authStore)
+- [ ] Task 3.8 완료 (공통 컴포넌트)
+
+**산출물**:
 
 - `frontend/src/pages/LoginPage.jsx`
 - `frontend/src/pages/RegisterPage.jsx`
-- `frontend/src/services/authService.js`
-
-#### 참고 사항
-
-- Zod 스키마: 이메일 형식, 비밀번호 최소 6자
-- 로딩 상태 표시 (Button disabled)
 
 ---
 
-### [TASK-025] 할일 상태 관리 (Zustand)
+### Task 3.12: 할일 관련 컴포넌트 구현
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 4시간
 **우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-019
 
-#### 작업 내용
+**작업 내용**:
 
-- Zustand todoStore 생성
-- 할일 CRUD 액션 작성
-
-#### 완료 조건
-
-- [ ] `src/stores/todoStore.js` 작성
-  - 상태: `todos`, `filter`, `sortBy`, `loading`, `error`
-  - 액션:
-    - `fetchTodos(status)` - 할일 목록 조회
-    - `createTodo(data)` - 할일 생성
-    - `updateTodo(todoId, data)` - 할일 수정
-    - `deleteTodo(todoId)` - 할일 삭제 (휴지통 이동)
-    - `completeTodo(todoId)` - 할일 완료
-    - `restoreTodo(todoId)` - 할일 복원
-    - `setFilter(filter)` - 필터 설정
-    - `setSortBy(sortBy)` - 정렬 설정
-- [ ] `src/services/todoService.js` 작성
-  - API 호출 함수 작성
-
-#### 산출물
-
-- `frontend/src/stores/todoStore.js`
-- `frontend/src/services/todoService.js`
-
-#### 참고 사항
-
-- 에러 처리 로직 포함
-- 로딩 상태 관리 (loading: true/false)
-
----
-
-### [TASK-026] 할일 목록 페이지 구현
-
-**우선순위**: P0
-**예상 시간**: 3시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-025, TASK-023
-
-#### 작업 내용
-
-- 할일 목록 페이지 구현
-- 할일 카드 컴포넌트 작성
-- 필터 및 정렬 기능 추가
-
-#### 완료 조건
-
-- [ ] `src/pages/TodoListPage.jsx` 작성
-  - MainLayout 사용
-  - 할일 추가 버튼
-  - 할일 목록 렌더링
-  - 필터 드롭다운 (전체, 진행 중, 완료)
-  - 정렬 드롭다운 (날짜순, 생성일순)
-  - useEffect로 페이지 로드 시 할일 조회
-- [ ] `src/components/todo/TodoCard.jsx` 작성
-  - 할일 제목, 내용, 시작일, 만료일 표시
+- `src/components/todo/TodoCard.jsx` 작성
+  - 할일 제목, 내용, 날짜 표시
   - 완료 체크박스
-  - 수정 버튼 (모달 열기)
-  - 삭제 버튼
-  - 만료일 지난 할일은 빨간색 표시
-- [ ] `src/components/todo/TodoList.jsx` 작성
-  - TodoCard 배열 렌더링
-  - 빈 상태 처리 (할일 없음)
-- [ ] 할일 완료 처리 테스트
-- [ ] 할일 삭제 테스트 (휴지통 이동)
+  - 수정, 삭제 버튼
+  - 상태별 색상 구분 (진행 중: 주황, 완료: 초록)
+  - 만료일 지난 할일 표시
+- `src/components/todo/TodoList.jsx` 작성
+  - TodoCard 목록 렌더링
+  - 빈 상태 표시 ("할일이 없습니다")
+- `src/components/todo/TodoFilter.jsx` 작성
+  - 상태 필터 (전체, 진행 중, 완료)
+  - 정렬 옵션 (날짜, 생성일)
+  - 검색 입력 필드
 
-#### 산출물
+**완료 조건**:
 
-- `frontend/src/pages/TodoListPage.jsx`
+- [ ] 3개 컴포넌트 작성 완료
+- [ ] 할일 카드 스타일링 완료
+- [ ] 필터/검색 동작 확인
+- [ ] 상태별 색상 표시 확인
+
+**의존성**:
+
+- [ ] Task 3.8 완료 (공통 컴포넌트)
+
+**산출물**:
+
 - `frontend/src/components/todo/TodoCard.jsx`
 - `frontend/src/components/todo/TodoList.jsx`
-
-#### 참고 사항
-
-- 로딩 스피너 표시
-- 에러 메시지 표시
-- 반응형 그리드 레이아웃 (Tailwind)
+- `frontend/src/components/todo/TodoFilter.jsx`
 
 ---
 
-### [TASK-027] 할일 추가/수정 모달 구현
+### Task 3.13: 할일 목록 페이지 구현
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 3시간
 **우선순위**: P0
+
+**작업 내용**:
+
+- `src/pages/TodoListPage.jsx` 작성
+  - TodoFilter 컴포넌트 배치
+  - TodoList 컴포넌트 배치
+  - 할일 추가 버튼 (FAB)
+  - todoStore 연동
+  - 페이지 로드 시 할일 목록 조회
+  - 로딩 상태 표시
+  - 에러 상태 표시
+
+**완료 조건**:
+
+- [ ] 할일 목록 페이지 작성 완료
+- [ ] API 연동 확인
+- [ ] 필터링/검색 동작 확인
+- [ ] 로딩/에러 상태 표시 확인
+- [ ] 반응형 디자인 확인
+
+**의존성**:
+
+- [ ] Task 3.7 완료 (todoStore)
+- [ ] Task 3.12 완료 (할일 컴포넌트)
+
+**산출물**:
+
+- `frontend/src/pages/TodoListPage.jsx`
+
+---
+
+### Task 3.14: 할일 추가/수정 모달 구현
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 3시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- `src/components/todo/TodoForm.jsx` 작성
+  - 제목, 내용, 시작일, 만료일 입력 필드
+  - React Hook Form + Zod 검증
+  - 날짜 검증 (만료일 >= 시작일)
+  - 저장 버튼, 취소 버튼
+  - 추가/수정 모드 지원
+- Modal 컴포넌트와 통합
+- uiStore, todoStore 연동
+
+**완료 조건**:
+
+- [ ] TodoForm 컴포넌트 작성 완료
+- [ ] 모달 동작 확인
+- [ ] 폼 검증 동작 확인
+- [ ] API 연동 확인 (생성/수정)
+- [ ] 추가/수정 모드 전환 확인
+
+**의존성**:
+
+- [ ] Task 3.7 완료 (todoStore, uiStore)
+- [ ] Task 3.8 완료 (Modal 컴포넌트)
+
+**산출물**:
+
+- `frontend/src/components/todo/TodoForm.jsx`
+
+---
+
+### Task 3.15: 휴지통 페이지 구현
+
+**담당**: 프론트엔드 개발자
 **예상 시간**: 2시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-022, TASK-025
-
-#### 작업 내용
-
-- 할일 추가/수정 모달 구현
-- React Hook Form + Zod 검증
-
-#### 완료 조건
-
-- [ ] `src/components/todo/TodoFormModal.jsx` 작성
-  - Modal 컴포넌트 사용
-  - 제목, 내용, 시작일, 만료일 입력 폼
-  - React Hook Form 사용
-  - Zod 스키마 검증 (제목 필수, dueDate >= startDate)
-  - 저장 버튼 클릭 시 createTodo() 또는 updateTodo() 호출
-  - 성공 시 모달 닫기 및 목록 갱신
-- [ ] TodoListPage에서 모달 상태 관리
-  - 추가 버튼 클릭 시 모달 열기
-  - TodoCard 수정 버튼 클릭 시 모달 열기 (기존 데이터 전달)
-- [ ] 할일 추가 및 수정 플로우 테스트
-
-#### 산출물
-
-- `frontend/src/components/todo/TodoFormModal.jsx`
-
-#### 참고 사항
-
-- 날짜 입력은 `<input type="date">`
-- 만료일이 시작일보다 이전이면 에러 표시
-
----
-
-### [TASK-028] 휴지통 페이지 구현
-
 **우선순위**: P0
-**예상 시간**: 1.5시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-025
 
-#### 작업 내용
+**작업 내용**:
 
-- 휴지통 페이지 구현
-- 복원 및 영구 삭제 버튼 추가
+- `src/pages/TrashPage.jsx` 작성
+  - 삭제된 할일 목록 표시
+  - 복원 버튼
+  - 영구 삭제 버튼
+  - todoStore 연동 (status='deleted' 필터)
+  - 빈 상태 표시
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/pages/TrashPage.jsx` 작성
-  - MainLayout 사용
-  - 삭제된 할일 목록 렌더링
-  - 복원 버튼 (restoreTodo 호출)
-  - 영구 삭제 버튼 (확인 다이얼로그 후 hardDelete API 호출)
-- [ ] `src/services/trashService.js` 작성
-  - `getTrash()` - GET /api/trash
-  - `permanentDelete(todoId)` - DELETE /api/trash/:id
-- [ ] todoStore에 `hardDelete` 액션 추가
-- [ ] 복원 및 영구 삭제 플로우 테스트
+- [ ] 휴지통 페이지 작성 완료
+- [ ] API 연동 확인 (복원, 영구 삭제)
+- [ ] 버튼 동작 확인
+- [ ] 빈 상태 표시 확인
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 3.7 완료 (todoStore)
+- [ ] Task 3.12 완료 (TodoCard)
+
+**산출물**:
 
 - `frontend/src/pages/TrashPage.jsx`
-- `frontend/src/services/trashService.js`
-
-#### 참고 사항
-
-- 영구 삭제는 확인 다이얼로그 필수
-- 빈 휴지통 상태 표시
 
 ---
 
-### [TASK-029] 국경일 페이지 구현
+### Task 3.16: 국경일 페이지 구현
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 2시간
 **우선순위**: P0
-**예상 시간**: 1.5시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-023
 
-#### 작업 내용
+**작업 내용**:
 
-- 국경일 목록 페이지 구현
-- 연도/월별 필터 추가
-
-#### 완료 조건
-
-- [ ] `src/stores/holidayStore.js` 작성
-  - 상태: `holidays`, `year`, `month`, `loading`
-  - 액션: `fetchHolidays(year, month)`
-- [ ] `src/services/holidayService.js` 작성
-  - `getHolidays(year, month)` - GET /api/holidays
-- [ ] `src/pages/HolidayPage.jsx` 작성
-  - MainLayout 사용
-  - 연도/월 드롭다운 필터
-  - 국경일 목록 렌더링
-- [ ] `src/components/holiday/HolidayCard.jsx` 작성
+- `src/components/holiday/HolidayCard.jsx` 작성
   - 국경일 이름, 날짜, 설명 표시
-- [ ] 국경일 조회 테스트 (연도/월 필터)
+  - 빨간색 테마
+- `src/pages/HolidayPage.jsx` 작성
+  - HolidayCard 목록 렌더링
+  - 연도/월 필터
+  - holidayStore 연동
+  - 로딩 상태 표시
 
-#### 산출물
+**완료 조건**:
 
-- `frontend/src/stores/holidayStore.js`
-- `frontend/src/services/holidayService.js`
-- `frontend/src/pages/HolidayPage.jsx`
+- [ ] HolidayCard 컴포넌트 작성 완료
+- [ ] 국경일 페이지 작성 완료
+- [ ] API 연동 확인
+- [ ] 필터 동작 확인
+
+**의존성**:
+
+- [ ] Task 3.7 완료 (holidayStore)
+
+**산출물**:
+
 - `frontend/src/components/holiday/HolidayCard.jsx`
-
-#### 참고 사항
-
-- 현재 연도 기본값으로 설정
-- 국경일은 날짜순 정렬
+- `frontend/src/pages/HolidayPage.jsx`
 
 ---
 
-### [TASK-030] 프로필 페이지 구현 (선택)
+### Task 3.17: 프로필 페이지 구현
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 2시간
 **우선순위**: P1
-**예상 시간**: 1.5시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-020
 
-#### 작업 내용
+**작업 내용**:
 
-- 프로필 조회 및 수정 페이지 구현
+- `src/pages/ProfilePage.jsx` 작성
+  - 사용자 정보 표시 (이메일, 이름, 가입일)
+  - 사용자 이름 수정
+  - 비밀번호 변경
+  - authStore, userService 연동
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `src/pages/ProfilePage.jsx` 작성
-  - MainLayout 사용
-  - 사용자 이름 표시 및 수정 폼
-  - 비밀번호 변경 폼
-  - React Hook Form + Zod 검증
-- [ ] `src/services/userService.js` 작성
-  - `getMe()` - GET /api/users/me
-  - `updateMe(data)` - PATCH /api/users/me
-- [ ] 프로필 조회 및 수정 플로우 테스트
+- [ ] 프로필 페이지 작성 완료
+- [ ] API 연동 확인
+- [ ] 정보 수정 동작 확인
 
-#### 산출물
+**의존성**:
+
+- [ ] Task 3.5 완료 (authStore)
+- [ ] Task 3.6 완료 (userService)
+
+**산출물**:
 
 - `frontend/src/pages/ProfilePage.jsx`
-- `frontend/src/services/userService.js`
-
-#### 참고 사항
-
-- 비밀번호 변경 시 기존 비밀번호 확인 (선택)
-- 시간 부족 시 생략 가능
 
 ---
 
-### [TASK-031] 반응형 디자인 적용
+### Task 3.18: 반응형 디자인 적용
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 3시간
 **우선순위**: P0
-**예상 시간**: 2시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-026, TASK-028, TASK-029
 
-#### 작업 내용
+**작업 내용**:
 
-- 모바일 및 태블릿 반응형 스타일 적용
-- Tailwind 브레이크포인트 사용
+- Tailwind CSS 브레이크포인트 활용
+- 모바일 (< 768px) 최적화
+  - 헤더 네비게이션 → 햄버거 메뉴
+  - 할일 카드 스택 레이아웃
+  - 터치 친화적 버튼 크기 (44x44px 이상)
+- 태블릿/데스크톱 (>= 768px) 레이아웃
+- 모바일 테스트 (Chrome DevTools)
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] 모바일 (< 768px) 레이아웃 최적화
-  - 헤더 네비게이션 간소화 (햄버거 메뉴 선택)
-  - 할일 카드 1열 표시
-  - 버튼 크기 터치 친화적으로 (최소 44x44px)
-- [ ] 태블릿 (768px ~ 1024px) 레이아웃 최적화
-  - 할일 카드 2열 표시
-- [ ] 데스크톱 (1024px+) 레이아웃
-  - 할일 카드 3-4열 표시
-- [ ] Chrome DevTools로 반응형 테스트 완료
-- [ ] 실제 모바일 디바이스에서 테스트 (선택)
+- [ ] 모든 페이지 반응형 동작 확인
+- [ ] 모바일 화면에서 사용 가능
+- [ ] 터치 UI 최적화 확인
+- [ ] 크로스 브라우저 테스트 (Chrome, Safari)
 
-#### 산출물
+**의존성**:
 
-- 반응형 스타일이 적용된 모든 컴포넌트
+- [ ] Task 3.13, 3.15, 3.16, 3.17 완료 (모든 페이지)
 
-#### 참고 사항
+**산출물**:
 
-- Tailwind의 `sm:`, `md:`, `lg:` 브레이크포인트 활용
-- 모바일 먼저 작성 후 데스크톱 확장 (Mobile First)
+- 반응형 스타일 적용 완료
 
 ---
 
-### [TASK-032] 다크모드 구현 (선택)
+### Task 3.19: 다크모드 구현 (선택)
 
+**담당**: 프론트엔드 개발자
+**예상 시간**: 2시간
 **우선순위**: P1
+
+**작업 내용**:
+
+- Tailwind CSS `dark:` 유틸리티 사용
+- uiStore에 `isDarkMode` 상태 추가
+- LocalStorage에 다크모드 설정 저장
+- 시스템 설정 감지 (`prefers-color-scheme`)
+- Header에 다크모드 토글 버튼 추가
+
+**완료 조건**:
+
+- [ ] 다크모드 토글 동작 확인
+- [ ] LocalStorage 저장 확인
+- [ ] 모든 페이지 다크모드 적용 확인
+- [ ] 색상 대비 확인 (WCAG AA)
+
+**의존성**:
+
+- [ ] Task 3.18 완료 (반응형 디자인)
+
+**산출물**:
+
+- 다크모드 기능 완성
+
+---
+
+### Task 3.20: 프론트엔드 통합 테스트
+
+**담당**: 프론트엔드 개발자
 **예상 시간**: 2시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-031
-
-#### 작업 내용
-
-- Tailwind CSS 다크모드 설정
-- 테마 전환 버튼 추가
-
-#### 완료 조건
-
-- [ ] `tailwind.config.js`에 `darkMode: 'class'` 설정
-- [ ] `src/stores/uiStore.js` 작성
-  - 상태: `theme` (light, dark, system)
-  - 액션: `toggleTheme()`, `setTheme(theme)`
-- [ ] LocalStorage에 테마 설정 저장
-- [ ] 헤더에 테마 전환 버튼 추가
-- [ ] 모든 컴포넌트에 `dark:` 스타일 추가
-- [ ] 시스템 설정 감지 (`prefers-color-scheme`)
-
-#### 산출물
-
-- `frontend/src/stores/uiStore.js`
-- 다크모드 스타일이 적용된 모든 컴포넌트
-
-#### 참고 사항
-
-- 시간 부족 시 생략 가능
-- 다크모드 색상은 스타일 가이드 참조
-
----
-
-### [TASK-033] 에러 처리 및 로딩 상태 개선
-
-**우선순위**: P1
-**예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-026, TASK-028, TASK-029
-
-#### 작업 내용
-
-- 전역 에러 핸들러 추가
-- 로딩 스피너 개선
-- Toast 알림 추가 (선택)
-
-#### 완료 조건
-
-- [ ] 모든 API 호출에 try-catch 추가
-- [ ] 에러 메시지 사용자 친화적으로 표시
-- [ ] 로딩 상태 동안 스피너 표시
-- [ ] (선택) Toast 알림 라이브러리 추가 (react-hot-toast)
-- [ ] 네트워크 에러 처리 (오프라인 상태)
-
-#### 산출물
-
-- 에러 처리 로직이 추가된 모든 페이지 및 컴포넌트
-
-#### 참고 사항
-
-- 사용자에게 기술적 에러 메시지 노출 금지
-- Toast는 시간 여유 시 추가
-
----
-
-## Phase 5: 통합 및 배포
-
-### 목표
-
-프론트엔드-백엔드 통합 테스트 및 프로덕션 배포
-
----
-
-### [TASK-034] 통합 테스트 (E2E)
-
 **우선순위**: P0
-**예상 시간**: 2시간
-**담당 영역**: 전체
-**의존성**: TASK-026, TASK-028, TASK-029
 
-#### 작업 내용
+**작업 내용**:
 
-- 주요 사용자 플로우 수동 테스트
-- 버그 수정
-
-#### 완료 조건
-
-- [ ] 회원가입 → 로그인 → 할일 생성 플로우 테스트
-- [ ] 할일 수정 → 완료 → 삭제 → 복원 플로우 테스트
-- [ ] 휴지통 영구 삭제 플로우 테스트
-- [ ] 국경일 조회 플로우 테스트
-- [ ] 토큰 만료 시 자동 갱신 테스트
-- [ ] 권한 없는 사용자 접근 차단 테스트
-- [ ] 발견된 버그 수정 및 재테스트
-
-#### 산출물
-
-- 테스트 결과 보고서 (간단한 체크리스트)
-
-#### 참고 사항
-
-- Chrome, Firefox, Safari에서 테스트
-- 모바일 브라우저에서도 테스트
-
----
-
-### [TASK-035] 환경 변수 설정 (프로덕션)
-
-**우선순위**: P0
-**예상 시간**: 30분
-**담당 영역**: 전체
-**의존성**: TASK-034
-
-#### 작업 내용
-
-- 프로덕션 환경 변수 설정
-- Vercel, Supabase 설정 확인
-
-#### 완료 조건
-
-- [ ] `backend/.env.production` 작성 (Git 제외)
-  - DATABASE_URL (Supabase 프로덕션)
-  - JWT_SECRET (안전한 랜덤 문자열)
-  - NODE_ENV=production
-- [ ] `frontend/.env.production` 작성
-  - VITE_API_URL (Vercel 백엔드 URL)
-- [ ] Vercel 환경 변수 설정 (대시보드)
-- [ ] Supabase Connection Pooling 설정 확인
-
-#### 산출물
-
-- `.env.production` 파일 (로컬 보관, Git 제외)
-
-#### 참고 사항
-
-- JWT_SECRET은 최소 32자 이상
-- DATABASE_URL은 Connection Pooling URL 사용 권장
-
----
-
-### [TASK-036] 백엔드 Vercel 배포
-
-**우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 백엔드
-**의존성**: TASK-035
-
-#### 작업 내용
-
-- Vercel Serverless Functions로 백엔드 배포
-- API 엔드포인트 테스트
-
-#### 완료 조건
-
-- [ ] `vercel.json` 파일 생성 (백엔드 폴더)
-  - rewrites 설정으로 `/api/*` → Serverless Functions
-- [ ] Vercel CLI 설치 (`npm i -g vercel`)
-- [ ] 백엔드 폴더에서 `vercel` 명령 실행
-- [ ] 환경 변수 설정 (Vercel 대시보드)
-- [ ] 배포 완료 후 URL 확인
-- [ ] Postman으로 프로덕션 API 테스트
-  - 회원가입, 로그인 성공 확인
-  - 할일 CRUD 테스트
-
-#### 산출물
-
-- `backend/vercel.json`
-- 배포된 백엔드 URL
-
-#### 참고 사항
-
-- Serverless Functions는 `/api` 폴더에 배치 필요
-- Vercel 무료 티어 제한 확인
-
----
-
-### [TASK-037] 프론트엔드 Vercel 배포
-
-**우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 프론트엔드
-**의존성**: TASK-036
-
-#### 작업 내용
-
-- Vercel로 프론트엔드 배포
-- 빌드 최적화
-
-#### 완료 조건
-
-- [ ] `frontend/.env.production`에 `VITE_API_URL` 설정 (백엔드 URL)
-- [ ] Vite 빌드 테스트 (`npm run build`)
-- [ ] 빌드 결과 확인 (`dist/` 폴더)
-- [ ] Vercel CLI로 배포 (`vercel --prod`)
-- [ ] 환경 변수 설정 (Vercel 대시보드)
-- [ ] 배포 완료 후 URL 확인
-- [ ] 프로덕션 사이트 접속 테스트
-  - 회원가입, 로그인
-  - 할일 생성, 수정, 삭제
-  - 휴지통 복원
+- 전체 사용자 플로우 테스트
+  - 회원가입 → 로그인 → 할일 추가 → 수정 → 완료 → 삭제 → 복원 → 영구 삭제
   - 국경일 조회
+  - 프로필 수정
+  - 로그아웃
+- 버그 수정
+- 성능 확인 (React DevTools Profiler)
 
-#### 산출물
+**완료 조건**:
 
-- 배포된 프론트엔드 URL
+- [ ] 전체 플로우 정상 동작 확인
+- [ ] 발견된 버그 수정 완료
+- [ ] 성능 이슈 없음
 
-#### 참고 사항
+**의존성**:
 
-- Vercel은 Git 연동 시 자동 배포 가능
-- 빌드 로그 확인하여 에러 체크
+- [ ] Phase 3의 모든 Task 완료
+
+**산출물**:
+
+- 테스트 결과 메모
+- 버그 수정 완료
 
 ---
 
-### [TASK-038] 프로덕션 테스트 및 최종 점검
+## Phase 4: 통합 및 배포
 
+**총 예상 시간**: 4-6시간
+**담당**: 풀스택 개발자
+**목표**: 프론트엔드-백엔드 통합, 배포, 프로덕션 테스트
+
+---
+
+### Task 4.1: 프론트엔드-백엔드 통합 테스트
+
+**담당**: 풀스택 개발자
+**예상 시간**: 2시간
 **우선순위**: P0
-**예상 시간**: 1시간
-**담당 영역**: 전체
-**의존성**: TASK-037
 
-#### 작업 내용
+**작업 내용**:
 
-- 프로덕션 환경에서 전체 플로우 테스트
-- 성능 측정 및 최적화
+- 로컬 환경에서 프론트엔드와 백엔드 동시 실행
+- CORS 설정 확인
+- API 연동 확인
+- JWT 인증 플로우 테스트
+- 에러 핸들링 확인
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] 프로덕션 URL로 전체 사용자 플로우 테스트
-- [ ] 브라우저 개발자 도구로 네트워크 요청 확인
-  - API 응답 시간 1초 이내
-  - HTTPS 사용 확인
-  - CORS 에러 없음
-- [ ] Lighthouse 성능 측정
-  - Performance: 70점 이상
-  - Accessibility: 90점 이상
-- [ ] 모바일 디바이스에서 테스트
-- [ ] 보안 체크
-  - JWT 토큰 노출 여부 확인
-  - 환경 변수 유출 확인
-  - HTTPS 적용 확인
+- [ ] 프론트엔드에서 백엔드 API 호출 성공
+- [ ] 인증 플로우 정상 동작
+- [ ] CORS 문제 없음
+- [ ] 에러 메시지 정상 표시
 
-#### 산출물
+**의존성**:
 
-- Lighthouse 성능 보고서
-- 최종 테스트 체크리스트
+- [ ] Phase 2 완료 (백엔드)
+- [ ] Phase 3 완료 (프론트엔드)
 
-#### 참고 사항
+**산출물**:
 
-- 성능 이슈 발견 시 번들 크기 확인
-- 에러 모니터링 도구 추가 (선택, Sentry 등)
+- 통합 테스트 결과
 
 ---
 
-### [TASK-039] 문서화 완료
+### Task 4.2: Supabase PostgreSQL 설정
 
-**우선순위**: P1
+**담당**: 백엔드 개발자
 **예상 시간**: 1시간
-**담당 영역**: 전체
-**의존성**: TASK-038
+**우선순위**: P0
 
-#### 작업 내용
+**작업 내용**:
 
-- README.md 업데이트
-- API 문서 정리
-- 배포 가이드 작성
+- Supabase 계정 생성
+- 새 프로젝트 생성
+- PostgreSQL 데이터베이스 확인
+- 연결 문자열 복사
+- 로컬 `schema.sql`을 Supabase에 실행
+- 국경일 데이터 삽입
+- 연결 테스트
 
-#### 완료 조건
+**완료 조건**:
 
-- [ ] `README.md` 업데이트
-  - 프로젝트 소개
+- [ ] Supabase 프로젝트 생성 완료
+- [ ] 데이터베이스 스키마 생성 완료
+- [ ] 초기 데이터 삽입 완료
+- [ ] 연결 문자열 확인
+
+**의존성**:
+
+- [ ] Task 1.2, 1.3, 1.4 완료 (스키마 작성)
+
+**산출물**:
+
+- Supabase 프로젝트
+- 연결 문자열 (`DATABASE_URL`)
+
+---
+
+### Task 4.3: Vercel 백엔드 배포
+
+**담당**: 백엔드 개발자
+**예상 시간**: 1시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- GitHub 레포지토리에 코드 푸시
+- Vercel 계정 생성 및 연결
+- `backend/` 디렉토리를 Serverless Functions로 배포
+- 환경 변수 설정 (Vercel 대시보드)
+  - `DATABASE_URL`
+  - `JWT_SECRET`
+  - `JWT_ACCESS_EXPIRATION`
+  - `JWT_REFRESH_EXPIRATION`
+  - `NODE_ENV=production`
+- 배포 성공 확인
+
+**완료 조건**:
+
+- [ ] Vercel 배포 성공
+- [ ] 환경 변수 설정 완료
+- [ ] API 엔드포인트 접근 가능 (`https://your-app.vercel.app/api`)
+- [ ] Supabase 연결 확인
+
+**의존성**:
+
+- [ ] Task 4.2 완료 (Supabase 설정)
+- [ ] Phase 2 완료 (백엔드 개발)
+
+**산출물**:
+
+- 백엔드 배포 URL
+
+---
+
+### Task 4.4: Vercel 프론트엔드 배포
+
+**담당**: 프론트엔드 개발자
+**예상 시간**: 1시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- GitHub 레포지토리에 코드 푸시 (프론트엔드)
+- Vercel 프로젝트 생성 (frontend 디렉토리)
+- 환경 변수 설정
+  - `VITE_API_BASE_URL=https://your-app.vercel.app/api`
+- 빌드 설정 확인 (Vite)
+- 배포 성공 확인
+
+**완료 조건**:
+
+- [ ] Vercel 배포 성공
+- [ ] 환경 변수 설정 완료
+- [ ] 프론트엔드 접근 가능 (`https://your-frontend.vercel.app`)
+- [ ] 백엔드 API 연동 확인
+
+**의존성**:
+
+- [ ] Task 4.3 완료 (백엔드 배포)
+- [ ] Phase 3 완료 (프론트엔드 개발)
+
+**산출물**:
+
+- 프론트엔드 배포 URL
+
+---
+
+### Task 4.5: 프로덕션 환경 테스트
+
+**담당**: 풀스택 개발자
+**예상 시간**: 1.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- 배포된 프론트엔드에서 전체 플로우 테스트
+- 회원가입 → 로그인 → 할일 CRUD → 휴지통 → 국경일 조회 → 프로필 → 로그아웃
+- 성능 확인 (Lighthouse)
+- 보안 확인 (HTTPS, CORS, Rate Limiting)
+- 크로스 브라우저 테스트
+- 모바일 테스트
+
+**완료 조건**:
+
+- [ ] 전체 플로우 정상 동작
+- [ ] Lighthouse 점수 80+ (Performance, Accessibility)
+- [ ] HTTPS 정상 동작
+- [ ] 크로스 브라우저 정상 동작
+- [ ] 모바일 정상 동작
+
+**의존성**:
+
+- [ ] Task 4.4 완료 (프론트엔드 배포)
+
+**산출물**:
+
+- 프로덕션 테스트 결과
+
+---
+
+### Task 4.6: 문서화 및 README 작성
+
+**담당**: 프로젝트 매니저
+**예상 시간**: 1시간
+**우선순위**: P1
+
+**작업 내용**:
+
+- `README.md` 작성
+  - 프로젝트 개요
   - 기술 스택
-  - 로컬 개발 환경 설정 방법
-  - 프로덕션 URL
-  - 스크린샷 추가 (선택)
-- [ ] `docs/API.md` 작성 (선택)
-  - 주요 API 엔드포인트 정리
-  - 요청/응답 예시
-- [ ] `docs/DEPLOYMENT.md` 작성
-  - 배포 절차
-  - 환경 변수 목록
-  - 트러블슈팅
+  - 설치 및 실행 방법
+  - 환경 변수 설정 가이드
+  - API 문서 링크
+  - 배포 URL
+  - 스크린샷 (선택)
+- `backend/README.md` 작성 (API 문서)
+- `frontend/README.md` 작성 (컴포넌트 구조)
 
-#### 산출물
+**완료 조건**:
 
-- 업데이트된 `README.md`
-- `docs/API.md`
-- `docs/DEPLOYMENT.md`
+- [ ] 루트 README 작성 완료
+- [ ] 백엔드 README 작성 완료 (선택)
+- [ ] 프론트엔드 README 작성 완료 (선택)
 
-#### 참고 사항
+**의존성**:
 
-- 스크린샷은 실제 프로덕션 화면 캡처
-- 시간 부족 시 README만 업데이트
+- [ ] Phase 4의 모든 Task 완료
+
+**산출물**:
+
+- `README.md`
+
+---
+
+### Task 4.7: 최종 점검 및 런칭
+
+**담당**: 프로젝트 매니저
+**예상 시간**: 0.5시간
+**우선순위**: P0
+
+**작업 내용**:
+
+- 모든 Task 완료 확인
+- 체크리스트 점검
+- 배포 URL 공유
+- 런칭 공지 (선택)
+
+**완료 조건**:
+
+- [ ] 모든 P0 기능 동작 확인
+- [ ] 배포 URL 확인
+- [ ] 문서화 완료
+
+**의존성**:
+
+- [ ] 모든 Task 완료
+
+**산출물**:
+
+- 런칭 완료
+
+---
+
+## 전체 일정 요약
+
+### Phase별 소요 시간
+
+| Phase       | 단계              | 예상 시간     | 실제 소요 시간 | 상태 |
+| ----------- | ----------------- | ------------- | -------------- | ---- |
+| **Phase 1** | 데이터베이스 구축 | 3-4시간       | -              | 대기 |
+| **Phase 2** | 백엔드 개발       | 16-18시간     | -              | 대기 |
+| **Phase 3** | 프론트엔드 개발   | 28-32시간     | -              | 대기 |
+| **Phase 4** | 통합 및 배포      | 4-6시간       | -              | 대기 |
+| **총합**    | -                 | **51-60시간** | -              | -    |
+
+### 일정별 작업 계획 (3-4일 집중 개발 기준)
+
+#### Day 1 (8-10시간)
+
+- **오전**: Phase 1 완료 (DB 구축)
+- **오후**: Phase 2 시작 (백엔드 프로젝트 초기화, 인증 API)
+
+#### Day 2 (8-10시간)
+
+- **종일**: Phase 2 계속 (할일 API, 휴지통 API, 국경일 API, 테스트)
+
+#### Day 3 (10-12시간)
+
+- **오전**: Phase 3 시작 (프론트엔드 초기화, 공통 컴포넌트, 인증 화면)
+- **오후**: Phase 3 계속 (할일 목록, 모달)
+
+#### Day 4 (10-12시간)
+
+- **오전**: Phase 3 완료 (휴지통, 국경일, 프로필, 반응형)
+- **오후**: Phase 4 (통합, 배포, 테스트, 런칭)
+
+### 병렬 작업 가능 항목
+
+**독립적으로 수행 가능한 작업**:
+
+- Phase 1 (DB 구축)와 Phase 3 (프론트엔드 초기화)는 병렬 가능
+- 백엔드 API 개발 중 프론트엔드 공통 컴포넌트 작업 병렬 가능
+- 문서화는 다른 작업과 병렬 가능
 
 ---
 
@@ -1657,143 +1695,135 @@ React 기반 사용자 인터페이스 구현 및 API 연동
 
 ### 주요 리스크 및 대응 방안
 
-| 리스크                          | 확률   | 영향도 | 대응 방안                                                                                              |
-| ------------------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------ |
-| **Prisma + Supabase 연동 이슈** | Medium | High   | - Prisma 공식 Supabase 가이드 참조<br>- Connection String 형식 확인<br>- 로컬 PostgreSQL로 백업 테스트 |
-| **JWT 토큰 갱신 로직 복잡도**   | Medium | Medium | - 인터셉터 패턴 사용<br>- 토큰 갱신 실패 시 로그아웃 처리<br>- 테스트 철저히                           |
-| **프론트엔드 개발 지연**        | High   | High   | - P1 기능 제외 (다크모드, 프로필 페이지)<br>- UI 단순화<br>- 테스트 자동화 생략                        |
-| **Vercel 배포 설정 이슈**       | Medium | Medium | - Vercel 템플릿 활용<br>- 로컬 빌드 먼저 테스트<br>- 환경 변수 설정 체크리스트 작성                    |
-| **CORS 에러**                   | Low    | Medium | - CORS 미들웨어 설정 확인<br>- 프론트엔드 URL 정확히 설정                                              |
-| **성능 이슈**                   | Low    | Medium | - 인덱싱 적용<br>- 불필요한 렌더링 최소화<br>- Lazy Loading 적용                                       |
+| 리스크                   | 영향도 | 확률   | 대응 방안                                                         |
+| ------------------------ | ------ | ------ | ----------------------------------------------------------------- |
+| **백엔드 개발 지연**     | High   | Medium | - P1 기능 제외 (프로필 수정, 관리자 기능)<br>- Rate Limiting 생략 |
+| **프론트엔드 개발 지연** | High   | Medium | - 다크모드 생략<br>- 검색/필터 단순화<br>- 프로필 페이지 생략     |
+| **Supabase 연결 문제**   | Medium | Low    | - 로컬 PostgreSQL 백업 사용<br>- Supabase 문서 참조               |
+| **Vercel 배포 실패**     | Medium | Low    | - 로컬 테스트 철저히<br>- Vercel 로그 확인<br>- 커뮤니티 지원     |
+| **JWT 토큰 관리 이슈**   | Medium | Medium | - 토큰 갱신 로직 단순화<br>- Refresh Token 생략 고려              |
+| **시간 부족**            | High   | Medium | - P0 기능만 우선 구현<br>- 2차 개발로 미루기                      |
 
-### 일정 지연 시 우선순위 조정
+### 우선순위별 기능 분류
 
-**필수 유지 (P0)**:
+**P0 (Must-have) - 필수 구현**:
 
-- TASK-001 ~ TASK-017 (환경 설정, 데이터베이스, 백엔드 핵심 API)
-- TASK-019 ~ TASK-029 (프론트엔드 핵심 기능)
-- TASK-034 ~ TASK-038 (통합 테스트 및 배포)
+- 회원가입, 로그인
+- 할일 CRUD
+- 휴지통 (복원, 영구 삭제)
+- 국경일 조회
+- 반응형 디자인 (모바일 기본)
 
-**생략 가능 (P1, P2)**:
+**P1 (Should-have) - 시간 허용 시 구현**:
 
-- TASK-004 (개발 도구 설정)
-- TASK-008 (시드 데이터)
-- TASK-016 (사용자 프로필 API)
-- TASK-017 (Rate Limiting)
-- TASK-018 (백엔드 통합 테스트)
-- TASK-030 (프로필 페이지)
-- TASK-032 (다크모드)
-- TASK-033 (에러 처리 개선)
-- TASK-039 (문서화)
+- 토큰 갱신
+- 프로필 수정
+- 다크모드
+- 검색/필터
+- 국경일 추가/수정 (관리자)
+- Rate Limiting
 
----
+**P2 (Nice-to-have) - 2차 개발**:
 
-## 진행 상황 추적
-
-### Task 진행 상태 표기
-
-- ⬜ 대기 중 (Not Started)
-- 🔵 진행 중 (In Progress)
-- ✅ 완료 (Completed)
-- ⚠️ 블로킹 이슈 (Blocked)
-- ❌ 취소 (Cancelled)
-
-### 일일 체크인 체크리스트
-
-**매일 작업 전**:
-
-- [ ] 오늘 완료할 Task 확인
-- [ ] 의존성 Task 완료 여부 확인
-- [ ] 블로킹 이슈 해결 방안 수립
-
-**매일 작업 후**:
-
-- [ ] 완료 조건 체크리스트 확인
-- [ ] Git 커밋 및 푸시
-- [ ] 다음 날 작업 계획 수립
+- 캘린더 뷰
+- 통계 대시보드
+- 알림 기능
+- 협업 기능
 
 ---
 
-## 부록
+## 체크리스트
 
-### 참조 문서
+### Phase 1: 데이터베이스
 
-- [도메인 정의서](./1-domain-definition.md)
-- [PRD](./3-prd.md)
-- [프로젝트 구조](./5-project-structure.md)
-- [아키텍처 다이어그램](./5-arch-diagram.md)
-- [스타일 가이드](./4-style-guide.md)
+- [ ] PostgreSQL 설치 및 실행
+- [ ] 데이터베이스 생성 (`whs_todolist_dev`)
+- [ ] `schema.sql` 작성 및 실행
+- [ ] 테이블 3개 생성 확인
+- [ ] 인덱스 설정 확인
+- [ ] 국경일 초기 데이터 삽입
 
-### 유용한 명령어
+### Phase 2: 백엔드
 
-**백엔드**:
+- [ ] 프로젝트 초기화 (npm, 패키지 설치)
+- [ ] 디렉토리 구조 생성
+- [ ] DB 연결 설정
+- [ ] JWT 유틸리티 작성
+- [ ] 인증 미들웨어 작성
+- [ ] 인증 API 구현 (회원가입, 로그인, 토큰 갱신)
+- [ ] 할일 CRUD API 구현
+- [ ] 휴지통 API 구현
+- [ ] 국경일 API 구현
+- [ ] Rate Limiting 설정 (P1)
+- [ ] 에러 핸들링 미들웨어
+- [ ] 전체 API 테스트
 
-```bash
-# 개발 서버 시작
-npm run dev
+### Phase 3: 프론트엔드
 
-# Prisma 마이그레이션
-npx prisma migrate dev
+- [ ] 프로젝트 초기화 (Vite, React, Tailwind)
+- [ ] 디렉토리 구조 생성
+- [ ] Axios 인스턴스 설정
+- [ ] Zustand 스토어 설정 (auth, todo, holiday, ui)
+- [ ] API 서비스 레이어 작성
+- [ ] 공통 컴포넌트 구현 (Button, Input, Modal)
+- [ ] 라우팅 설정
+- [ ] 레이아웃 컴포넌트 (Header, MainLayout)
+- [ ] 인증 화면 (로그인, 회원가입)
+- [ ] 할일 목록 페이지
+- [ ] 할일 추가/수정 모달
+- [ ] 휴지통 페이지
+- [ ] 국경일 페이지
+- [ ] 프로필 페이지 (P1)
+- [ ] 반응형 디자인
+- [ ] 다크모드 (P1)
+- [ ] 통합 테스트
 
-# Prisma Studio
-npx prisma studio
+### Phase 4: 통합 및 배포
 
-# 빌드
-npm run build
-```
-
-**프론트엔드**:
-
-```bash
-# 개발 서버 시작
-npm run dev
-
-# 빌드
-npm run build
-
-# 빌드 미리보기
-npm run preview
-```
-
-**배포**:
-
-```bash
-# Vercel 배포
-vercel --prod
-
-# Vercel 환경 변수 설정
-vercel env add
-```
-
-### 트러블슈팅
-
-**문제: Prisma 마이그레이션 실패**
-
-- 해결: `npx prisma migrate reset` 후 재시도
-- 원인: 스키마 변경 충돌
-
-**문제: CORS 에러**
-
-- 해결: `backend/src/app.js`에서 CORS origin 확인
-- 원인: 프론트엔드 URL이 허용 목록에 없음
-
-**문제: JWT 토큰 만료 후 갱신 실패**
-
-- 해결: Refresh Token 만료 시간 확인
-- 원인: Refresh Token도 만료됨
-
-**문제: Vercel 배포 후 API 호출 실패**
-
-- 해결: 환경 변수 설정 확인 (DATABASE_URL, JWT_SECRET)
-- 원인: 환경 변수 누락
+- [ ] 로컬 통합 테스트
+- [ ] Supabase PostgreSQL 설정
+- [ ] Vercel 백엔드 배포
+- [ ] Vercel 프론트엔드 배포
+- [ ] 환경 변수 설정 (프로덕션)
+- [ ] 프로덕션 환경 테스트
+- [ ] 성능 확인 (Lighthouse)
+- [ ] 문서화 (README)
+- [ ] 최종 점검 및 런칭
 
 ---
 
-## 변경 이력
+## 성공 기준
 
-| 버전 | 날짜       | 변경 내용 | 작성자 |
-| ---- | ---------- | --------- | ------ |
-| 1.0  | 2025-11-26 | 초안 작성 | Claude |
+### 기술적 성공 기준
+
+- [ ] 모든 P0 기능 정상 동작
+- [ ] API 응답 시간 1초 이내
+- [ ] 페이지 로딩 시간 3초 이내
+- [ ] 크로스 브라우저 호환성 (Chrome, Safari, Firefox)
+- [ ] 모바일 반응형 디자인 동작
+- [ ] HTTPS 적용
+- [ ] JWT 인증 정상 동작
+
+### 비즈니스 성공 기준
+
+- [ ] MVP 기능 100% 구현 (P0)
+- [ ] 4일 이내 런칭
+- [ ] 사용자 플로우 완성도
+- [ ] 문서화 완료
+
+---
+
+## 다음 단계 (2차 개발)
+
+**Phase 5 계획** (런칭 후):
+
+1. 캘린더 뷰 구현
+2. 통계 대시보드
+3. 이메일 알림
+4. 할일 카테고리/태그
+5. 협업 기능
+6. 성능 최적화 (Redis 캐싱)
+7. E2E 테스트 추가
 
 ---
 
