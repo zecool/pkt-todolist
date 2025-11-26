@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum TodoStatus {
+  active
+  completed
+  deleted
+}
+
+model User {
+  userId    String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  username  String   @db.VarChar(100)
+  role      Role     @default(user)
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+  
+  todos     Todo[]
+}
+
+model Todo {
+  todoId      String     @id @default(uuid()) @db.Uuid
+  userId      String     @db.Uuid
+  title       String     @db.VarChar(255)
+  content     String?
+  startDate   DateTime?  @db.Date
+  dueDate     DateTime?  @db.Date
+  status      TodoStatus @default(active)
+  isCompleted Boolean    @default(false)
+  createdAt   DateTime   @default(now()) @db.Timestamptz()
+  updatedAt   DateTime   @default(now()) @updatedAt @db.Timestamptz()
+  deletedAt   DateTime?  @db.Timestamptz()
+
+  user        User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([dueDate])
+  @@index([deletedAt])
+}
+
+model Holiday {
+  holidayId   String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(255)
+  date        DateTime @db.Date
+  description String?
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now()) @db.Timestamptz()
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  @@index([date])
+}
