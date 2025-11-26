@@ -1,527 +1,294 @@
-# Product Requirements Document (PRD)
-# pkt-todolist - 사용자 인증 기반 할일 관리 애플리케이션
+# pkt-todolist Product Requirements Document (PRD)
+
+**버전**: 1.0
+**작성일**: 2025-11-25
+**상태**: 최종
+**작성자**: Claude
+**참조 문서**:
+- [도메인 정의서](./1-domain-definition.md)
+- [PRD 입력 템플릿](./2-prd-input-template.md)
+- [스타일 가이드](./4-style-guide.md)
 
 ---
 
-## 문서 정보
+## 목차
 
-| 항목 | 내용 |
-|------|------|
-| **문서 버전** | 1.0 |
-| **작성일** | 2025-11-25 |
-| **최종 수정일** | 2025-11-25 |
-| **작성자** | Product Manager (Claude Code) |
-| **검토자** | TBD |
-| **승인자** | TBD |
-| **문서 상태** | Draft |
-| **다음 검토일** | TBD |
-| **관련 문서** | [도메인 정의서](./1-domain-definition.md) |
-
----
-
-## 변경 이력
-
-| 버전 | 날짜 | 작성자 | 변경 내용 |
-|------|------|--------|-----------|
-| 1.0 | 2025-11-25 | Product Manager | 최초 작성 - 도메인 정의서 기반 PRD 생성 |
-
----
-
-## 용어 정의
-
-| 용어 | 정의 |
-|------|------|
-| **공통 일정** | 대한민국 국경일 및 법정 공휴일 (설날, 추석, 광복절 등)을 의미. 향후 기념일, 24절기 등으로 확장 가능 |
-| **휴지통** | 삭제된 할일이 임시 보관되는 공간. 30일간 보관 후 자동 영구 삭제 |
-| **MVP** | Minimum Viable Product의 약자로, 최소 기능 제품을 의미 |
-| **MAU** | Monthly Active Users의 약자로, 월간 활성 사용자 수 |
-| **DAU** | Daily Active Users의 약자로, 일간 활성 사용자 수 |
-| **소프트 삭제** | 데이터를 물리적으로 삭제하지 않고 상태만 변경하여 복구 가능하도록 하는 삭제 방식 |
+1. [제품 개요](#1-제품-개요)
+2. [제품 비전 및 목표](#2-제품-비전-및-목표)
+3. [타겟 사용자](#3-타겟-사용자)
+4. [성공 지표 (KPI)](#4-성공-지표-kpi)
+5. [기능 요구사항](#5-기능-요구사항)
+6. [비기능 요구사항](#6-비기능-요구사항)
+7. [기술 스택](#7-기술-스택)
+8. [데이터 모델](#8-데이터-모델)
+9. [API 설계](#9-api-설계)
+10. [UI/UX 요구사항](#10-uiux-요구사항)
+11. [일정 및 마일스톤](#11-일정-및-마일스톤)
+12. [리스크 및 제약사항](#12-리스크-및-제약사항)
 
 ---
 
 ## 1. 제품 개요
 
-### 1.1 제품 비전
+### 1.1 제품 설명
 
-**pkt-todolist**는 개인의 할일과 국가 공통 일정을 통합하여 관리할 수 있는 직관적인 할일 관리 애플리케이션입니다. 사용자가 실수로 삭제한 할일을 복구할 수 있는 안전망을 제공하며, 시작일과 만료일 기반의 체계적인 일정 관리를 통해 개인의 생산성을 향상시킵니다.
+**pkt-todolist**는 사용자 인증 기반의 개인 할일 관리 애플리케이션으로, 사용자별 할일 목록과 공통 국경일 일정을 통합 관리하는 웹 애플리케이션입니다.
 
-**핵심 비전:**
-"사용자들이 실수 걱정 없이 안전하게 일정을 관리하고, 개인 할일과 공통 일정을 한눈에 파악하여 더 효율적인 시간 관리를 할 수 있도록 돕습니다."
+### 1.2 핵심 가치
 
----
+- **단순함**: 복잡하지 않고 직관적인 사용자 경험
+- **통합 관리**: 개인 할일과 국경일을 한 곳에서 관리
+- **복원 가능성**: 휴지통 기능을 통한 안전한 삭제 관리
+- **접근성**: 데스크톱과 모바일 모두 지원
 
-### 1.2 제품의 핵심 가치 제안 (Value Proposition)
+### 1.3 주요 특징
 
-사용자가 이 제품을 사용해야 하는 3가지 이유:
-
-1. **안전한 할일 관리** - 삭제된 할일을 휴지통에서 30일간 보관하여 실수로 인한 데이터 손실을 방지하고 언제든 복구 가능
-
-2. **통합 일정 관리** - 개인 할일과 국경일 등 공통 일정을 하나의 화면에서 통합하여 관리함으로써 중요한 일정을 놓치지 않음
-
-3. **직관적인 시간 기반 관리** - 시작일과 만료일을 설정하여 할일의 우선순위를 시각적으로 파악하고, 만료일 임박 시 강조 표시로 효율적인 시간 관리 지원
-
----
-
-### 1.3 경쟁 우위
-
-**기존 할일 관리 도구와의 차별점:**
-
-| 경쟁사 | pkt-todolist의 차별점 |
-|--------|----------------------|
-| **Todoist** | - 복잡한 기능 대신 핵심 기능에 집중한 단순함<br>- 한국 사용자를 위한 국경일 자동 통합<br>- 30일 휴지통 보관으로 더 긴 복구 기간 제공 |
-| **Notion** | - 할일 관리에 특화된 가벼운 인터페이스<br>- 학습 곡선 없이 즉시 사용 가능<br>- 빠른 로딩 속도와 반응성 |
-| **Trello** | - 카드 기반이 아닌 리스트 기반의 간결한 UI<br>- 개인 사용자에 최적화된 단순한 구조<br>- 시작일/만료일 기반의 명확한 일정 관리 |
-
-**핵심 차별화 요소:**
-- 실수 방지 중심의 안전한 삭제 메커니즘
-- 한국 문화에 맞춘 공통 일정 자동 통합
-- 불필요한 기능을 제거한 직관적 사용자 경험
+1. **사용자 인증 시스템**: JWT 기반 안전한 인증
+2. **할일 관리**: 생성, 조회, 수정, 완료, 삭제, 복원
+3. **휴지통 기능**: 소프트 삭제를 통한 복구 가능
+4. **국경일 표시**: 공통 국경일 자동 표시
+5. **반응형 디자인**: 데스크톱 및 모바일 지원
 
 ---
 
-## 2. 비즈니스 목표
+## 2. 제품 비전 및 목표
 
-### 2.1 비즈니스 목표
+### 2.1 제품 비전
 
-이 제품을 통해 달성하고자 하는 비즈니스 목표:
+> "개인의 시간 관리를 돕고 생산성을 향상시키는 직관적인 할일 관리 플랫폼"
 
-1. **사용자 기반 확보**
-   - 개인 할일 관리 시장에서 안정적인 사용자 기반 구축
-   - 한국 사용자를 위한 특화 기능으로 니치 마켓 공략
+### 2.2 해결하려는 문제
 
-2. **기술 역량 시연**
-   - 풀스택 개발 역량 증명 (React + Backend)
-   - 도메인 주도 설계(DDD) 및 체계적인 문서화 능력 입증
-   - 포트폴리오용 고품질 프로젝트 구축
+기존 할일 관리 앱들의 문제점:
+- 복잡한 UI로 인한 낮은 접근성
+- 국경일 등 공통 일정을 함께 관리하기 어려움
+- 실수로 삭제한 할일 복구 불가
+- 과도한 기능으로 인한 학습 곡선
 
-3. **장기적 수익 모델 준비**
-   - 초기에는 무료 서비스로 사용자 확보
-   - 향후 프리미엄 기능 추가를 통한 수익화 기반 마련
+### 2.3 비즈니스 목표
 
-4. **커뮤니티 기여**
-   - 오픈소스 프로젝트로 공개하여 개발 커뮤니티에 기여
-   - 학습 자료 및 베스트 프랙티스 공유
-
----
-
-### 2.2 성공 지표 (KPI)
-
-| 지표 | 목표 값 | 측정 시기 | 우선순위 | 측정 방법 |
-|------|---------|-----------|----------|-----------|
-| **월간 활성 사용자(MAU)** | 500명 | 출시 후 3개월 | HIGH | Google Analytics |
-| **일간 활성 사용자(DAU)** | 50명 | 출시 후 1개월 | HIGH | Google Analytics |
-| **사용자당 평균 할일 수** | 8개 이상 | 출시 후 1개월 | MEDIUM | DB 쿼리 분석 |
-| **휴지통 복구 기능 사용률** | 15% 이상 | 출시 후 2개월 | MEDIUM | 이벤트 트래킹 |
-| **사용자 재방문율** | 40% 이상 | 출시 후 2개월 | HIGH | 세션 분석 |
-| **평균 세션 시간** | 3분 이상 | 출시 후 1개월 | LOW | Google Analytics |
-| **완료된 할일 비율** | 60% 이상 | 출시 후 2개월 | MEDIUM | DB 통계 |
-| **API 평균 응답 시간** | 200ms 이하 | 지속적 측정 | HIGH | 서버 모니터링 |
-
-**성공 기준:**
-- Phase 1 (MVP 출시 후 1개월): MAU 100명, DAU 20명 달성
-- Phase 2 (출시 후 3개월): MAU 500명, 휴지통 복구 기능 활발히 사용
-- Phase 3 (출시 후 6개월): 안정적인 사용자 기반 확보, 유료 기능 도입 검토
-
----
-
-### 2.3 수익 모델
-
-**초기 전략: 무료 (광고 없음)**
-- ✅ 초기에는 완전 무료로 서비스 제공
-- ✅ 광고 없는 깔끔한 사용자 경험
-- 목표: 사용자 확보 및 피드백 수집
-
-**장기 전략: Freemium (기본 무료 + 유료 플랜)**
-
-**무료 기능 (Phase 1-2):**
-- 기본 할일 CRUD (생성, 조회, 수정, 삭제)
-- 휴지통 복구 (30일)
-- 공통 일정 (국경일) 자동 표시
-- 시작일/만료일 설정
-- 기본 정렬 및 필터링
-
-**유료 기능 (Phase 3 이후 고려):**
-- 무제한 할일 저장 (무료: 최대 100개)
-- 할일 카테고리 및 태그 기능
-- 고급 검색 및 필터링
-- 반복 일정 기능
-- 우선순위 설정
-- 팀 협업 기능
-- 통계 및 생산성 리포트
-- 데이터 내보내기 (CSV, JSON)
-- 커스텀 테마
-
-**예상 가격 (Phase 3 이후):**
-- 프리미엄 플랜: 월 $3.99 또는 연간 $39.99
-- 팀 플랜: 사용자당 월 $5.99
+| 목표 | 설명 | 우선순위 |
+|------|------|----------|
+| **사용자 확보** | 1,000명의 가입자 확보 | High |
+| **포트폴리오** | 풀스택 개발 역량 증명 | High |
+| **학습** | 최신 웹 기술 스택 습득 | High |
+| **수익 창출** | 광고 기반 수익 모델 (2차) | Low |
 
 ---
 
 ## 3. 타겟 사용자
 
-### 3.1 주요 사용자 페르소나
+### 3.1 주요 타겟 그룹
 
-#### 페르소나 1: 바쁜 직장인
+1. **직장인** - 업무 일정 관리
+2. **대학생** - 과제 및 시험 일정 관리
+3. **주부** - 가사 일정 관리
 
-| 항목 | 내용 |
-|------|------|
-| **이름** | 김민준 (32세, IT 기업 프로젝트 매니저) |
-| **배경** | - 매일 여러 프로젝트를 동시에 진행하며, 개인 업무와 팀 업무가 혼재<br>- 출퇴근 시간 1시간씩 소요<br>- 주말에는 개인 일정(운동, 쇼핑 등) 관리 필요 |
-| **니즈** | - 간단하고 빠르게 할일을 기록하고 관리<br>- 업무와 개인 일정을 분리하지 않고 통합 관리<br>- 실수로 삭제한 할일을 복구할 수 있어야 함<br>- 공휴일을 놓치지 않고 미리 계획하고 싶음 |
-| **불만사항** | - Trello는 카드 관리가 번거롭고 무거움<br>- Notion은 기능이 너무 많아 할일 관리에 집중하기 어려움<br>- Todoist는 영어 기반이라 국경일이 자동으로 안 들어감 |
-| **기술 수준** | 중급 - 웹/모바일 앱 사용에 익숙하며, 새로운 서비스를 빠르게 습득 |
-| **사용 시나리오** | - 출근길에 오늘 할 일 체크<br>- 회의 중 급하게 할일 추가<br>- 퇴근 전 내일 할 일 미리 등록<br>- 주말에 다음 주 계획 수립 |
-| **사용 빈도** | 일 3-5회 접속, 세션당 2-3분 |
+### 3.2 사용자 페르소나
 
-#### 페르소나 2: 체계적인 대학생
-
-| 항목 | 내용 |
-|------|------|
-| **이름** | 이지은 (24세, 대학교 4학년) |
-| **배경** | - 수업, 과제, 팀 프로젝트, 아르바이트 등 관리할 일정이 많음<br>- 과제 제출 마감일을 자주 놓쳐서 스트레스<br>- 체계적인 시간 관리로 취업 준비 병행 |
-| **니즈** | - 과제 마감일을 시각적으로 강조해서 보여주는 기능<br>- 완료한 할일을 체크하며 성취감 느끼고 싶음<br>- 간단하게 사용할 수 있는 무료 앱<br>- 실수로 삭제해도 복구 가능 |
-| **불만사항** | - Google Keep은 할일 관리 기능이 약함<br>- Microsoft To Do는 UI가 복잡하고 무거움<br>- 유료 앱은 부담스러움 |
-| **기술 수준** | 중급 - 스마트폰과 PC를 자유롭게 사용하며, 클라우드 서비스 활용 |
-| **사용 시나리오** | - 매주 월요일 아침 이번 주 과제 정리<br>- 수업 중 급한 할일 메모<br>- 잠들기 전 내일 할 일 확인<br>- 방학에 자기계발 계획 수립 |
-| **사용 빈도** | 일 2-4회 접속, 주말에 집중 사용 |
-
-#### 페르소나 3: 프리랜서 디자이너
-
-| 항목 | 내용 |
-|------|------|
-| **이름** | 박서연 (29세, UI/UX 디자이너) |
-| **배경** | - 여러 클라이언트의 프로젝트를 동시에 진행<br>- 각 프로젝트별 마감일이 다르고 작업 단계가 복잡<br>- 재택근무로 자기주도적 시간 관리 필수 |
-| **니즈** | - 프로젝트별 할일을 한눈에 보고 싶음<br>- 우선순위를 쉽게 파악하고 싶음<br>- 심플하고 예쁜 디자인의 앱 선호<br>- 데이터 백업 및 복구 기능 중요 |
-| **불만사항** | - 기존 도구들의 UI가 촌스럽거나 불편함<br>- 너무 많은 기능 때문에 오히려 집중력 저하<br>- 실수로 중요한 할일을 삭제한 경험 있음 |
-| **기술 수준** | 고급 - 디자인 툴 및 다양한 생산성 앱 사용 경험 많음 |
-| **사용 시나리오** | - 아침에 하루 작업 계획 수립<br>- 클라이언트 미팅 후 즉시 피드백 사항 등록<br>- 작업 중간중간 진행 상황 체크<br>- 저녁에 오늘 완료한 일 확인하며 성취감 |
-| **사용 빈도** | 일 5-8회 접속, 세션당 5-10분 |
-
----
-
-### 3.2 사용자 규모 예상
-
-**초기 목표 (출시 후 3개월):**
-- 가입자 수: 1,000명
-- 일간 활성 사용자(DAU): 50명
-- 월간 활성 사용자(MAU): 500명
-- MAU/DAU 비율: 10 (건강한 재방문율)
-
-**중기 목표 (출시 후 1년):**
-- 가입자 수: 5,000명
-- 일간 활성 사용자(DAU): 200명
-- 월간 활성 사용자(MAU): 2,000명
-- 유료 전환율: 5% (100명)
-
-**사용자 확보 전략:**
-- Product Hunt 런칭
-- 개발자 커뮤니티 홍보 (Reddit, Dev.to, 국내 커뮤니티)
-- SEO 최적화
-- 소셜 미디어 마케팅
-- 입소문 및 추천 프로그램
-
----
-
-## 4. 사용자 여정 (User Journey)
-
-### 4.1 주요 사용자 여정
-
-**전체 사용자 여정 맵:**
+#### 페르소나 1: 김철수 (직장인)
 
 ```
-1. 발견 단계
-   - 검색 엔진에서 "할일 관리 앱" 또는 "todo list" 검색
-   - SNS 또는 커뮤니티에서 추천 받음
-   - 랜딩 페이지 방문 → 핵심 가치 확인 (휴지통 복구 기능 강조)
-
-2. 가입 단계
-   - "무료로 시작하기" 버튼 클릭
-   - 간편 회원가입 (이메일 + 비밀번호)
-   - 가입 완료 후 즉시 로그인 (별도 이메일 인증 불필요)
-
-3. 첫 사용 (온보딩)
-   - 환영 메시지: "pkt-todolist에 오신 것을 환영합니다!"
-   - 3단계 간단한 튜토리얼:
-     * Step 1: 첫 할일 추가해보기
-     * Step 2: 할일 완료 체크하기
-     * Step 3: 휴지통 복구 기능 소개
-   - 샘플 할일 자동 생성 (선택 가능)
-   - 튜토리얼 스킵 가능
-
-4. 핵심 가치 경험
-   - 할일 목록에서 개인 할일 + 공통 일정(국경일) 확인
-   - 만료일 임박한 할일 강조 표시 확인
-   - 할일 추가 → 시작일/만료일 설정 → 목록 정렬 확인
-   - 할일 완료 체크 → 성취감 경험
-   - 할일 실수로 삭제 → 휴지통에서 복구 → 안전감 경험
-
-5. 반복 사용 및 습관화
-   - 매일 오전/저녁 할일 체크 습관 형성
-   - 만료일 임박 알림 (Phase 2)
-   - 주간/월간 리포트 확인 (Phase 3)
-
-6. 재방문 유도
-   - 이메일 알림 (선택): "오늘 할 일 3개가 남아있어요"
-   - 만료일 D-1 알림
-   - 주간 요약 리포트 (완료율, 생산성)
+- 나이: 20-30대
+- 직업: 직장인
+- 기술 수준: 보통
+- 주요 니즈: 간단하면서 명료한 할일 관리
+- 사용 패턴: 하루에 10분-1시간 정도 사용
+- 페인 포인트:
+  - 복잡한 기능보다 단순한 체크리스트 선호
+  - 업무와 개인 일정을 함께 관리하고 싶음
+  - 실수로 삭제한 할일 복구 필요
 ```
 
-**Aha Moment (핵심 가치 경험 순간):**
-- 사용자가 실수로 할일을 삭제했을 때 → 휴지통에서 간단히 복구 → "이 앱은 안전하구나!" 깨달음
-- 공통 일정(국경일)이 자동으로 표시되는 것을 발견 → "편리하네!" 경험
-
----
-
-### 4.2 온보딩 전략
-
-**온보딩 목표:**
-- 사용자가 3분 이내에 첫 할일을 추가하고 핵심 기능을 이해하도록 함
-- 튜토리얼 완료율 80% 이상 달성
-
-**온보딩 방식:**
-- ✅ 튜토리얼 (3단계 인터랙티브 가이드)
-- ✅ 샘플 데이터 제공 (예시 할일 3개 자동 생성, 사용자 선택)
-- ✅ 툴팁 및 힌트 표시 (첫 방문 시에만)
-- ✅ 온보딩 스킵 가능 (상단 "건너뛰기" 버튼)
-
-**온보딩 흐름:**
+#### 페르소나 2: 카리나 (대학생)
 
 ```
-Step 0: 회원가입 완료 후 메인 화면 진입
-↓
-Step 1: 첫 할일 추가
-- 팝업: "할일 추가 버튼을 눌러 첫 할일을 만들어보세요!"
-- 사용자가 할일 추가 버튼 클릭 → 제목 입력 → 저장
-- 성공 메시지: "훌륭해요! 첫 할일을 만들었습니다 🎉"
-↓
-Step 2: 할일 완료 체크
-- 안내: "할일 왼쪽의 체크박스를 눌러 완료 표시를 해보세요"
-- 사용자가 체크박스 클릭 → 할일이 완료 상태로 변경
-- 성공 메시지: "완료! 할일을 체크하면 완료된 항목으로 이동합니다"
-↓
-Step 3: 휴지통 복구 소개
-- 안내: "실수로 할일을 삭제해도 30일간 휴지통에 보관됩니다"
-- 휴지통 아이콘 강조 표시
-- "확인" 버튼 클릭 → 온보딩 완료
-↓
-Step 4: 메인 화면으로 복귀
-- 모든 기능 자유롭게 사용
-- 필요시 도움말 재확인 가능 (설정 → 도움말)
+- 나이: 20대 초반
+- 직업: 대학생
+- 기술 수준: 초급
+- 주요 니즈: 학과 수업과 과제를 위한 할일 관리
+- 사용 패턴: 하루 중 아침에 주로 이용
+- 페인 포인트:
+  - 시험 일정과 과제 마감일 관리
+  - 공휴일 확인을 위한 별도 앱 사용 불편
+  - 모바일에서 빠르게 확인하고 싶음
 ```
 
-**온보딩 성공 지표:**
-- 튜토리얼 완료율: 80% 이상
-- 첫 할일 추가까지 소요 시간: 평균 2분 이하
-- 첫 방문 후 24시간 내 재방문율: 50% 이상
+---
+
+## 4. 성공 지표 (KPI)
+
+### 4.1 사용자 성장 지표
+
+| 지표 | 목표 | 측정 주기 |
+|------|------|-----------|
+| 1개월 내 가입자 수 | 100명 | 월간 |
+| 3개월 내 가입자 수 | 500명 | 분기 |
+| DAU (일일 활성 사용자) | 30명 | 일간 |
+| MAU (월간 활성 사용자) | 1,000명 | 월간 |
+
+### 4.2 사용자 참여도 지표
+
+| 지표 | 목표 | 측정 방법 |
+|------|------|-----------|
+| 할일 완료율 | 50% | 완료된 할일 / 전체 할일 |
+| 일평균 할일 생성 | 3개/사용자 | 총 생성 수 / DAU |
+| 사용자 유지율 (30일) | 80% | 30일 후 재방문 사용자 비율 |
+| 평균 세션 시간 | 5-10분 | 로그인 ~ 로그아웃 시간 |
+
+### 4.3 기능 사용 지표
+
+- 휴지통 사용률: 삭제 후 복원하는 사용자 비율
+- 국경일 조회 빈도: 국경일 정보 클릭 수
+- 검색 기능 사용률: 전체 사용자 중 검색 사용 비율
 
 ---
 
-## 5. 기능 우선순위
+## 5. 기능 요구사항
 
-### 5.1 MVP (Minimum Viable Product) 기능
+### 5.1 MVP (1차 출시) 필수 기능
 
-**Phase 1 - MVP (출시 후 0-3개월)**
+#### 5.1.1 사용자 인증 및 관리
 
-| 유스케이스 | 우선순위 | MVP 포함 여부 | 사유 |
-|-----------|---------|--------------|------|
-| UC-01: 회원가입 | MUST | ✅ | 필수 기능 - 사용자 인증 기반 서비스 |
-| UC-02: 로그인 | MUST | ✅ | 필수 기능 - 개인 할일 관리를 위한 인증 |
-| UC-03: 할일 목록 조회 | MUST | ✅ | 핵심 기능 - 개인 할일 + 공통 일정 통합 조회 |
-| UC-04: 할일 추가 | MUST | ✅ | 핵심 기능 - 제목, 설명, 시작일, 만료일 입력 |
-| UC-05: 할일 수정 | MUST | ✅ | 핵심 기능 - 할일 정보 변경 |
-| UC-06: 할일 삭제 (휴지통 이동) | MUST | ✅ | 핵심 차별화 기능 - 소프트 삭제 |
-| UC-07: 할일 복구 (휴지통에서) | SHOULD | ✅ | 차별화 기능 - 실수 방지의 핵심 |
-| UC-08: 할일 영구 삭제 | SHOULD | ✅ | 휴지통 관리를 위해 필요 |
-| UC-09: 휴지통 조회 | SHOULD | ✅ | 복구 기능과 함께 구현 필요 |
+| ID | 기능 | 설명 | 우선순위 |
+|----|------|------|----------|
+| [UC-01] | 회원가입 | 이메일, 비밀번호, 사용자 이름으로 신규 계정 생성 | P0 |
+| [UC-02] | 로그인 | 이메일/비밀번호 인증 후 JWT 토큰 발급 | P0 |
+| - | 로그아웃 | 클라이언트 토큰 삭제 | P0 |
+| - | 토큰 갱신 | Refresh Token으로 Access Token 재발급 | P0 |
+| - | 프로필 조회/수정 | 사용자 자신의 정보 조회 및 수정 | P1 |
 
-**Phase 1 추가 기능:**
-- 만료일 강조 표시 (D-3 이내 강조)
-- 할일 완료/미완료 상태 토글
-- 할일 정렬 (만료일, 생성일 기준)
-- 간단한 온보딩 튜토리얼
-- 반응형 웹 디자인 (Mobile + Desktop)
+#### 5.1.2 할일 관리
 
-**Phase 2 - 개선 및 확장 (출시 후 3-6개월)**
+| ID | 기능 | 설명 | 우선순위 |
+|----|------|------|----------|
+| [UC-03] | 할일 조회 | 로그인한 사용자의 활성 할일 목록 조회 | P0 |
+| [UC-04] | 할일 추가 | 제목, 내용, 시작일, 만료일로 새 할일 생성 | P0 |
+| [UC-05] | 할일 수정 | 기존 할일의 모든 속성 변경 가능 | P0 |
+| [UC-06] | 할일 완료 | 할일 완료 처리 (isCompleted=true, status='completed') | P0 |
+| [UC-07] | 할일 삭제 | 할일을 휴지통으로 이동 (소프트 삭제) | P0 |
+| [UC-08] | 할일 복원 | 휴지통의 할일을 활성 상태로 복원 | P0 |
+| - | 할일 검색 | 제목/내용 기반 검색 | P1 |
+| - | 할일 필터링 | 날짜별, 상태별 필터 | P1 |
+| - | 할일 정렬 | 날짜, 상태 기준 정렬 | P1 |
 
-| 기능 | 우선순위 | 설명 |
-|------|---------|------|
-| 할일 검색 기능 | SHOULD | 제목 및 설명 내용으로 검색 |
-| 할일 필터링 | SHOULD | 상태별(전체/활성/완료), 날짜별 필터링 |
-| 할일 카테고리 | COULD | 업무, 개인, 쇼핑 등 카테고리 분류 |
-| 알림 기능 | COULD | 만료일 임박 시 이메일 또는 푸시 알림 |
-| 다크 모드 | COULD | 사용자 선호도에 따른 테마 전환 |
-| 비밀번호 재설정 | SHOULD | 이메일 인증 통한 비밀번호 재설정 |
-| 프로필 관리 | SHOULD | 사용자 정보 수정, 비밀번호 변경 |
+**비즈니스 규칙**:
+- [BR-02] 사용자는 자신의 할일만 조회/수정/삭제 가능
+- [BR-08] 할일 완료 시 isCompleted=true, status='completed'
+- [BR-12] 만료일은 시작일과 같거나 이후여야 함
+- [BR-13] 만료일 지난 할일은 UI에서 시각적 구분
 
-**Phase 3 - 고급 기능 (출시 후 6-12개월)**
+#### 5.1.3 휴지통 관리
 
-| 기능 | 우선순위 | 설명 |
-|------|---------|------|
-| 할일 우선순위 설정 | COULD | 높음/보통/낮음 우선순위 표시 |
-| 반복 일정 기능 | COULD | 매일/매주/매월 반복 할일 설정 |
-| 통계 및 리포트 | COULD | 주간/월간 완료율, 생산성 분석 |
-| 할일 공유 | COULD | 다른 사용자와 할일 공유 |
-| 팀 협업 기능 | WON'T | 유료 기능으로 전환 고려 |
-| 데이터 내보내기 | COULD | CSV, JSON 형식으로 데이터 백업 |
-| 모바일 앱 (iOS/Android) | COULD | 네이티브 앱 개발 또는 PWA |
+| ID | 기능 | 설명 | 우선순위 |
+|----|------|------|----------|
+| [UC-09] | 휴지통 조회 | 삭제된 할일 목록 조회 (status='deleted') | P0 |
+| [UC-10] | 영구 삭제 | 휴지통의 할일을 DB에서 완전히 제거 | P0 |
 
----
+**비즈니스 규칙**:
+- [BR-05] 할일 삭제 시 휴지통으로 이동 (status='deleted', deletedAt 기록)
+- [BR-06] 휴지통의 할일은 복원 가능
+- [BR-07] 영구 삭제 시 DB에서 완전히 제거
 
-### 5.2 제외 기능 (Out of Scope)
+#### 5.1.4 국경일 관리
 
-**Phase 1-3에서 의도적으로 제외한 기능:**
+| ID | 기능 | 설명 | 우선순위 |
+|----|------|------|----------|
+| [UC-11] | 국경일 조회 | 모든 사용자가 국경일 목록 조회 가능 | P0 |
+| - | 국경일 추가 | 관리자만 새로운 국경일 추가 가능 | P1 |
+| - | 국경일 수정 | 관리자만 기존 국경일 수정 가능 | P1 |
 
-- 소셜 로그인 (Google, GitHub 등) - Phase 4 이후 고려
-- 실시간 협업 (WebSocket) - 복잡도 증가
-- 파일 첨부 기능 - 스토리지 비용 및 복잡도
-- 댓글 기능 - 개인 사용 중심이므로 불필요
-- 할일 템플릿 - 사용 빈도 낮음
-- AI 기반 추천 - 기술적 복잡도 높음
-- 캘린더 뷰 - UI 복잡도 증가
-- 타사 서비스 연동 (Google Calendar, Outlook 등) - API 연동 복잡
+**비즈니스 규칙**:
+- [BR-03] 모든 인증된 사용자가 조회 가능
+- [BR-04] 관리자(role='admin')만 추가/수정 권한
+- [BR-09] 관리자만 추가/수정 가능
+- [BR-10] 국경일은 삭제 불가
+- [BR-11] 매년 반복되는 일정 지원
 
----
+### 5.2 기능 우선순위 정의
 
-## 6. UI/UX 요구사항
+- **P0 (Must-have)**: MVP 출시에 필수적인 기능
+- **P1 (Should-have)**: MVP에 포함되면 좋지만 필수는 아님
+- **P2 (Nice-to-have)**: 2차 개발에서 고려
 
-### 6.1 디자인 방향
+### 5.3 MVP 제외 기능 (2차 개발)
 
-**디자인 철학:**
-"Less is More" - 불필요한 요소를 제거하고 핵심 기능에 집중
-
-**디자인 스타일:**
-- ✅ **미니멀 (Minimal)** - 깔끔하고 단순한 디자인 (우선순위 1)
-- ✅ **모던 (Modern)** - 트렌디하고 세련된 디자인 (우선순위 2)
-
-**컬러 테마:**
-- ✅ **밝은 테마 + 다크 모드 전환 가능** (Phase 2에서 다크 모드 추가)
-
-**주요 컬러 팔레트:**
-- Primary: Blue (#3B82F6) - 신뢰감, 생산성
-- Success: Green (#10B981) - 완료, 성공
-- Warning: Orange (#F59E0B) - 만료일 임박
-- Danger: Red (#EF4444) - 삭제, 긴급
-- Neutral: Gray (#6B7280) - 텍스트, 배경
-
-**타이포그래피:**
-- 헤더: 24px, Bold
-- 본문: 16px, Regular
-- 작은 텍스트: 14px, Regular
-- 폰트: 시스템 폰트 우선, Inter 또는 Pretendard
-
-**레퍼런스:**
-- Todoist의 간결한 UI
-- Linear의 모던한 디자인
-- Things 3의 미니멀한 접근
+- 할일 카테고리/태그
+- 할일 공유 기능
+- 알림 기능 (이메일/푸시)
+- 통계 및 리포트
+- 협업 기능
+- 반복 일정
+- 캘린더 뷰
 
 ---
 
-### 6.2 주요 화면 구성
+## 6. 비기능 요구사항
 
-**1. 로그인/회원가입 화면**
-- **URL**: `/login`, `/signup`
-- **레이아웃**: 중앙 정렬 카드 형태
-- **기능**:
-  - 이메일 + 비밀번호 입력 폼
-  - "로그인" / "회원가입" 탭 전환
-  - 유효성 검사 (실시간 피드백)
-  - "비밀번호 재설정" 링크 (Phase 2)
-- **특이사항**:
-  - 1페이지 폼으로 단순화
-  - 에러 메시지 명확히 표시
+### 6.1 성능 요구사항
 
-**2. 메인 화면 (할일 목록)**
-- **URL**: `/`, `/todos`
-- **레이아웃**:
-  - 상단: 헤더 (로고, 사용자 메뉴)
-  - 좌측: 사이드바 (전체/완료/휴지통 필터)
-  - 중앙: 할일 리스트
-  - 우측: 할일 상세/편집 패널 (선택 시)
-- **기능**:
-  - 할일 리스트 (체크박스, 제목, 만료일 표시)
-  - 만료일 강조 (D-3 이내 주황색, 만료된 것 빨간색)
-  - "할일 추가" 버튼 (FAB 또는 상단)
-  - 정렬 옵션 (만료일, 생성일)
-  - 필터 (전체/활성/완료)
-  - 공통 일정 자동 표시 (다른 색상으로 구분)
-- **특이사항**:
-  - 무한 스크롤 또는 페이지네이션
-  - 빈 상태(Empty State) 디자인 중요
+| 항목 | 요구사항 | 측정 방법 |
+|------|----------|-----------|
+| API 응답 시간 | 1,000ms 이내 | 95 percentile |
+| 페이지 로딩 시간 | 3초 이내 | First Contentful Paint |
+| 동시 접속자 | 100명 지원 | 로드 테스트 |
+| 데이터베이스 성능 | 20,000개 할일 처리 가능 | 쿼리 성능 테스트 |
 
-**3. 할일 추가/수정 모달**
-- **UI**: 모달 또는 슬라이드 패널
-- **기능**:
-  - 제목 입력 (필수)
-  - 설명 입력 (선택, 텍스트 에리어)
-  - 시작일 선택 (Date Picker)
-  - 만료일 선택 (Date Picker)
-  - "저장" / "취소" 버튼
-- **특이사항**:
-  - 빠른 입력을 위한 최소 필드
-  - Tab 키로 필드 간 이동
-  - Enter 키로 저장 (제목만 입력 시)
+**성능 최적화 전략**:
+- API 응답 최적화 (인덱싱, 쿼리 최적화)
+- 프론트엔드 번들 크기 최소화
+- 이미지 최적화
+- Lazy Loading 적용
 
-**4. 휴지통 화면**
-- **URL**: `/trash`
-- **레이아웃**: 메인 화면과 유사
-- **기능**:
-  - 삭제된 할일 리스트
-  - 삭제 일시 표시
-  - "복구" 버튼
-  - "영구 삭제" 버튼 (확인 다이얼로그)
-  - 자동 삭제 안내 메시지
-- **특이사항**:
-  - "30일 후 자동 삭제됩니다" 경고
-  - 영구 삭제 시 확인 다이얼로그 필수
+### 6.2 보안 요구사항
 
-**5. 설정 화면**
-- **URL**: `/settings`
-- **기능**:
-  - 프로필 정보 수정 (이름, 이메일)
-  - 비밀번호 변경
-  - 테마 변경 (밝은/어두운) - Phase 2
-  - 알림 설정 - Phase 2
-  - 계정 삭제
-- **특이사항**:
-  - 간단한 설정 옵션만 제공
-  - 계정 삭제 시 재확인 필수
+#### 필수 보안 조치
 
-**6. 온보딩 튜토리얼**
-- **UI**: 오버레이 + 강조 효과
-- **기능**: 3단계 가이드 (할일 추가 → 완료 → 휴지통 소개)
-- **특이사항**: "건너뛰기" 버튼 항상 표시
+| 항목 | 구현 방법 | 우선순위 |
+|------|-----------|----------|
+| HTTPS 통신 | SSL/TLS 인증서 적용 | P0 |
+| 비밀번호 암호화 | bcrypt 해싱 (salt rounds: 10) | P0 |
+| JWT 인증 | Access Token (15분) + Refresh Token (7일) | P0 |
+| CORS 정책 | 허용된 Origin만 접근 가능 | P0 |
+| SQL Injection 방어 | Prepared Statements, ORM 사용 | P0 |
+| XSS 방어 | 입력 값 sanitization, CSP 헤더 | P0 |
+| Rate Limiting | API 호출 제한 (100 req/min per user) | P1 |
 
----
+**보안 규칙** (도메인 정의서 참조):
+- [BR-01] 인증된 사용자만 접근 가능
+- [BR-02] 사용자는 타인의 할일 접근 불가
 
-### 6.3 반응형 및 접근성
+### 6.3 확장성 요구사항
 
-**지원 플랫폼:**
-- ✅ 웹 (Desktop) - 1280px 이상
-- ✅ 웹 (Tablet) - 768px ~ 1279px
-- ✅ 웹 (Mobile) - 375px ~ 767px
-- ⬜ iOS 네이티브 앱 (Phase 4 이후)
-- ⬜ Android 네이티브 앱 (Phase 4 이후)
-- ✅ PWA (Progressive Web App) - Phase 2
+| 항목 | 목표 | 구현 전략 |
+|------|------|-----------|
+| 사용자 규모 | 1,000명 지원 | PostgreSQL 최적화 |
+| 데이터 규모 | 20,000개 할일 | 인덱싱, 페이지네이션 |
+| 향후 확장 | 수평 확장 가능 구조 | Stateless 아키텍처 |
 
-**반응형 디자인 원칙:**
-- Mobile First 접근
-- 중단점(Breakpoints): 375px, 768px, 1024px, 1280px
-- 터치 친화적 UI (최소 터치 영역 44x44px)
-- 가로/세로 방향 모두 지원
+### 6.4 가용성 요구사항
 
-**접근성 (Accessibility):**
-- ✅ WCAG 2.1 AA 준수 목표
-- ✅ 키보드 내비게이션 지원 (Tab, Enter, ESC)
-- ✅ 스크린 리더 지원 (ARIA 라벨)
-- ✅ 색상 대비 비율 4.5:1 이상
-- ✅ 폼 요소 레이블 명확히 제공
-- ⬜ 완전한 WCAG 2.1 AAA는 Phase 3 이후
+- **목표 Uptime**: 99% (MVP 기준)
+- **백업**: 일일 데이터베이스 백업 (Supabase 자동 백업)
+- **장애 복구**: 24시간 이내 복구
 
-**접근성 테스트:**
-- Lighthouse 접근성 점수 90점 이상
-- axe DevTools로 자동 테스트
-- 키보드만으로 전체 기능 사용 가능 확인
+### 6.5 접근성 요구사항
+
+- **WCAG 2.1 AA 준수**
+- 색상 대비율: 4.5:1 이상
+- 키보드 네비게이션 지원
+- 스크린 리더 호환성
+
+### 6.6 브라우저 호환성
+
+| 브라우저 | 최소 지원 버전 |
+|----------|----------------|
+| Chrome | 최신 2개 버전 |
+| Firefox | 최신 2개 버전 |
+| Safari | 최신 2개 버전 |
+| Edge | 최신 2개 버전 |
+| Mobile Safari (iOS) | iOS 14+ |
+| Chrome Mobile (Android) | Android 10+ |
 
 ---
 
@@ -529,915 +296,1129 @@ Step 4: 메인 화면으로 복귀
 
 ### 7.1 프론트엔드
 
-| 기술 | 선택 | 버전 | 사유 |
-|------|------|------|------|
-| **프레임워크** | React | 18+ | - 컴포넌트 기반 UI 개발<br>- 풍부한 생태계 및 커뮤니티<br>- Virtual DOM으로 성능 최적화 |
-| **빌드 도구** | Vite | 5.x | - 빠른 개발 서버 시작 (콜드 스타트 1초 이내)<br>- HMR (Hot Module Replacement)<br>- 최적화된 프로덕션 빌드 |
-| **UI 라이브러리** | Tailwind CSS | 3.x | - 유틸리티 우선 CSS로 빠른 스타일링<br>- 일관된 디자인 시스템<br>- 번들 크기 최적화 (PurgeCSS) |
-| **상태 관리** | Zustand | 4.x | - 가볍고 간단한 상태 관리 (1.2KB)<br>- Redux보다 보일러플레이트 적음<br>- React Context API보다 성능 우수 |
-| **라우팅** | React Router | 6.x | - 표준 라우팅 라이브러리<br>- 중첩 라우팅 및 레이아웃 지원<br>- Code Splitting 용이 |
-| **폼 관리** | React Hook Form | 7.x | - 성능 최적화 (불필요한 리렌더링 방지)<br>- 간단한 유효성 검사<br>- Zod와 통합 가능 |
-| **HTTP 클라이언트** | Axios | 1.x | - Promise 기반 HTTP 클라이언트<br>- 인터셉터로 JWT 토큰 자동 주입<br>- 에러 핸들링 용이 |
-| **날짜 처리** | date-fns | 3.x | - 가벼운 라이브러리 (moment.js 대비)<br>- Tree-shaking 지원<br>- 직관적인 API |
+```
+Framework: React 18
+State Management: Zustand
+Styling: Tailwind CSS
+HTTP Client: Axios
+Routing: React Router v6
+Form Handling: React Hook Form
+Validation: Zod
+Build Tool: Vite
+```
 
-**추가 라이브러리:**
-- **아이콘**: Lucide React - 모던한 아이콘, Tree-shakable
-- **알림/토스트**: react-hot-toast - 가볍고 사용 간편
-- **모달/다이얼로그**: Headless UI - 접근성 준수, Tailwind와 통합 용이
-- **유효성 검사**: Zod - TypeScript 기반 스키마 검증
-- **애니메이션**: Framer Motion (선택, Phase 2) - 부드러운 UI 전환
-
----
+**주요 라이브러리**:
+- `react`: 18.x
+- `zustand`: 상태 관리
+- `tailwindcss`: 유틸리티 우선 CSS
+- `axios`: HTTP 통신
+- `react-router-dom`: 라우팅
+- `react-hook-form`: 폼 관리
+- `zod`: 스키마 검증
+- `date-fns`: 날짜 처리
+- `lucide-react`: 아이콘
 
 ### 7.2 백엔드
 
-| 기술 | 선택 | 버전 | 사유 |
-|------|------|------|------|
-| **프레임워크** | Spring Boot | 3.2+ | - 엔터프라이즈급 안정성<br>- 풍부한 생태계 (Spring Security, JPA)<br>- Auto Configuration으로 빠른 개발<br>- 포트폴리오용으로 적합 |
-| **언어** | Java | 17+ | - LTS 버전 (장기 지원)<br>- 강력한 타입 시스템<br>- 풍부한 라이브러리 및 커뮤니티 |
-| **ORM/데이터 접근** | Spring Data JPA + Hibernate | 3.2+ | - 객체 지향적 데이터 접근<br>- 자동 쿼리 생성<br>- N+1 쿼리 방지 (Fetch Join) |
-| **인증/보안** | Spring Security + JWT | 6.2+ | - 표준 보안 프레임워크<br>- JWT 토큰 기반 인증<br>- CSRF, XSS 방어 내장 |
-| **API 문서화** | SpringDoc OpenAPI (Swagger) | 2.x | - 자동 API 문서 생성<br>- Swagger UI 제공<br>- 개발/테스트 편의성 |
-| **빌드 도구** | Gradle | 8.x | - Maven보다 빠른 빌드 속도<br>- 유연한 스크립트<br>- 의존성 관리 용이 |
-| **유효성 검사** | Spring Validation (Bean Validation) | - | - @Valid 어노테이션 기반<br>- 자동 에러 메시지 생성 |
+```
+Runtime: Node.js 18+
+Framework: Express.js
+API Style: REST API
+Authentication: JWT (jsonwebtoken)
+Password Hashing: bcrypt
+Validation: express-validator
+ORM: Prisma
+```
 
-**추가 라이브러리:**
-- **JWT**: jjwt (io.jsonwebtoken) - JWT 생성 및 검증
-- **비밀번호 해싱**: BCryptPasswordEncoder (Spring Security 내장)
-- **로깅**: SLF4J + Logback - 구조화된 로깅
-- **테스트**: JUnit 5, Mockito, Spring Boot Test
-
----
+**주요 라이브러리**:
+- `express`: 4.x
+- `jsonwebtoken`: JWT 인증
+- `bcrypt`: 비밀번호 해싱
+- `prisma`: ORM
+- `express-validator`: 요청 검증
+- `cors`: CORS 설정
+- `helmet`: 보안 헤더
+- `express-rate-limit`: Rate limiting
 
 ### 7.3 데이터베이스
 
-**데이터베이스 종류:**
-- ✅ **PostgreSQL 15** (프로덕션)
-- ✅ **H2 Database** (개발/테스트)
+```
+Database: PostgreSQL 15+
+Hosting: Supabase
+ORM: Prisma
+```
 
-**PostgreSQL 선택 이유:**
-- 강력한 ACID 트랜잭션 지원
-- JSON 타입 지원 (향후 확장성)
-- 무료 오픈소스
-- 풍부한 인덱싱 옵션
-- 대소문자 구분 없는 검색 지원 (ILIKE, LOWER())
-- AWS RDS, Supabase 등 호스팅 옵션 다양
+**데이터베이스 기능**:
+- 트랜잭션 지원
+- 인덱싱 최적화
+- 자동 백업 (Supabase)
+- Connection Pooling
 
-**개발 환경:**
-- Docker Compose로 로컬 PostgreSQL 실행
-- 포트: 5432
-- 초기 데이터: Flyway 또는 Spring Data JPA로 마이그레이션
-
-**프로덕션 환경:**
-- AWS RDS PostgreSQL 또는 Supabase (무료 티어)
-- 자동 백업 활성화
-- 읽기 복제본 (Read Replica) - Phase 3
-
-**캐싱 전략:**
-- ⬜ Phase 1: 캐싱 미사용 (단순성 우선)
-- ✅ Phase 2: Redis 도입
-  - 세션 저장
-  - API 응답 캐싱 (할일 목록)
-  - Rate Limiting 카운터
-
-**캐싱 용도 (Phase 2):**
-- 세션 저장 (JWT Refresh Token)
-- 할일 목록 캐싱 (TTL: 5분)
-- Rate Limiting (분당 요청 수 제한)
-
----
-
-### 7.4 인프라 및 배포
-
-**프론트엔드 배포:**
-- ✅ **Vercel** (권장)
-  - 자동 HTTPS
-  - 글로벌 CDN
-  - 무료 티어 (충분한 대역폭)
-  - GitHub 연동 자동 배포
-  - Preview 배포 (PR별)
-
-**백엔드 배포:**
-- ✅ **Railway** (권장, 무료 플랜)
-  - PostgreSQL 호스팅 포함
-  - 자동 배포
-  - 환경 변수 관리
-  - 로그 및 모니터링
-- 대안: Render, Fly.io, AWS EC2 (비용 고려)
-
-**데이터베이스 호스팅:**
-- ✅ Railway 제공 PostgreSQL (개발/초기)
-- 대안: Supabase (무료 500MB), AWS RDS (프로덕션)
-
-**CI/CD:**
-- ✅ **GitHub Actions**
-  - 브랜치별 자동 테스트
-  - main 브랜치 push 시 자동 배포
-  - 린트, 테스트, 빌드 파이프라인
-
-**배포 전략:**
+### 7.4 배포 및 인프라
 
 ```
-브랜치 전략:
-- main (프로덕션) → Vercel/Railway 자동 배포
-- develop (개발) → Preview 환경 배포
-- feature/* (기능 개발) → PR 생성 시 Preview 배포
+Frontend Hosting: Vercel
+Backend Hosting: Vercel (Serverless Functions)
+Database Hosting: Supabase PostgreSQL
+CI/CD: GitHub Actions (2차 개발)
+Version Control: Git + GitHub
+```
 
-배포 시점:
-- main 브랜치에 머지 시 자동 배포
-- 수동 롤백 가능 (Vercel/Railway 대시보드)
+**배포 전략**:
+- 프론트엔드: Vercel 자동 배포
+- 백엔드: Vercel Serverless Functions
+- 환경 변수 관리: Vercel Environment Variables
+- 도메인: Vercel 제공 도메인 (커스텀 도메인은 선택)
 
-배포 파이프라인:
-1. 코드 푸시 (GitHub)
-2. GitHub Actions 트리거
-3. 린트 + 테스트 실행
-4. 빌드 (프론트/백엔드)
-5. Vercel/Railway 배포
-6. 헬스 체크
-7. 슬랙 알림 (성공/실패)
+### 7.5 개발 도구
+
+```
+Code Editor: VS Code
+Linting: ESLint
+Formatting: Prettier
+Type Checking: TypeScript (선택)
+API Testing: Postman / Thunder Client
+Version Control: Git
 ```
 
 ---
 
-### 7.5 모니터링 및 로깅
+## 8. 데이터 모델
 
-**에러 추적:**
-- ✅ **Sentry** (권장, 무료 티어)
-  - 프론트엔드 + 백엔드 에러 추적
-  - 스택 트레이스 자동 수집
-  - 에러 발생 시 이메일 알림
-  - 에러 빈도 및 영향도 분석
+### 8.1 ERD (Entity Relationship Diagram)
 
-**분석 도구:**
-- ✅ **Google Analytics 4**
-  - 페이지뷰, 세션, 사용자 행동 추적
-  - 이벤트 트래킹 (할일 추가, 삭제, 복구 등)
-  - 무료
+```
+┌─────────────────┐
+│     User        │
+├─────────────────┤
+│ userId (PK)     │
+│ email (unique)  │
+│ password        │
+│ username        │
+│ role            │
+│ createdAt       │
+│ updatedAt       │
+└────────┬────────┘
+         │
+         │ 1:N
+         │
+         ▼
+┌─────────────────┐
+│      Todo       │
+├─────────────────┤
+│ todoId (PK)     │
+│ userId (FK)     │
+│ title           │
+│ content         │
+│ startDate       │
+│ dueDate         │
+│ status          │
+│ isCompleted     │
+│ createdAt       │
+│ updatedAt       │
+│ deletedAt       │
+└─────────────────┘
 
-**로깅:**
-- **프론트엔드**: Console 로그 (개발), Sentry (프로덕션)
-- **백엔드**: SLF4J + Logback
-  - 로그 레벨: INFO (프로덕션), DEBUG (개발)
-  - 로그 파일 롤링 (일별, 최대 30일 보관)
-  - Railway 로그 대시보드
+┌─────────────────┐
+│    Holiday      │
+├─────────────────┤
+│ holidayId (PK)  │
+│ title           │
+│ date            │
+│ description     │
+│ isRecurring     │
+│ createdAt       │
+│ updatedAt       │
+└─────────────────┘
+```
 
-**서버 모니터링:**
-- **헬스 체크 엔드포인트**: `GET /api/health`
-  - 응답: `{ "status": "UP", "database": "UP" }`
-- **Uptime 모니터링**: UptimeRobot (무료)
-  - 5분마다 헬스 체크
-  - 다운타임 발생 시 이메일/SMS 알림
-- **메트릭**: Railway 대시보드
-  - CPU, 메모리 사용률
-  - DB 연결 수
-  - 응답 시간
+### 8.2 엔티티 상세
 
----
+#### User (사용자)
 
-### 7.6 개발 도구 및 환경
+| 필드 | 타입 | 제약 | 설명 |
+|------|------|------|------|
+| userId | UUID | PK | 사용자 고유 ID |
+| email | VARCHAR(255) | UNIQUE, NOT NULL | 로그인 이메일 |
+| password | VARCHAR(255) | NOT NULL | bcrypt 해시된 비밀번호 |
+| username | VARCHAR(100) | NOT NULL | 사용자 이름 |
+| role | ENUM('user', 'admin') | NOT NULL, DEFAULT 'user' | 사용자 역할 |
+| createdAt | TIMESTAMP | NOT NULL | 가입일시 |
+| updatedAt | TIMESTAMP | NOT NULL | 최종 수정일시 |
 
-**코드 품질 도구:**
-- ✅ ESLint (프론트엔드) - JavaScript/React 린트
-- ✅ Prettier - 코드 포맷팅 (일관된 스타일)
-- ✅ Husky - Git Hooks (커밋 전 자동 린트)
-- ✅ lint-staged - 변경된 파일만 린트
-- ✅ Checkstyle (백엔드) - Java 코드 스타일 검사
+**인덱스**:
+- PRIMARY KEY: userId
+- UNIQUE INDEX: email
+- INDEX: role (관리자 조회용)
 
-**테스팅 도구:**
-- ✅ Vitest - 프론트엔드 단위 테스트 (Vite 네이티브)
-- ✅ React Testing Library - React 컴포넌트 테스트
-- ⬜ Playwright - E2E 테스트 (Phase 2)
-- ✅ JUnit 5 - 백엔드 단위 테스트
-- ✅ Mockito - 백엔드 Mock 테스트
-- ✅ Spring Boot Test - 통합 테스트
+#### Todo (할일)
 
-**테스트 커버리지 목표:**
-- 단위 테스트 커버리지: 70% 이상
-- 중요 비즈니스 로직: 90% 이상
-- E2E 테스트: 주요 사용자 여정 커버
+| 필드 | 타입 | 제약 | 설명 |
+|------|------|------|------|
+| todoId | UUID | PK | 할일 고유 ID |
+| userId | UUID | FK, NOT NULL | 소유자 ID |
+| title | VARCHAR(200) | NOT NULL | 할일 제목 |
+| content | TEXT | NULL | 할일 상세 내용 |
+| startDate | DATE | NULL | 시작일 |
+| dueDate | DATE | NULL | 만료일 |
+| status | ENUM('active', 'completed', 'deleted') | NOT NULL, DEFAULT 'active' | 할일 상태 |
+| isCompleted | BOOLEAN | NOT NULL, DEFAULT false | 완료 여부 |
+| createdAt | TIMESTAMP | NOT NULL | 생성일시 |
+| updatedAt | TIMESTAMP | NOT NULL | 최종 수정일시 |
+| deletedAt | TIMESTAMP | NULL | 삭제일시 (소프트 삭제) |
 
-**개발 환경:**
-- **IDE**: VS Code (프론트), IntelliJ IDEA Community (백엔드)
-- **버전 관리**: Git + GitHub
-- **협업 도구**: GitHub Issues, GitHub Projects
-- **API 테스트**: Postman, Thunder Client (VS Code Extension)
-- **DB 클라이언트**: DBeaver, pgAdmin
+**제약 조건**:
+- CHECK: dueDate >= startDate (만료일은 시작일 이후)
+- FOREIGN KEY: userId REFERENCES User(userId) ON DELETE CASCADE
 
-**로컬 개발 환경 구성:**
+**인덱스**:
+- PRIMARY KEY: todoId
+- INDEX: userId, status (사용자별 상태 조회)
+- INDEX: dueDate (만료일 기준 정렬)
+- INDEX: deletedAt (휴지통 조회)
 
-```bash
-# 프론트엔드
-cd frontend
-npm install
-npm run dev  # http://localhost:5173
+#### Holiday (국경일)
 
-# 백엔드
-cd backend
-./gradlew bootRun  # http://localhost:8080
+| 필드 | 타입 | 제약 | 설명 |
+|------|------|------|------|
+| holidayId | UUID | PK | 국경일 고유 ID |
+| title | VARCHAR(100) | NOT NULL | 국경일 이름 |
+| date | DATE | NOT NULL | 국경일 날짜 |
+| description | TEXT | NULL | 설명 |
+| isRecurring | BOOLEAN | NOT NULL, DEFAULT true | 매년 반복 여부 |
+| createdAt | TIMESTAMP | NOT NULL | 생성일시 |
+| updatedAt | TIMESTAMP | NOT NULL | 최종 수정일시 |
 
-# 데이터베이스
-docker-compose up -d  # PostgreSQL on localhost:5432
+**인덱스**:
+- PRIMARY KEY: holidayId
+- INDEX: date (날짜 기준 조회)
+
+### 8.3 Prisma 스키마 예시
+
+```prisma
+model User {
+  userId    String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  username  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  todos     Todo[]
+
+  @@index([role])
+}
+
+model Todo {
+  todoId      String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  title       String
+  content     String?
+  startDate   DateTime?
+  dueDate     DateTime?
+  status      TodoStatus @default(ACTIVE)
+  isCompleted Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId, status])
+  @@index([dueDate])
+  @@index([deletedAt])
+}
+
+model Holiday {
+  holidayId   String   @id @default(uuid())
+  title       String
+  date        DateTime
+  description String?
+  isRecurring Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TodoStatus {
+  ACTIVE
+  COMPLETED
+  DELETED
+}
 ```
 
 ---
 
-### 7.7 보안 및 인증
+## 9. API 설계
 
-**인증 방식:**
-- ✅ **JWT (JSON Web Token)** 기반 인증
-- Phase 2: OAuth 2.0 (Google, GitHub)
+### 9.1 API 기본 정보
 
-**JWT 상세 설정:**
+**베이스 URL**: `http://localhost:3000/api` (개발), `https://your-domain.vercel.app/api` (프로덕션)
 
-```
-Access Token:
-- 만료 시간: 15분
-- 저장 위치: localStorage (프론트엔드)
-- 페이로드: userId, username, email, role
+**인증 방식**: JWT Bearer Token
 
-Refresh Token:
-- 만료 시간: 7일
-- 저장 위치: HttpOnly Cookie (XSS 방어)
-- 용도: Access Token 갱신
+**응답 형식**: JSON
 
-토큰 갱신 전략:
-- Access Token 만료 시 자동으로 Refresh Token으로 갱신
-- Refresh Token 만료 시 재로그인 요구
-- 로그아웃 시 Refresh Token 블랙리스트 추가 (Redis, Phase 2)
+**에러 형식**:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "에러 메시지"
+  }
+}
 ```
 
-**비밀번호 보안:**
-- 해싱 알고리즘: BCrypt (Spring Security 내장)
-- Cost Factor: 10 (2^10 = 1024 라운드)
-- 비밀번호 정책:
-  - 최소 8자 이상 필수
-  - 영문 대소문자, 숫자, 특수문자 중 3가지 이상 조합
-  - 유효성 검사: 프론트엔드 + 백엔드 이중 검증
+### 9.2 인증 API
 
-**기타 보안 설정:**
+#### POST /api/auth/register
+회원가입
 
+**요청**:
+```json
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "username": "홍길동"
+}
 ```
-CORS 설정:
-- 허용 도메인: https://yourdomain.com (프로덕션)
-- 허용 메서드: GET, POST, PUT, DELETE
-- 허용 헤더: Authorization, Content-Type
-- 자격 증명 허용: true (쿠키 전송)
 
-Rate Limiting:
-- 로그인: 분당 5회 제한
-- 회원가입: 시간당 3회 제한
-- 일반 API: 분당 60회 제한
-- 구현: Spring Security + Bucket4j (Phase 2)
-
-HTTPS 강제:
-- 프로덕션 환경에서 HTTPS만 허용
-- HTTP → HTTPS 자동 리다이렉트
-
-XSS 방어:
-- React의 자동 이스케이프 활용
-- DOMPurify로 HTML 입력 sanitize (Phase 2)
-- Content-Security-Policy 헤더 설정
-
-CSRF 방어:
-- JWT 사용으로 CSRF 토큰 불필요
-- SameSite=Strict 쿠키 설정
-
-SQL Injection 방어:
-- Spring Data JPA Prepared Statement 사용
-- 사용자 입력 직접 쿼리 조합 금지
+**응답** (201 Created):
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "uuid",
+    "email": "user@example.com",
+    "username": "홍길동",
+    "role": "user"
+  }
+}
 ```
+
+**에러**:
+- 400: 이메일 형식 오류, 비밀번호 길이 부족
+- 409: 이메일 중복
+
+#### POST /api/auth/login
+로그인
+
+**요청**:
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "jwt-access-token",
+    "refreshToken": "jwt-refresh-token",
+    "user": {
+      "userId": "uuid",
+      "email": "user@example.com",
+      "username": "홍길동",
+      "role": "user"
+    }
+  }
+}
+```
+
+**에러**:
+- 401: 이메일 또는 비밀번호 오류
+
+#### POST /api/auth/refresh
+토큰 갱신
+
+**요청**:
+```json
+{
+  "refreshToken": "jwt-refresh-token"
+}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "new-jwt-access-token"
+  }
+}
+```
+
+**에러**:
+- 401: 유효하지 않은 Refresh Token
+
+#### POST /api/auth/logout
+로그아웃
+
+**요청 헤더**:
+```
+Authorization: Bearer {accessToken}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "message": "로그아웃 되었습니다"
+}
+```
+
+### 9.3 할일 API
+
+#### GET /api/todos
+할일 목록 조회
+
+**요청 헤더**:
+```
+Authorization: Bearer {accessToken}
+```
+
+**쿼리 파라미터**:
+- `status`: active | completed | deleted (선택)
+- `search`: 검색어 (선택)
+- `sortBy`: dueDate | createdAt (선택, 기본: createdAt)
+- `order`: asc | desc (선택, 기본: desc)
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "todoId": "uuid",
+      "title": "프로젝트 마감",
+      "content": "PRD 작성 완료하기",
+      "startDate": "2025-11-25",
+      "dueDate": "2025-11-28",
+      "status": "active",
+      "isCompleted": false,
+      "createdAt": "2025-11-25T10:00:00Z",
+      "updatedAt": "2025-11-25T10:00:00Z"
+    }
+  ]
+}
+```
+
+#### POST /api/todos
+할일 생성
+
+**요청**:
+```json
+{
+  "title": "프로젝트 마감",
+  "content": "PRD 작성 완료하기",
+  "startDate": "2025-11-25",
+  "dueDate": "2025-11-28"
+}
+```
+
+**응답** (201 Created):
+```json
+{
+  "success": true,
+  "data": {
+    "todoId": "uuid",
+    "title": "프로젝트 마감",
+    "content": "PRD 작성 완료하기",
+    "startDate": "2025-11-25",
+    "dueDate": "2025-11-28",
+    "status": "active",
+    "isCompleted": false
+  }
+}
+```
+
+**에러**:
+- 400: title 누락, dueDate < startDate
+
+#### GET /api/todos/:id
+할일 상세 조회
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "todoId": "uuid",
+    "title": "프로젝트 마감",
+    "content": "PRD 작성 완료하기",
+    "startDate": "2025-11-25",
+    "dueDate": "2025-11-28",
+    "status": "active",
+    "isCompleted": false
+  }
+}
+```
+
+**에러**:
+- 404: 할일을 찾을 수 없음
+- 403: 권한 없음 (타인의 할일)
+
+#### PUT /api/todos/:id
+할일 수정
+
+**요청**:
+```json
+{
+  "title": "프로젝트 마감 (수정)",
+  "content": "PRD 작성 및 검토 완료",
+  "startDate": "2025-11-25",
+  "dueDate": "2025-11-29"
+}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "todoId": "uuid",
+    "title": "프로젝트 마감 (수정)",
+    "content": "PRD 작성 및 검토 완료",
+    "dueDate": "2025-11-29"
+  }
+}
+```
+
+#### PATCH /api/todos/:id/complete
+할일 완료
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "todoId": "uuid",
+    "status": "completed",
+    "isCompleted": true
+  }
+}
+```
+
+#### DELETE /api/todos/:id
+할일 삭제 (휴지통 이동)
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "message": "할일이 휴지통으로 이동되었습니다",
+  "data": {
+    "todoId": "uuid",
+    "status": "deleted",
+    "deletedAt": "2025-11-25T15:00:00Z"
+  }
+}
+```
+
+#### PATCH /api/todos/:id/restore
+할일 복원
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "message": "할일이 복원되었습니다",
+  "data": {
+    "todoId": "uuid",
+    "status": "active",
+    "deletedAt": null
+  }
+}
+```
+
+### 9.4 휴지통 API
+
+#### GET /api/trash
+휴지통 조회
+
+**요청 헤더**:
+```
+Authorization: Bearer {accessToken}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "todoId": "uuid",
+      "title": "삭제된 할일",
+      "status": "deleted",
+      "deletedAt": "2025-11-25T15:00:00Z"
+    }
+  ]
+}
+```
+
+#### DELETE /api/trash/:id
+영구 삭제
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "message": "할일이 영구적으로 삭제되었습니다"
+}
+```
+
+**에러**:
+- 400: 활성 상태의 할일은 영구 삭제 불가
+- 404: 할일을 찾을 수 없음
+
+### 9.5 국경일 API
+
+#### GET /api/holidays
+국경일 조회
+
+**쿼리 파라미터**:
+- `year`: 연도 (선택, 기본: 현재 연도)
+- `month`: 월 (선택)
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "holidayId": "uuid",
+      "title": "신정",
+      "date": "2025-01-01",
+      "description": "새해 첫날",
+      "isRecurring": true
+    },
+    {
+      "holidayId": "uuid",
+      "title": "설날",
+      "date": "2025-01-29",
+      "description": "음력 1월 1일",
+      "isRecurring": true
+    }
+  ]
+}
+```
+
+#### POST /api/holidays
+국경일 추가 (관리자 전용)
+
+**요청 헤더**:
+```
+Authorization: Bearer {accessToken}
+X-Admin-Role: required
+```
+
+**요청**:
+```json
+{
+  "title": "광복절",
+  "date": "2025-08-15",
+  "description": "대한민국 독립 기념일",
+  "isRecurring": true
+}
+```
+
+**응답** (201 Created):
+```json
+{
+  "success": true,
+  "data": {
+    "holidayId": "uuid",
+    "title": "광복절",
+    "date": "2025-08-15",
+    "isRecurring": true
+  }
+}
+```
+
+**에러**:
+- 403: 관리자 권한 필요
+
+#### PUT /api/holidays/:id
+국경일 수정 (관리자 전용)
+
+**요청**:
+```json
+{
+  "title": "광복절",
+  "date": "2025-08-15",
+  "description": "수정된 설명"
+}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "holidayId": "uuid",
+    "title": "광복절",
+    "description": "수정된 설명"
+  }
+}
+```
+
+### 9.6 사용자 API
+
+#### GET /api/users/me
+현재 사용자 프로필 조회
+
+**요청 헤더**:
+```
+Authorization: Bearer {accessToken}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "uuid",
+    "email": "user@example.com",
+    "username": "홍길동",
+    "role": "user",
+    "createdAt": "2025-11-01T00:00:00Z"
+  }
+}
+```
+
+#### PATCH /api/users/me
+현재 사용자 프로필 수정
+
+**요청**:
+```json
+{
+  "username": "새이름",
+  "password": "newpassword123"
+}
+```
+
+**응답** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "uuid",
+    "username": "새이름"
+  }
+}
+```
+
+### 9.7 에러 코드 정의
+
+| HTTP 상태 | 에러 코드 | 설명 |
+|-----------|-----------|------|
+| 400 | BAD_REQUEST | 잘못된 요청 |
+| 400 | INVALID_DATE_RANGE | 만료일이 시작일보다 이전 |
+| 400 | TITLE_REQUIRED | 제목 필수 입력 |
+| 401 | UNAUTHORIZED | 인증 실패 |
+| 401 | TOKEN_EXPIRED | 토큰 만료 |
+| 401 | INVALID_TOKEN | 유효하지 않은 토큰 |
+| 403 | FORBIDDEN | 권한 없음 |
+| 403 | ADMIN_REQUIRED | 관리자 권한 필요 |
+| 404 | NOT_FOUND | 리소스 없음 |
+| 404 | TODO_NOT_FOUND | 할일을 찾을 수 없음 |
+| 404 | USER_NOT_FOUND | 사용자를 찾을 수 없음 |
+| 409 | CONFLICT | 중복 데이터 |
+| 409 | EMAIL_EXISTS | 이메일 중복 |
+| 409 | ALREADY_DELETED | 이미 삭제된 할일 |
+| 429 | TOO_MANY_REQUESTS | 요청 횟수 초과 |
+| 500 | INTERNAL_ERROR | 서버 내부 오류 |
 
 ---
 
-## 8. 비기능 요구사항 (Non-Functional Requirements)
+## 10. UI/UX 요구사항
 
-### 8.1 성능 요구사항
+### 10.1 화면 구성
 
-| 성능 지표 | 목표 값 | 측정 방법 | 달성 전략 |
-|----------|--------|----------|-----------|
-| **API 응답 시간** | 평균 200ms 이하 | 서버 모니터링, Sentry | - DB 인덱스 최적화<br>- N+1 쿼리 방지 (Fetch Join)<br>- Connection Pool 튜닝 |
-| **페이지 로딩 시간** | 초기 로딩 3초 이내 | Lighthouse, WebPageTest | - Code Splitting<br>- Lazy Loading<br>- 이미지 최적화 |
-| **Time to Interactive (TTI)** | 3.5초 이내 | Lighthouse | - 번들 크기 최적화<br>- Tree Shaking<br>- Critical CSS |
-| **First Contentful Paint (FCP)** | 1.5초 이내 | Lighthouse | - SSR 또는 SSG (Phase 3)<br>- CDN 활용 |
-| **동시 사용자 처리** | 최소 100명 | JMeter, k6 | - 무상태(Stateless) 서버<br>- DB Connection Pool |
-| **데이터베이스 쿼리 시간** | 평균 50ms 이하 | Spring Data JPA 로깅, EXPLAIN | - 복합 인덱스<br>- 쿼리 최적화 |
+#### 필수 화면
 
-**추가 성능 요구사항:**
+| 화면 | 라우트 | 설명 | 우선순위 |
+|------|--------|------|----------|
+| 로그인 | `/login` | 이메일/비밀번호 로그인 | P0 |
+| 회원가입 | `/register` | 신규 사용자 등록 | P0 |
+| 할일 목록 (메인) | `/` | 할일 목록 조회 및 관리 | P0 |
+| 할일 상세/수정 | `/todos/:id` | 모달 또는 별도 페이지 | P0 |
+| 휴지통 | `/trash` | 삭제된 할일 관리 | P0 |
+| 국경일 조회 | `/holidays` | 국경일 목록 (할일 목록과 통합 가능) | P0 |
+| 관리자 화면 | `/admin/holidays` | 국경일 관리 (관리자 전용) | P1 |
+| 프로필 | `/profile` | 사용자 정보 조회/수정 | P1 |
 
-- **번들 크기**:
-  - 초기 JS 번들: 200KB 이하 (gzip)
-  - 코드 스플리팅으로 라우트별 로딩
+#### 화면 플로우
 
-- **캐시 활용**:
-  - 정적 리소스 캐싱 (1년)
-  - API 응답 캐싱 (5분, Phase 2)
-  - 브라우저 캐시 활용
+```
+[로그인] → [할일 목록 (메인)]
+            ├→ [할일 추가 모달]
+            ├→ [할일 상세/수정 모달]
+            ├→ [휴지통]
+            ├→ [국경일 조회]
+            └→ [프로필]
 
-- **이미지 최적화**:
-  - WebP 포맷 사용
-  - Lazy Loading (Intersection Observer)
-  - 반응형 이미지 (srcset)
+[회원가입] → [로그인]
 
-**성능 측정 및 모니터링:**
-- 주간 Lighthouse 스코어 체크 (목표: 90점 이상)
-- 프로덕션 환경 실시간 모니터링 (Sentry Performance)
-- 느린 쿼리 로깅 및 분석
+[관리자] → [관리자 화면 (국경일 관리)]
+```
+
+### 10.2 디자인 방향
+
+**스타일**: 모던하고 세련된 디자인
+**참조**: 네이버 캘린더 UI ([스타일 가이드](./4-style-guide.md) 참조)
+
+**핵심 원칙**:
+1. **단순함**: 불필요한 장식 없이 깔끔한 인터페이스
+2. **명확성**: 직관적인 아이콘과 레이블
+3. **일관성**: 모든 화면에서 동일한 디자인 패턴
+4. **반응성**: 데스크톱과 모바일 모두 최적화
+
+**색상 체계**:
+- Primary: 네이버 그린 (#00C73C)
+- 할일 상태:
+  - 진행 중: 주황색 (#FF7043)
+  - 완료: 초록색 (#66BB6A)
+  - 삭제: 회색 (#BDBDBD)
+- 국경일: 빨간색 (#E53935)
+
+### 10.3 컴포넌트 구성
+
+#### 공통 컴포넌트
+
+1. **Header (헤더)**
+   - 로고
+   - 사용자 정보 (드롭다운)
+   - 로그아웃 버튼
+
+2. **Sidebar (사이드바)** - 선택
+   - 할일 목록
+   - 휴지통
+   - 국경일
+   - 설정
+
+3. **Button (버튼)**
+   - Primary, Secondary, Icon 버튼
+   - Hover/Active 상태
+
+4. **Input Field (입력 필드)**
+   - Text, Email, Password, Date
+   - 에러 상태 표시
+
+5. **Modal (모달)**
+   - 할일 추가/수정 모달
+   - 확인 다이얼로그
+
+6. **TodoCard (할일 카드)**
+   - 제목, 내용, 날짜
+   - 완료 체크박스
+   - 수정/삭제 버튼
+   - 상태별 색상 구분
+
+7. **Calendar (캘린더)** - 2차 개발
+   - 월간 캘린더 그리드
+   - 할일 바 표시
+   - 국경일 표시
+
+### 10.4 반응형 디자인
+
+**지원 디바이스**:
+- 데스크톱 (1024px+)
+- 모바일 (< 768px)
+
+**브레이크포인트**:
+```css
+mobile: 480px
+tablet: 768px
+desktop: 1024px
+wide: 1440px
+```
+
+**모바일 최적화**:
+- 터치 친화적인 버튼 크기 (최소 44x44px)
+- 스와이프 제스처 지원 (할일 삭제 등)
+- 하단 고정 네비게이션 바
+- 풀스크린 모달
+
+### 10.5 다크모드
+
+**지원 여부**: 예 (P1 우선순위)
+
+**구현 방법**:
+- Tailwind CSS `dark:` 유틸리티 사용
+- 사용자 설정 저장 (LocalStorage)
+- 시스템 설정 감지 (`prefers-color-scheme`)
+
+**다크모드 색상**:
+- 배경: #1A1A1A
+- 텍스트: #E5E5E5
+- Primary: #00E047 (밝은 그린)
+
+### 10.6 접근성
+
+- **키보드 네비게이션**: Tab, Enter, ESC 지원
+- **포커스 인디케이터**: 명확한 포커스 스타일
+- **스크린 리더**: aria-label, role 속성 사용
+- **색상 대비**: WCAG AA 기준 (4.5:1)
 
 ---
 
-### 8.2 확장성 요구사항
+## 11. 일정 및 마일스톤
 
-**사용자 증가에 따른 확장 계획:**
+### 11.1 전체 일정
 
-```
-Phase 1 (0-1,000 MAU):
-- 단일 서버 (Railway)
-- 단일 PostgreSQL 인스턴스
-- 캐싱 없음
+**프로젝트 기간**: 2025-11-25 ~ 2025-11-28 (4일)
+**목표 런칭일**: 2025-11-28 오후
 
-Phase 2 (1,000-10,000 MAU):
-- Redis 캐시 도입
-- DB Connection Pool 증가 (20 → 50)
-- CDN 활용 (Cloudflare)
+### 11.2 상세 일정
 
-Phase 3 (10,000-50,000 MAU):
-- 로드 밸런서 구성 (AWS ALB)
-- 수평 확장 (2-3 서버 인스턴스)
-- PostgreSQL Read Replica 추가
-- Redis Cluster
+#### Phase 1: 기획 및 설계 (완료)
 
-Phase 4 (50,000+ MAU):
-- 마이크로서비스 아키텍처 고려
-- DB 샤딩 (사용자 ID 기반)
-- Kafka/RabbitMQ 메시징
-- 별도 인증 서버
-```
+| 항목 | 목표 완료일 | 상태 |
+|------|-------------|------|
+| 도메인 정의서 작성 | 2025-11-25 | ✅ 완료 |
+| PRD 작성 | 2025-11-25 | ✅ 완료 |
+| 스타일 가이드 작성 | 2025-11-25 | ✅ 완료 |
+| DB 스키마 설계 | 2025-11-25 | 진행 중 |
+| API 명세 완료 | 2025-11-26 | 예정 |
 
-**수평 확장 전략:**
-- ✅ 무상태(Stateless) 서버 설계 (JWT 토큰 사용)
-- ✅ 로드 밸런서 구성 (AWS ALB, Nginx)
-- ✅ 데이터베이스 읽기 복제본 (Read Replica)
-- ✅ CDN 활용 (Cloudflare, Vercel Edge)
-- ✅ 캐시 서버 분리 (Redis)
+#### Phase 2: 백엔드 개발
 
----
+**기간**: 2025-11-26
 
-### 8.3 가용성 및 신뢰성
+| 항목 | 담당 | 예상 시간 |
+|------|------|-----------|
+| 프로젝트 초기 설정 | Backend | 1h |
+| Prisma 스키마 작성 및 마이그레이션 | Backend | 1h |
+| 인증 API 구현 (회원가입, 로그인, 토큰 갱신) | Backend | 3h |
+| 할일 CRUD API 구현 | Backend | 4h |
+| 휴지통 API 구현 | Backend | 2h |
+| 국경일 API 구현 | Backend | 2h |
+| 미들웨어 (인증, 에러 핸들링, Rate Limiting) | Backend | 2h |
+| API 테스트 (Postman) | Backend | 2h |
 
-| 항목 | 목표 | 설명 |
-|------|------|------|
-| **서비스 가동률(Uptime)** | 99% 이상 | 월 7.2시간 이하 다운타임 허용 |
-| **계획된 유지보수** | 월 2시간 이내 | 새벽 시간대(02:00-04:00 KST) 진행 |
-| **재해 복구 목표 시간(RTO)** | 4시간 | 장애 발생 후 복구까지 최대 시간 |
-| **재해 복구 목표 시점(RPO)** | 24시간 | 데이터 손실 허용 범위 (일 1회 백업) |
+**총 예상 시간**: 17시간
 
-**장애 대응 계획:**
+#### Phase 3: 프론트엔드 개발
 
-```
-1단계: 모니터링 알림 수신
-- UptimeRobot에서 다운타임 감지
-- Slack/이메일로 즉시 알림
+**기간**: 2025-11-27 ~ 2025-11-28 오전
 
-2단계: 헬스 체크 실패 시
-- Railway 자동 재시작 (최대 3회)
-- DB 연결 실패 시 재연결 시도
+| 항목 | 담당 | 예상 시간 |
+|------|------|-----------|
+| 프로젝트 초기 설정 (React + Vite + Tailwind) | Frontend | 1h |
+| 라우팅 및 레이아웃 구조 | Frontend | 2h |
+| 공통 컴포넌트 구현 (Button, Input, Modal) | Frontend | 3h |
+| 인증 화면 (로그인, 회원가입) | Frontend | 3h |
+| 할일 목록 화면 | Frontend | 4h |
+| 할일 추가/수정 모달 | Frontend | 3h |
+| 휴지통 화면 | Frontend | 2h |
+| 국경일 화면 | Frontend | 2h |
+| 프로필 화면 | Frontend | 2h |
+| 상태 관리 (Zustand) | Frontend | 2h |
+| API 연동 (Axios) | Frontend | 4h |
+| 반응형 디자인 적용 | Frontend | 3h |
+| 다크모드 구현 | Frontend | 2h |
 
-3단계: 수동 개입
-- Railway/Vercel 대시보드에서 로그 확인
-- 문제 원인 파악 (DB, API, 네트워크)
-- 필요시 이전 버전으로 롤백
+**총 예상 시간**: 33시간 → **2일 소요** (하루 16시간 작업 기준)
 
-4단계: 복구 후 사후 분석
-- Post-Mortem 문서 작성
-- 재발 방지 대책 수립
-- 모니터링 개선
-```
+#### Phase 4: 통합 및 테스트
 
----
+**기간**: 2025-11-28
 
-### 8.4 데이터 관리 정책
+| 항목 | 담당 | 예상 시간 |
+|------|------|-----------|
+| 프론트엔드-백엔드 통합 테스트 | Full Stack | 2h |
+| 버그 수정 | Full Stack | 2h |
+| 크로스 브라우저 테스트 | Frontend | 1h |
+| 모바일 반응형 테스트 | Frontend | 1h |
+| 성능 최적화 | Full Stack | 2h |
 
-**백업 정책:**
+**총 예상 시간**: 8시간
 
-```
-백업 주기:
-- 자동 백업: 일 1회 (새벽 03:00 KST)
-- 수동 백업: 주요 배포 전
+#### Phase 5: 배포 및 런칭
 
-백업 보관 기간:
-- 일간 백업: 최근 7일
-- 주간 백업: 최근 4주
-- 월간 백업: 최근 12개월
+**기간**: 2025-11-28 오후
 
-백업 저장 위치:
-- 기본: Railway 자동 백업
-- 추가: AWS S3 (다른 리전, Phase 2)
+| 항목 | 담당 | 예상 시간 |
+|------|------|-----------|
+| Vercel 프론트엔드 배포 | Frontend | 1h |
+| Vercel 백엔드 배포 | Backend | 1h |
+| Supabase DB 설정 | Backend | 1h |
+| 환경 변수 설정 | Full Stack | 0.5h |
+| 프로덕션 테스트 | Full Stack | 1h |
+| 런칭 | - | - |
 
-복구 테스트:
-- 분기별 1회 백업 복구 테스트
-- 테스트 환경에서 백업 복원 후 검증
-```
+**총 예상 시간**: 4.5시간
 
-**데이터 보존 기간:**
+### 11.3 마일스톤
 
-| 데이터 유형 | 보존 기간 | 사유 |
-|------------|----------|------|
-| **활성 사용자 데이터** | 무기한 | 서비스 사용 중 |
-| **삭제된 계정 데이터** | 30일 후 영구 삭제 | 복구 요청 대비, GDPR 준수 |
-| **휴지통 데이터** | 30일 후 자동 삭제 | 도메인 정의서 기준 |
-| **로그 데이터** | 90일 | 디버깅 및 분석 |
-| **감사 로그 (Audit Log)** | 1년 | 보안 및 규정 준수 (Phase 2) |
+| 마일스톤 | 날짜 | 목표 |
+|----------|------|------|
+| M1: 기획 완료 | 2025-11-25 | 도메인 정의서, PRD, API 명세 완료 |
+| M2: 백엔드 완료 | 2025-11-26 | 모든 API 구현 및 테스트 완료 |
+| M3: 프론트엔드 완료 | 2025-11-28 오전 | 모든 화면 구현 및 API 연동 완료 |
+| M4: 통합 테스트 완료 | 2025-11-28 오전 | E2E 테스트 및 버그 수정 완료 |
+| M5: 런칭 | 2025-11-28 오후 | 프로덕션 배포 완료 |
 
-**데이터 삭제 프로세스:**
+### 11.4 리스크 및 일정 버퍼
 
-```
-소프트 삭제 (Soft Delete):
-- Todo 삭제: status = DELETED, deletedAt 기록
-- 30일간 휴지통 보관
-- 복구 가능
+**주요 리스크**:
+1. 기술 학습 곡선 (React 18, Zustand, Prisma)
+2. API 통합 이슈
+3. 배포 설정 문제
 
-하드 삭제 (Hard Delete):
-- 자동 배치 작업 (매일 04:00 KST)
-- deletedAt + 30일 경과한 항목 영구 삭제
-- 관련 Trash 레코드도 함께 삭제
-- 복구 불가능
-
-계정 삭제:
-- 사용자 요청 시 즉시 계정 비활성화 (isActive = false)
-- 30일간 유예 기간 (복구 요청 가능)
-- 30일 후 모든 개인 데이터 영구 삭제 (GDPR Right to be Forgotten)
-```
+**대응 방안**:
+- 각 Phase마다 2-4시간 버퍼 포함
+- 우선순위 낮은 기능 (P1)은 시간 부족 시 제외
+- 다크모드, 검색/필터는 선택적 구현
 
 ---
 
-### 8.5 보안 요구사항
+## 12. 리스크 및 제약사항
 
-**추가 보안 요구사항:**
+### 12.1 기술적 리스크
 
-```
-암호화:
-- 전송 중 데이터: TLS 1.3
-- 저장 데이터:
-  * 비밀번호: BCrypt (Cost 10)
-  * 민감 정보: AES-256 (Phase 3, 필요 시)
+| 리스크 | 영향도 | 확률 | 대응 방안 |
+|--------|--------|------|-----------|
+| **새로운 기술 스택 학습** | High | High | - 공식 문서 우선 참고<br>- 간단한 예제부터 시작<br>- 커뮤니티 활용 |
+| **Prisma + Supabase 통합** | Medium | Medium | - Prisma 공식 Supabase 가이드 참조<br>- Connection String 설정 주의 |
+| **JWT 토큰 관리** | Medium | Medium | - 토큰 갱신 로직 명확화<br>- Refresh Token 저장 방식 결정 (Cookie vs LocalStorage) |
+| **CORS 이슈** | Low | Medium | - Express CORS 미들웨어 설정<br>- Vercel 환경 변수 확인 |
+| **성능 최적화** | Medium | Low | - 인덱싱 적용<br>- Lazy Loading<br>- 번들 크기 최소화 |
 
-개인정보 보호:
-- 로그에 이메일, 비밀번호, 토큰 등 민감 정보 제외
-- 개인정보 마스킹 (예: email → e***@example.com)
-- GDPR 준수 (데이터 삭제 요청 지원)
+### 12.2 일정 리스크
 
-보안 패치:
-- 의존성 취약점 스캔: 주 1회 자동화 (npm audit, Dependabot)
-- 중요 취약점 발견 시 48시간 이내 패치 적용
-- Minor/Patch 업데이트 월 1회
+| 리스크 | 영향도 | 대응 방안 |
+|--------|--------|-----------|
+| **프론트엔드 개발 지연** | High | - 우선순위 낮은 기능 제외 (다크모드, 검색)<br>- UI 단순화 |
+| **API 통합 이슈** | Medium | - API 명세 사전 합의<br>- Mock 데이터로 프론트 먼저 개발 |
+| **배포 설정 시간 초과** | Medium | - Vercel 템플릿 활용<br>- 배포 가이드 사전 숙지 |
 
-정기 보안 점검:
-- 분기별 1회 보안 리뷰
-- 침투 테스트 (연 1회, Phase 2)
-- OWASP Top 10 체크리스트 검증
+### 12.3 외부 의존성
 
-보안 헤더:
-- Content-Security-Policy (CSP)
-- X-Content-Type-Options: nosniff
-- X-Frame-Options: DENY
-- X-XSS-Protection: 1; mode=block
-- Strict-Transport-Security (HSTS)
-```
+| 의존성 | 리스크 | 대응 방안 |
+|--------|--------|-----------|
+| **Supabase 서비스** | 서비스 다운타임 | - 로컬 PostgreSQL 백업 환경 구축<br>- Supabase 상태 페이지 모니터링 |
+| **Vercel 배포** | 배포 실패 | - 로컬 테스트 철저히<br>- Vercel 로그 확인 |
+| **국경일 데이터** | 데이터 정확성 | - 공공데이터포털 또는 수동 입력<br>- 관리자 화면으로 수정 가능 |
 
----
+### 12.4 기술적 제약사항
 
-## 9. 출시 계획
+**도메인 정의서 참조**:
 
-### 9.1 출시 일정
+1. **인증**:
+   - JWT 기반 인증 (Access Token 15분, Refresh Token 7일)
+   - 비밀번호 bcrypt 해싱
 
-| 단계 | 목표 날짜 | 주요 마일스톤 | 담당자 | 상태 |
-|------|-----------|--------------|--------|------|
-| **기획 완료** | 2025-11-25 | PRD, 도메인 정의서 승인 | Product Manager | ✅ 완료 |
-| **디자인 완료** | 2025-12-05 | 주요 화면 와이어프레임 및 디자인 시스템 | UI/UX Designer | ⏳ 진행 중 |
-| **환경 설정** | 2025-12-10 | 프론트/백엔드 프로젝트 초기 설정, DB 스키마 | Developer | 📅 예정 |
-| **개발 Sprint 1** | 2025-12-25 | UC-01, UC-02 (인증) 개발 완료 | Developer | 📅 예정 |
-| **개발 Sprint 2** | 2026-01-15 | UC-03, UC-04, UC-05 (할일 CRUD) 개발 완료 | Developer | 📅 예정 |
-| **개발 Sprint 3** | 2026-02-05 | UC-06~UC-09 (휴지통) 개발 완료 | Developer | 📅 예정 |
-| **테스트 및 QA** | 2026-02-15 | 단위/통합 테스트, 버그 수정 | Developer | 📅 예정 |
-| **베타 테스트** | 2026-02-20 | 내부 베타 테스트 (10-20명) | Product Team | 📅 예정 |
-| **버그 수정** | 2026-02-28 | 베타 피드백 반영 | Developer | 📅 예정 |
-| **정식 출시** | 2026-03-01 | 공개 배포 (MVP) | Product Team | 📅 예정 |
+2. **데이터**:
+   - 소프트 삭제 방식 (복원 가능성 보장)
+   - 할일 제목 필수 입력
+   - 이메일 고유성
+   - 만료일 >= 시작일
 
-**개발 스프린트 상세:**
+3. **보안**:
+   - HTTPS 필수
+   - CORS 정책 설정
+   - SQL Injection / XSS 방어
+   - Rate Limiting
 
-```
-Sprint 1 (2주): 인증 시스템
-- 백엔드: User 엔티티, 회원가입/로그인 API
-- 프론트: 회원가입/로그인 화면
-- 테스트: 단위 테스트 작성
+### 12.5 비즈니스 제약사항
 
-Sprint 2 (3주): 할일 CRUD
-- 백엔드: Todo 엔티티, CRUD API
-- 프론트: 메인 화면, 할일 추가/수정 모달
-- 테스트: 통합 테스트
+1. **개발 기간**: 4일 이내 완료 필수
+2. **인력**: 1인 개발 (풀스택)
+3. **예산**: 무료 티어 활용 (Vercel, Supabase)
+4. **범위**: MVP 기능만 우선 구현, 추가 기능은 2차 개발
 
-Sprint 3 (3주): 휴지통 기능
-- 백엔드: Trash 엔티티, 복구/영구삭제 API
-- 프론트: 휴지통 화면
-- 테스트: E2E 테스트 (주요 여정)
-```
+### 12.6 데이터 제약사항
 
----
+**도메인 정의서 5.3 참조**:
+- 할일 제목: 필수 입력, VARCHAR(200)
+- 이메일: 고유, VARCHAR(255)
+- 비밀번호: bcrypt 해싱, VARCHAR(255)
+- 날짜: dueDate >= startDate
 
-### 9.2 베타 테스트 계획
+### 12.7 리스크 완화 전략
 
-**베타 테스터 규모**: 10-20명
-**베타 기간**: 10일
-**베타 유형**:
-- ✅ 비공개 베타 (Closed Beta)
-  - 지인, 개발자 커뮤니티 멤버 초대
-  - Google Form으로 신청 받기
+1. **MVP 범위 엄격히 준수**
+   - P0 기능만 우선 구현
+   - P1 기능은 시간 여유 시 추가
 
-**수집할 피드백:**
+2. **단계별 테스트**
+   - 각 Phase 완료 후 테스트
+   - 문제 조기 발견 및 해결
 
-```
-1. 기능 사용성
-   - 회원가입/로그인이 간편한가?
-   - 할일 추가/수정/삭제가 직관적인가?
-   - 휴지통 복구 기능을 찾기 쉬운가?
+3. **문서화**
+   - API 명세 명확히
+   - 코드 주석 작성
+   - README 작성
 
-2. 버그 리포트
-   - 기능 동작 오류
-   - UI 깨짐 현상
-   - 성능 이슈 (느린 로딩)
-
-3. UI/UX 개선사항
-   - 불편한 점
-   - 추가되었으면 하는 기능
-   - 디자인 개선 의견
-
-4. 전반적인 경험
-   - 전반적인 만족도 (1-5점)
-   - 지인에게 추천할 의향 (NPS)
-   - 유료 전환 의향
-```
-
-**피드백 수집 방법:**
-- Google Form 설문
-- GitHub Issues (버그 리포트)
-- Slack 채널 또는 Discord (실시간 피드백)
-- 1:1 인터뷰 (선택, 5명)
-
-**베타 테스트 성공 지표:**
-- 참여율: 80% 이상 (10명 중 8명 이상 활발히 사용)
-- 중대한 버그 발견 및 수정
-- 사용자 만족도: 평균 4.0/5.0 이상
+4. **버퍼 시간 확보**
+   - 각 Phase에 여유 시간 포함
+   - 예상치 못한 이슈 대응
 
 ---
 
-### 9.3 마케팅 및 홍보
+## 13. 부록
 
-**출시 전 (Pre-Launch):**
-- 랜딩 페이지 제작 (핵심 가치 강조)
-- 이메일 수집 (Early Access 신청)
-- 티저 콘텐츠 제작 (GIF, 스크린샷)
+### 13.1 참조 문서
 
-**출시일 (Launch Day):**
-- Product Hunt 런칭 (목표: Top 10)
-- Hacker News Show HN 포스팅
-- Reddit 관련 서브레딧 공유 (r/SideProject, r/TodoList)
-- Twitter/LinkedIn 공식 발표
+- [도메인 정의서 v1.1](./1-domain-definition.md)
+- [PRD 입력 템플릿](./2-prd-input-template.md)
+- [스타일 가이드](./4-style-guide.md)
 
-**출시 후 (Post-Launch):**
+### 13.2 관련 링크
 
-```
-1주차:
-- 개발자 커뮤니티 홍보
-  * Dev.to 글 작성
-  * 생활코딩, 인프런 커뮤니티
-  * Facebook 개발자 그룹
+**기술 문서**:
+- [React 18 공식 문서](https://react.dev/)
+- [Zustand](https://zustand-demo.pmnd.rs/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Prisma](https://www.prisma.io/)
+- [Express.js](https://expressjs.com/)
+- [Vercel](https://vercel.com/docs)
+- [Supabase](https://supabase.com/docs)
 
-2주차:
-- 블로그 포스트 작성
-  * "pkt-todolist 개발기"
-  * "Spring Boot + React로 풀스택 개발하기"
-  * "휴지통 기능 구현 과정"
+**디자인 참조**:
+- [네이버 캘린더](https://calendar.naver.com/)
+- [Material Design](https://material.io/)
 
-1개월차:
-- SEO 최적화
-- Google Ads 테스트 (소액 예산)
-- 유튜브 데모 영상 제작
+### 13.3 용어 정의
 
-장기:
-- 오픈소스 공개 (GitHub)
-- 기술 블로그 운영
-- 사용자 케이스 스터디
-```
+| 용어 | 정의 |
+|------|------|
+| **MVP** | Minimum Viable Product - 최소 기능 제품 |
+| **JWT** | JSON Web Token - 토큰 기반 인증 방식 |
+| **소프트 삭제** | 데이터를 실제로 삭제하지 않고 상태만 변경 |
+| **REST API** | Representational State Transfer - RESTful 아키텍처 기반 API |
+| **ORM** | Object-Relational Mapping - 객체-관계 매핑 |
+| **DAU** | Daily Active Users - 일일 활성 사용자 |
+| **MAU** | Monthly Active Users - 월간 활성 사용자 |
+| **KPI** | Key Performance Indicator - 핵심 성과 지표 |
 
-**홍보 예산:**
-- Phase 1: 무료 채널만 활용
-- Phase 2: 월 $50-100 (Google Ads, SNS 광고)
+### 13.4 변경 이력
 
-**바이럴 전략:**
-- 추천 프로그램 (Phase 2): 친구 초대 시 혜택
-- 소셜 공유 버튼 (Twitter, Facebook)
-- 사용자 후기 모음 페이지
+| 버전 | 날짜 | 변경 내용 | 작성자 |
+|------|------|----------|--------|
+| 1.0 | 2025-11-25 | 초안 작성 | Claude |
 
 ---
 
-## 10. 제약사항 및 리스크
+## 승인
 
-### 10.1 기술적 제약사항
-
-**현재 제약사항:**
-
-```
-1. 예산 제약
-   - 초기에는 무료 호스팅 사용 (Vercel, Railway)
-   - 데이터베이스: 무료 티어 제한 (Railway: 500MB)
-   - 월 예산: $0-20 이내
-
-2. 개발 인력
-   - 1인 개발 (프론트 + 백엔드)
-   - 디자이너 없음 (Tailwind CSS로 커버)
-   - QA 전담 인력 없음 (자동화 테스트로 커버)
-
-3. 기술 스택
-   - React + Spring Boot (학습 목적, 변경 불가)
-   - PostgreSQL (선택 완료)
-
-4. 인프라
-   - 초기에는 단일 서버
-   - 스케일링 제한 (무료 티어)
-   - 백업 제한 (Railway: 최근 7일만)
-
-5. 시간 제약
-   - 3개월 내 MVP 출시 목표
-   - 주 20-30시간 개발 시간
-```
-
-**제약사항에 따른 대응:**
-- 불필요한 기능 과감히 제외 (MVP에 집중)
-- UI 컴포넌트 라이브러리 활용 (Headless UI)
-- CI/CD 자동화로 배포 시간 단축
-- 오픈소스 도구 적극 활용
+| 역할 | 이름 | 서명 | 날짜 |
+|------|------|------|------|
+| Product Owner | - | - | - |
+| Tech Lead | - | - | - |
+| Designer | - | - | - |
 
 ---
 
-### 10.2 비즈니스 리스크
-
-| 리스크 | 영향도 | 발생 가능성 | 대응 방안 |
-|--------|--------|------------|-----------|
-| **초기 사용자 확보 실패** | HIGH | MEDIUM | - 개발자 커뮤니티 집중 공략<br>- 무료 + 광고 없음 강조<br>- Product Hunt 런칭 준비 철저히 |
-| **경쟁사 대비 차별점 부족** | MEDIUM | HIGH | - 휴지통 복구 기능 적극 홍보<br>- 한국 사용자 특화 (국경일)<br>- 단순함을 강점으로 |
-| **호스팅 비용 증가** | MEDIUM | LOW | - 무료 티어 한도 모니터링<br>- 사용자 500명 이상 시 유료 전환<br>- 스폰서십 또는 기부 모델 고려 |
-| **개발 일정 지연** | HIGH | MEDIUM | - Agile 스프린트로 관리<br>- MVP 범위 엄격히 관리<br>- 기능 우선순위 명확히 |
-| **보안 취약점 발견** | HIGH | LOW | - 의존성 자동 스캔<br>- 코드 리뷰 철저히<br>- Sentry로 에러 모니터링 |
-| **데이터 손실** | HIGH | LOW | - 자동 백업 활성화<br>- 백업 복구 테스트<br>- 트랜잭션 관리 철저히 |
-| **기술 스택 미스매치** | MEDIUM | LOW | - 초기 PoC로 검증<br>- 대안 기술 스택 조사 |
-
----
-
-### 10.3 법적/컴플라이언스 요구사항
-
-**필수 법적 문서:**
-- ✅ 개인정보 처리방침 작성 (Phase 1)
-- ✅ 이용약관 작성 (Phase 1)
-- ⬜ GDPR 준수 (EU 사용자 대상 시, Phase 2)
-  - 데이터 삭제 요청 지원
-  - 데이터 이동권 지원 (CSV 내보내기)
-- ⬜ CCPA 준수 (캘리포니아 사용자 대상 시, Phase 3)
-- ⬜ 쿠키 정책 (Phase 2)
-
-**데이터 저장 지역:**
-```
-사용자 데이터 저장 위치:
-- Railway: US East (버지니아) 또는 EU (프랑크푸르트)
-- 선택: 한국 사용자 고려하여 Asia Pacific (도쿄) 선호
-
-백업 위치:
-- Railway 자동 백업 (동일 리전)
-- Phase 2: AWS S3 다른 리전에 추가 백업
-```
-
-**개인정보 수집 항목:**
-- 필수: 이메일, 비밀번호 (해시)
-- 선택: 이름 (Phase 2)
-- 자동 수집: IP 주소, 접속 로그 (90일 보관)
-
-**개인정보 처리 위탁:**
-- Vercel (프론트엔드 호스팅)
-- Railway (백엔드 호스팅, DB)
-- Sentry (에러 추적)
-- Google Analytics (분석)
-
-**사용자 권리:**
-- 열람권: 설정 화면에서 본인 정보 확인
-- 수정권: 프로필 수정 기능
-- 삭제권: 계정 삭제 기능 (30일 유예)
-- 처리 정지 요청: 이메일로 문의
-
----
-
-## 11. 지원 및 유지보수
-
-### 11.1 고객 지원 계획
-
-**Phase 1 (MVP):**
-- ✅ FAQ 페이지 (자주 묻는 질문 10개)
-- ✅ 이메일 지원 (support@yourdomain.com)
-- ⬜ 챗봇 (Phase 2)
-- ⬜ 커뮤니티 포럼 (Phase 3)
-- ⬜ 1:1 고객 지원 (유료 사용자, Phase 3)
-
-**응답 시간 목표:**
-- 이메일 문의 응답: 48시간 내
-- 중요 버그 수정: 3일 내
-- 일반 개선 요청: 다음 스프린트
-
-**고객 지원 채널:**
-
-```
-1순위: 이메일 (support@yourdomain.com)
-- 버그 리포트
-- 기능 요청
-- 계정 관련 문의
-
-2순위: GitHub Issues (공개)
-- 버그 리포트
-- 기능 제안
-- 기술 문의
-
-3순위: FAQ 페이지
-- 자주 묻는 질문
-- 사용 가이드
-- 트러블슈팅
-```
-
-**FAQ 주요 주제:**
-- 회원가입 및 로그인 문제
-- 비밀번호 재설정 방법
-- 할일 삭제 및 복구 방법
-- 휴지통 자동 삭제 정책
-- 데이터 백업 및 내보내기 (Phase 2)
-- 계정 삭제 방법
-- 모바일 지원 여부
-
----
-
-### 11.2 업데이트 계획
-
-**업데이트 주기:**
-
-```
-주요 기능 업데이트:
-- Phase 1 → Phase 2: 출시 후 3개월
-- Phase 2 → Phase 3: 출시 후 6개월
-- 주요 기능: 분기별 1회
-
-버그 수정 업데이트:
-- 중요: 발견 즉시 (24-48시간 내)
-- 일반: 주 1회 배포
-
-UI/UX 개선:
-- 사용자 피드백 기반
-- 월 1-2회 소소한 개선
-
-의존성 업데이트:
-- 보안 패치: 즉시
-- Minor/Patch: 월 1회
-- Major: 분기별 검토
-```
-
-**업데이트 프로세스:**
-
-```
-1. 기획 및 이슈 등록 (GitHub Issues)
-   ↓
-2. 개발 (feature/* 브랜치)
-   ↓
-3. 코드 리뷰 (Self-review)
-   ↓
-4. 테스트 (자동화 테스트 + 수동 테스트)
-   ↓
-5. develop 브랜치 머지 (Preview 배포)
-   ↓
-6. QA 및 베타 테스트 (선택)
-   ↓
-7. main 브랜치 머지 (프로덕션 배포)
-   ↓
-8. 헬스 체크 및 모니터링
-   ↓
-9. 릴리스 노트 작성 및 공지
-```
-
-**릴리스 노트 형식:**
-
-```markdown
-## v1.1.0 - 2026-04-01
-
-### ✨ 새로운 기능
-- 할일 검색 기능 추가
-- 다크 모드 지원
-
-### 🐛 버그 수정
-- 휴지통에서 복구 시 만료일이 초기화되는 버그 수정
-- 모바일에서 모달 스크롤 오류 수정
-
-### 🚀 개선사항
-- API 응답 속도 20% 개선
-- 할일 목록 로딩 애니메이션 추가
-
-### 📝 기타
-- 개인정보 처리방침 업데이트
-```
-
----
-
-## 12. 추가 정보
-
-### 12.1 기타 고려사항
-
-**국제화 (i18n) 계획:**
-- Phase 1: 한국어만 지원
-- Phase 2: 영어 추가 (i18next 도입)
-- Phase 3: 일본어, 중국어 고려
-
-**공통 일정 관리:**
-- Phase 1: 대한민국 국경일만 (설날, 추석, 광복절 등)
-- Phase 2: 24절기, 기념일 추가
-- Phase 3: 사용자 국가별 공휴일 (i18n 연동)
-
-**데이터 마이그레이션:**
-- 타사 서비스에서 가져오기 기능 (Phase 3)
-- CSV 파일 import (Todoist, Trello 등)
-
-**소셜 기능 (장기):**
-- 할일 공유 (링크 생성)
-- 협업 기능 (팀 워크스페이스)
-- 피드 기능 (친구의 완료한 할일 보기)
-
----
-
-### 12.2 참고 문서
-
-**내부 문서:**
-- [도메인 정의서](./1-domain-definition.md) - 엔티티, 유스케이스, 비즈니스 규칙
-- PRD 입력 템플릿 - 이 문서 작성 기반
-
-**외부 자료:**
-- [RFC 5322 - Internet Message Format](https://tools.ietf.org/html/rfc5322) (이메일 형식)
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/) (보안 가이드라인)
-- [WCAG 2.1](https://www.w3.org/WAI/WCAG21/quickref/) (접근성 가이드라인)
-- [Todoist](https://todoist.com/) (경쟁사 분석)
-- [Linear](https://linear.app/) (디자인 레퍼런스)
-
-**기술 문서:**
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [React Documentation](https://react.dev/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-
----
-
-## 작성 완료 체크리스트
-
-작성 완료 후 아래 항목을 확인해주세요:
-
-- [x] 1. 제품 개요 - 비전과 가치 제안이 명확한가?
-- [x] 2. 비즈니스 목표 - 측정 가능한 KPI가 정의되었는가?
-- [x] 3. 타겟 사용자 - 구체적인 페르소나가 작성되었는가?
-- [x] 4. 사용자 여정 - 온보딩부터 핵심 가치 경험까지 명확한가?
-- [x] 5. 기능 우선순위 - MVP 기능이 명확히 구분되었는가?
-- [x] 6. UI/UX 요구사항 - 디자인 방향과 주요 화면이 정의되었는가?
-- [x] 7. 기술 스택 - 프론트/백엔드 기술이 명확히 선택되었는가?
-- [x] 8. 비기능 요구사항 - 성능, 확장성, 보안 목표가 정의되었는가?
-- [x] 9. 출시 계획 - 현실적인 일정이 수립되었는가?
-- [x] 10. 제약사항 및 리스크 - 주요 리스크와 대응 방안이 있는가?
-- [x] 11. 지원 및 유지보수 - 사용자 지원 계획이 있는가?
-
----
-
-## 다음 단계
-
-**이 PRD 승인 후 진행할 작업:**
-
-1. **즉시 시작:**
-   - [ ] 기술 스택 PoC (Proof of Concept)
-   - [ ] 프로젝트 환경 설정 (프론트/백엔드)
-   - [ ] UI 와이어프레임 및 디자인 시스템
-   - [ ] DB 스키마 설계 및 마이그레이션 스크립트
-
-2. **1주 내:**
-   - [ ] API 명세서 작성 (OpenAPI/Swagger)
-   - [ ] 데이터베이스 스키마 최종 확정
-   - [ ] CI/CD 파이프라인 구축
-   - [ ] 개발 환경 구축 가이드 작성
-
-3. **2주 내:**
-   - [ ] Sprint 1 시작 (인증 시스템 개발)
-   - [ ] 테스트 시나리오 상세 명세
-   - [ ] 랜딩 페이지 제작 (마케팅)
-
-**검토 및 승인:**
-- Product Owner 검토: TBD
-- Tech Lead 검토: TBD
-- 최종 승인자: TBD
-
----
-
-**문서 끝**
+**문서 종료**
