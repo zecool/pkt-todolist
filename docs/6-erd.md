@@ -1,8 +1,9 @@
-# pkt-todolist 데이터 모델 (ERD)
+# pkt-TodoList 데이터베이스 ERD
 
 **버전**: 1.0
 **작성일**: 2025-11-26
 **상태**: 최종
+**작성자**: Claude
 **참조 문서**:
 - [도메인 정의서](./1-domain-definition.md)
 - [PRD](./3-prd.md)
@@ -11,467 +12,931 @@
 
 ## 목차
 
-1. [ERD 다이어그램](#1-erd-다이어그램)
-2. [엔티티 상세](#2-엔티티-상세)
-3. [Prisma 스키마](#3-prisma-스키마)
-4. [인덱스 전략](#4-인덱스-전략)
-5. [제약 조건](#5-제약-조건)
+1. [ERD 개요](#1-erd-개요)
+2. [Mermaid ERD 다이어그램](#2-mermaid-erd-다이어그램)
+3. [엔티티 상세 설명](#3-엔티티-상세-설명)
+   - 3.1 [User (사용자)](#31-user-사용자)
+   - 3.2 [Todo (할일)](#32-todo-할일)
+   - 3.3 [Holiday (국경일)](#33-holiday-국경일)
+4. [관계(Relationship) 설명](#4-관계relationship-설명)
+5. [인덱스 전략](#5-인덱스-전략)
+6. [제약 조건](#6-제약-조건)
+7. [비즈니스 규칙 반영](#7-비즈니스-규칙-반영)
+8. [소프트 삭제 패턴](#8-소프트-삭제-패턴)
+9. [SQL DDL 예시](#9-sql-ddl-예시)
 
 ---
 
-## 1. ERD 다이어그램
+## 1. ERD 개요
 
-### 1.1 Mermaid ERD
+### 1.1 데이터베이스 설계 목적
+
+pkt-TodoList 애플리케이션의 데이터 저장 및 관리를 위한 PostgreSQL 15+ 기반 데이터베이스 스키마입니다.
+
+### 1.2 설계 원칙
+
+1. **정규화**: 데이터 중복 최소화 및 무결성 보장
+2. **확장성**: 향후 기능 추가를 고려한 유연한 구조
+3. **성능**: 인덱싱을 통한 쿼리 최적화
+4. **안전성**: 외래키 제약과 소프트 삭제를 통한 데이터 보호
+
+### 1.3 주요 엔티티
+
+- **User**: 사용자 계정 정보
+- **Todo**: 사용자별 할일 정보
+- **Holiday**: 공통 국경일 정보
+
+### 1.4 데이터베이스 메타 정보
+
+| 항목              | 내용                   |
+| ----------------- | ---------------------- |
+| DBMS              | PostgreSQL 15+         |
+| 문자 인코딩       | UTF-8                  |
+| 타임존            | UTC                    |
+| 기본 ID 타입      | UUID                   |
+| 타임스탬프 정밀도 | TIMESTAMP WITHOUT TIME ZONE |
+
+---
+
+## 2. Mermaid ERD 다이어그램
 
 ```mermaid
 erDiagram
-    User ||--o{ Todo : owns
+    User ||--o{ Todo : "owns"
 
     User {
-        uuid userId PK
-        varchar(255) email UK
-        varchar(255) password
-        varchar(100) username
-        enum role
-        timestamp createdAt
-        timestamp updatedAt
+        UUID userId PK "사용자 고유 ID"
+        VARCHAR(255) email UK "로그인 이메일"
+        VARCHAR(255) password "bcrypt 해시 비밀번호"
+        VARCHAR(100) username "사용자 이름"
+        ENUM role "user, admin"
+        TIMESTAMP createdAt "가입일시"
+        TIMESTAMP updatedAt "최종 수정일시"
     }
 
     Todo {
-        uuid todoId PK
-        uuid userId FK
-        varchar(200) title
-        text content
-        date startDate
-        date dueDate
-        enum status
-        boolean isCompleted
-        timestamp createdAt
-        timestamp updatedAt
-        timestamp deletedAt
+        UUID todoId PK "할일 고유 ID"
+        UUID userId FK "소유자 ID"
+        VARCHAR(200) title "할일 제목"
+        TEXT content "할일 상세 내용"
+        DATE startDate "시작일"
+        DATE dueDate "만료일"
+        ENUM status "active, completed, deleted"
+        BOOLEAN isCompleted "완료 여부"
+        TIMESTAMP createdAt "생성일시"
+        TIMESTAMP updatedAt "최종 수정일시"
+        TIMESTAMP deletedAt "삭제일시 (소프트 삭제)"
     }
 
     Holiday {
-        uuid holidayId PK
-        varchar(100) title
-        date date
-        text description
-        boolean isRecurring
-        timestamp createdAt
-        timestamp updatedAt
+        UUID holidayId PK "국경일 고유 ID"
+        VARCHAR(100) title "국경일 이름"
+        DATE date "국경일 날짜"
+        TEXT description "설명"
+        BOOLEAN isRecurring "매년 반복 여부"
+        TIMESTAMP createdAt "생성일시"
+        TIMESTAMP updatedAt "최종 수정일시"
     }
 ```
 
-### 1.2 관계 설명
+---
 
-| 관계 | 설명 | 카디널리티 |
-|------|------|------------|
-| User - Todo | 사용자는 여러 개의 할일을 소유 | 1:N |
-| Holiday | 독립 엔티티 (모든 사용자 공유) | - |
+## 3. 엔티티 상세 설명
+
+### 3.1 User (사용자)
+
+사용자 계정 정보를 저장하는 테이블입니다.
+
+#### 필드 정의
+
+| 필드명    | 데이터 타입           | NULL | 기본값  | 제약 조건             | 설명                             |
+| --------- | --------------------- | ---- | ------- | --------------------- | -------------------------------- |
+| userId    | UUID                  | NO   | gen_random_uuid() | PRIMARY KEY           | 사용자 고유 식별자               |
+| email     | VARCHAR(255)          | NO   | -       | UNIQUE, NOT NULL      | 로그인용 이메일 주소             |
+| password  | VARCHAR(255)          | NO   | -       | NOT NULL              | bcrypt 해시된 비밀번호 (salt rounds: 10) |
+| username  | VARCHAR(100)          | NO   | -       | NOT NULL              | 사용자 표시 이름                 |
+| role      | ENUM('user', 'admin') | NO   | 'user'  | NOT NULL, DEFAULT 'user' | 사용자 권한 역할                 |
+| createdAt | TIMESTAMP             | NO   | NOW()   | NOT NULL              | 계정 생성 일시 (UTC)             |
+| updatedAt | TIMESTAMP             | NO   | NOW()   | NOT NULL              | 최종 정보 수정 일시 (UTC)        |
+
+#### 비즈니스 규칙
+
+- **BR-01**: 모든 API 접근은 인증된 사용자만 가능
+- **BR-02**: 사용자는 자신의 할일만 조회/수정/삭제 가능
+- 이메일은 중복 불가 (고유성 보장)
+- 비밀번호는 bcrypt로 해싱하여 저장 (평문 저장 금지)
+- role은 'user' 또는 'admin' 두 가지 값만 허용
+
+#### 참고 사항
+
+- UUID v4 사용으로 예측 불가능성 보장
+- 이메일은 대소문자 구분 없이 저장 (소문자 변환 권장)
+- updatedAt은 프로필 수정 시마다 자동 갱신
 
 ---
 
-## 2. 엔티티 상세
+### 3.2 Todo (할일)
 
-### 2.1 User (사용자)
+사용자별 할일 정보를 저장하는 테이블입니다.
 
-**설명**: 시스템 사용자 정보를 저장하는 테이블
+#### 필드 정의
 
-| 필드 | 타입 | 제약 | 기본값 | 설명 |
-|------|------|------|--------|------|
-| userId | UUID | PK | uuid() | 사용자 고유 ID |
-| email | VARCHAR(255) | UNIQUE, NOT NULL | - | 로그인 이메일 |
-| password | VARCHAR(255) | NOT NULL | - | bcrypt 해시된 비밀번호 |
-| username | VARCHAR(100) | NOT NULL | - | 사용자 이름 |
-| role | ENUM('user', 'admin') | NOT NULL | 'user' | 사용자 역할 |
-| createdAt | TIMESTAMP | NOT NULL | now() | 가입일시 |
-| updatedAt | TIMESTAMP | NOT NULL | now() | 최종 수정일시 |
+| 필드명      | 데이터 타입                            | NULL | 기본값   | 제약 조건                             | 설명                                   |
+| ----------- | -------------------------------------- | ---- | -------- | ------------------------------------- | -------------------------------------- |
+| todoId      | UUID                                   | NO   | gen_random_uuid() | PRIMARY KEY                           | 할일 고유 식별자                       |
+| userId      | UUID                                   | NO   | -        | FOREIGN KEY REFERENCES User(userId) ON DELETE CASCADE | 할일 소유자 ID                         |
+| title       | VARCHAR(200)                           | NO   | -        | NOT NULL                              | 할일 제목 (최대 200자)                 |
+| content     | TEXT                                   | YES  | NULL     | -                                     | 할일 상세 내용 (선택사항)              |
+| startDate   | DATE                                   | YES  | NULL     | -                                     | 할일 시작일                            |
+| dueDate     | DATE                                   | YES  | NULL     | CHECK (dueDate >= startDate OR dueDate IS NULL) | 할일 만료일 (시작일 이후여야 함)       |
+| status      | ENUM('active', 'completed', 'deleted') | NO   | 'active' | NOT NULL, DEFAULT 'active'            | 할일 상태 (활성/완료/삭제)             |
+| isCompleted | BOOLEAN                                | NO   | false    | NOT NULL, DEFAULT false               | 완료 여부 플래그                       |
+| createdAt   | TIMESTAMP                              | NO   | NOW()    | NOT NULL                              | 할일 생성 일시 (UTC)                   |
+| updatedAt   | TIMESTAMP                              | NO   | NOW()    | NOT NULL                              | 할일 최종 수정 일시 (UTC)              |
+| deletedAt   | TIMESTAMP                              | YES  | NULL     | -                                     | 할일 삭제 일시 (소프트 삭제용)         |
 
-**비즈니스 규칙**:
-- [BR-01] 모든 API는 인증된 사용자만 접근 가능
-- [BR-02] 사용자는 자신의 할일만 조회/수정/삭제 가능
-- 이메일은 중복 불가
-- 비밀번호는 bcrypt로 해싱 후 저장 (salt rounds: 10)
+#### 비즈니스 규칙
 
-### 2.2 Todo (할일)
+- **BR-02**: 사용자는 자신의 할일만 조회/수정/삭제 가능
+- **BR-05**: 할일 삭제 시 휴지통으로 이동 (status='deleted', deletedAt 기록)
+- **BR-06**: 휴지통의 할일은 복원 가능
+- **BR-07**: 영구 삭제 시 DB에서 완전히 제거
+- **BR-08**: 할일 완료 시 isCompleted=true, status='completed'
+- **BR-12**: 만료일은 시작일과 같거나 이후여야 함
+- **BR-13**: 만료일 지난 할일은 UI에서 시각적 구분
 
-**설명**: 사용자별 할일 정보를 저장하는 테이블
+#### 상태 전이 규칙
 
-| 필드 | 타입 | 제약 | 기본값 | 설명 |
-|------|------|------|--------|------|
-| todoId | UUID | PK | uuid() | 할일 고유 ID |
-| userId | UUID | FK, NOT NULL | - | 소유자 ID (User 참조) |
-| title | VARCHAR(200) | NOT NULL | - | 할일 제목 |
-| content | TEXT | NULL | - | 할일 상세 내용 |
-| startDate | DATE | NULL | - | 시작일 |
-| dueDate | DATE | NULL | - | 만료일 |
-| status | ENUM('active', 'completed', 'deleted') | NOT NULL | 'active' | 할일 상태 |
-| isCompleted | BOOLEAN | NOT NULL | false | 완료 여부 |
-| createdAt | TIMESTAMP | NOT NULL | now() | 생성일시 |
-| updatedAt | TIMESTAMP | NOT NULL | now() | 최종 수정일시 |
-| deletedAt | TIMESTAMP | NULL | - | 삭제일시 (소프트 삭제) |
-
-**제약 조건**:
-- CHECK: `dueDate >= startDate` (만료일은 시작일 이후)
-- FOREIGN KEY: `userId REFERENCES User(userId) ON DELETE CASCADE`
-
-**비즈니스 규칙**:
-- [BR-05] 할일 삭제 시 휴지통으로 이동 (status='deleted', deletedAt 기록)
-- [BR-06] 휴지통의 할일은 복원 가능
-- [BR-07] 영구 삭제 시 DB에서 완전히 제거
-- [BR-08] 할일 완료 시 isCompleted=true, status='completed'
-- [BR-12] 만료일은 시작일과 같거나 이후여야 함
-- [BR-13] 만료일 지난 할일은 UI에서 시각적 구분
-
-**상태 전이**:
 ```
-active → completed (완료 처리)
-active → deleted (휴지통 이동)
-completed → deleted (휴지통 이동)
-deleted → active (복원)
+[active] ──완료──> [completed]
+         ──삭제──> [deleted]
+
+[completed] ──삭제──> [deleted]
+           ──미완료──> [active]
+
+[deleted] ──복원──> [active]
+         ──영구삭제──> [DB에서 제거]
 ```
 
-### 2.3 Holiday (국경일)
+#### 참고 사항
 
-**설명**: 공통 국경일 정보를 저장하는 테이블
-
-| 필드 | 타입 | 제약 | 기본값 | 설명 |
-|------|------|------|--------|------|
-| holidayId | UUID | PK | uuid() | 국경일 고유 ID |
-| title | VARCHAR(100) | NOT NULL | - | 국경일 이름 |
-| date | DATE | NOT NULL | - | 국경일 날짜 |
-| description | TEXT | NULL | - | 설명 |
-| isRecurring | BOOLEAN | NOT NULL | true | 매년 반복 여부 |
-| createdAt | TIMESTAMP | NOT NULL | now() | 생성일시 |
-| updatedAt | TIMESTAMP | NOT NULL | now() | 최종 수정일시 |
-
-**비즈니스 규칙**:
-- [BR-03] 모든 인증된 사용자가 조회 가능
-- [BR-04] 관리자(role='admin')만 추가/수정 권한
-- [BR-09] 관리자만 추가/수정 가능
-- [BR-10] 국경일은 삭제 불가
-- [BR-11] 매년 반복되는 일정 지원
+- title은 필수 입력 필드
+- content는 선택사항으로 NULL 허용
+- startDate와 dueDate는 선택사항
+- deletedAt은 소프트 삭제 시에만 값이 설정됨
+- 사용자 삭제 시 해당 사용자의 모든 할일도 CASCADE로 삭제
 
 ---
 
-## 3. Prisma 스키마
+### 3.3 Holiday (국경일)
 
-### 3.1 스키마 정의
+공통 국경일 정보를 저장하는 테이블입니다.
 
-```prisma
-// schema.prisma
+#### 필드 정의
 
-generator client {
-  provider = "prisma-client-js"
-}
+| 필드명      | 데이터 타입  | NULL | 기본값 | 제약 조건    | 설명                             |
+| ----------- | ------------ | ---- | ------ | ------------ | -------------------------------- |
+| holidayId   | UUID         | NO   | gen_random_uuid() | PRIMARY KEY  | 국경일 고유 식별자               |
+| title       | VARCHAR(100) | NO   | -      | NOT NULL     | 국경일 이름 (예: 신정, 설날)     |
+| date        | DATE         | NO   | -      | NOT NULL     | 국경일 날짜                      |
+| description | TEXT         | YES  | NULL   | -            | 국경일 설명                      |
+| isRecurring | BOOLEAN      | NO   | true   | NOT NULL, DEFAULT true | 매년 반복 여부                   |
+| createdAt   | TIMESTAMP    | NO   | NOW()  | NOT NULL     | 국경일 데이터 생성 일시 (UTC)    |
+| updatedAt   | TIMESTAMP    | NO   | NOW()  | NOT NULL     | 국경일 데이터 최종 수정 일시 (UTC) |
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+#### 비즈니스 규칙
 
-// 사용자 모델
-model User {
-  userId    String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  username  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+- **BR-03**: 모든 인증된 사용자가 조회 가능
+- **BR-04**: 관리자(role='admin')만 추가/수정 권한
+- **BR-09**: 관리자만 추가/수정 가능
+- **BR-10**: 국경일은 삭제 불가 (영구 보존)
+- **BR-11**: 매년 반복되는 일정 지원
 
-  // 관계
-  todos     Todo[]
+#### 데이터 예시
 
-  @@index([role])
-  @@map("users")
-}
+| holidayId | title      | date       | description          | isRecurring |
+| --------- | ---------- | ---------- | -------------------- | ----------- |
+| uuid-1    | 신정       | 2025-01-01 | 새해 첫날            | true        |
+| uuid-2    | 설날       | 2025-01-29 | 음력 1월 1일         | true        |
+| uuid-3    | 광복절     | 2025-08-15 | 대한민국 독립 기념일 | true        |
+| uuid-4    | 크리스마스 | 2025-12-25 | 성탄절               | true        |
 
-// 할일 모델
-model Todo {
-  todoId      String     @id @default(uuid())
-  userId      String
-  title       String
-  content     String?
-  startDate   DateTime?  @db.Date
-  dueDate     DateTime?  @db.Date
-  status      TodoStatus @default(ACTIVE)
-  isCompleted Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  deletedAt   DateTime?
+#### 참고 사항
 
-  // 관계
-  user        User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
-
-  @@index([userId, status])
-  @@index([dueDate])
-  @@index([deletedAt])
-  @@map("todos")
-}
-
-// 국경일 모델
-model Holiday {
-  holidayId   String   @id @default(uuid())
-  title       String
-  date        DateTime @db.Date
-  description String?
-  isRecurring Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([date])
-  @@map("holidays")
-}
-
-// 열거형: 사용자 역할
-enum Role {
-  USER
-  ADMIN
-}
-
-// 열거형: 할일 상태
-enum TodoStatus {
-  ACTIVE
-  COMPLETED
-  DELETED
-}
-```
-
-### 3.2 마이그레이션 명령어
-
-```bash
-# Prisma 초기화
-npx prisma init
-
-# 마이그레이션 생성
-npx prisma migrate dev --name init
-
-# Prisma Client 생성
-npx prisma generate
-
-# Prisma Studio (DB GUI)
-npx prisma studio
-```
+- isRecurring=true인 경우 매년 같은 날짜에 표시
+- 음력 기반 국경일(설날, 추석)은 연도별로 별도 레코드 생성 필요
+- 국경일은 삭제 기능 없음 (관리자만 수정 가능)
+- User 테이블과 관계 없음 (공통 데이터)
 
 ---
 
-## 4. 인덱스 전략
+## 4. 관계(Relationship) 설명
 
-### 4.1 User 테이블
+### 4.1 User ↔ Todo (1:N)
 
-| 인덱스 | 타입 | 컬럼 | 목적 |
-|--------|------|------|------|
-| PK | PRIMARY KEY | userId | 기본키 |
-| UK | UNIQUE | email | 이메일 중복 방지 및 로그인 조회 |
-| IDX | INDEX | role | 관리자 조회 성능 향상 |
+**관계 유형**: One-to-Many (일대다)
 
-**쿼리 예시**:
+**관계 설명**:
+- 한 명의 사용자(User)는 여러 개의 할일(Todo)을 소유할 수 있습니다.
+- 각 할일(Todo)은 반드시 한 명의 사용자에게 속합니다.
+
+**외래키**: `Todo.userId` → `User.userId`
+
+**CASCADE 규칙**:
 ```sql
--- 로그인 조회 (email 인덱스 사용)
-SELECT * FROM users WHERE email = 'user@example.com';
+ON DELETE CASCADE
+```
+- 사용자 삭제 시 해당 사용자의 모든 할일도 함께 삭제됩니다.
+- 데이터 정합성을 보장합니다.
 
--- 관리자 조회 (role 인덱스 사용)
-SELECT * FROM users WHERE role = 'ADMIN';
+**참조 무결성**:
+- Todo 생성 시 반드시 유효한 userId가 필요합니다.
+- 존재하지 않는 userId로는 할일을 생성할 수 없습니다.
+
+---
+
+### 4.2 Holiday (독립 엔티티)
+
+**관계 유형**: Independent (독립)
+
+**관계 설명**:
+- Holiday는 User 및 Todo와 직접적인 외래키 관계가 없습니다.
+- 모든 사용자가 공통으로 조회하는 읽기 전용 데이터입니다.
+
+**활용 방식**:
+- 애플리케이션 레이어에서 할일 목록과 국경일을 함께 표시합니다.
+- 날짜(date) 필드를 기준으로 조인하여 UI에서 병합합니다.
+
+---
+
+## 5. 인덱스 전략
+
+### 5.1 User 테이블 인덱스
+
+| 인덱스 이름        | 타입         | 컬럼   | 목적                     |
+| ------------------ | ------------ | ------ | ------------------------ |
+| user_pkey          | PRIMARY KEY  | userId | 기본키 인덱스 (자동 생성) |
+| idx_user_email     | UNIQUE INDEX | email  | 로그인 시 빠른 조회      |
+| idx_user_role      | INDEX        | role   | 관리자 조회 최적화       |
+
+**쿼리 최적화 예시**:
+```sql
+-- 로그인 시 이메일 조회 (UNIQUE INDEX 활용)
+SELECT * FROM "User" WHERE email = 'user@example.com';
+
+-- 관리자 목록 조회 (INDEX 활용)
+SELECT * FROM "User" WHERE role = 'admin';
 ```
 
-### 4.2 Todo 테이블
+---
 
-| 인덱스 | 타입 | 컬럼 | 목적 |
-|--------|------|------|------|
-| PK | PRIMARY KEY | todoId | 기본키 |
-| IDX | INDEX | userId, status | 사용자별 상태 조회 |
-| IDX | INDEX | dueDate | 만료일 기준 정렬 |
-| IDX | INDEX | deletedAt | 휴지통 조회 |
+### 5.2 Todo 테이블 인덱스
 
-**쿼리 예시**:
+| 인덱스 이름           | 타입  | 컬럼             | 목적                            |
+| --------------------- | ----- | ---------------- | ------------------------------- |
+| todo_pkey             | PRIMARY KEY | todoId           | 기본키 인덱스 (자동 생성)       |
+| idx_todo_user_status  | INDEX | userId, status   | 사용자별 상태 조회 최적화       |
+| idx_todo_duedate      | INDEX | dueDate          | 만료일 기준 정렬 최적화         |
+| idx_todo_deletedat    | INDEX | deletedAt        | 휴지통 조회 최적화              |
+| idx_todo_createdat    | INDEX | createdAt        | 생성일 기준 정렬 최적화         |
+
+**복합 인덱스 설명**:
+- `idx_todo_user_status`: userId와 status를 함께 조회하는 쿼리 최적화
+  ```sql
+  SELECT * FROM "Todo" WHERE userId = ? AND status = 'active';
+  ```
+
+**쿼리 최적화 예시**:
 ```sql
--- 사용자별 활성 할일 조회 (userId, status 복합 인덱스 사용)
-SELECT * FROM todos
-WHERE userId = 'xxx' AND status = 'ACTIVE'
-ORDER BY dueDate DESC;
+-- 활성 할일 조회 (복합 인덱스 활용)
+SELECT * FROM "Todo"
+WHERE userId = 'uuid' AND status = 'active'
+ORDER BY dueDate ASC;
 
--- 휴지통 조회 (deletedAt 인덱스 사용)
-SELECT * FROM todos
-WHERE userId = 'xxx' AND deletedAt IS NOT NULL;
+-- 휴지통 조회 (deletedAt 인덱스 활용)
+SELECT * FROM "Todo"
+WHERE userId = 'uuid' AND deletedAt IS NOT NULL
+ORDER BY deletedAt DESC;
 
--- 만료일 기준 정렬 (dueDate 인덱스 사용)
-SELECT * FROM todos
-WHERE userId = 'xxx'
+-- 만료 예정 할일 조회 (dueDate 인덱스 활용)
+SELECT * FROM "Todo"
+WHERE userId = 'uuid' AND dueDate <= CURRENT_DATE + INTERVAL '7 days'
 ORDER BY dueDate ASC;
 ```
 
-### 4.3 Holiday 테이블
+---
 
-| 인덱스 | 타입 | 컬럼 | 목적 |
-|--------|------|------|------|
-| PK | PRIMARY KEY | holidayId | 기본키 |
-| IDX | INDEX | date | 날짜 기준 조회 |
+### 5.3 Holiday 테이블 인덱스
 
-**쿼리 예시**:
+| 인덱스 이름      | 타입        | 컬럼 | 목적                      |
+| ---------------- | ----------- | ---- | ------------------------- |
+| holiday_pkey     | PRIMARY KEY | holidayId | 기본키 인덱스 (자동 생성) |
+| idx_holiday_date | INDEX       | date | 날짜 기준 조회 최적화     |
+
+**쿼리 최적화 예시**:
 ```sql
--- 특정 연도 국경일 조회 (date 인덱스 사용)
-SELECT * FROM holidays
-WHERE date >= '2025-01-01' AND date <= '2025-12-31'
+-- 특정 연도 국경일 조회 (date 인덱스 활용)
+SELECT * FROM "Holiday"
+WHERE EXTRACT(YEAR FROM date) = 2025
+ORDER BY date ASC;
+
+-- 특정 월 국경일 조회
+SELECT * FROM "Holiday"
+WHERE date >= '2025-01-01' AND date < '2025-02-01'
 ORDER BY date ASC;
 ```
 
 ---
 
-## 5. 제약 조건
+### 5.4 인덱스 관리 전략
 
-### 5.1 User 테이블 제약
+**인덱스 생성 시점**:
+- PRIMARY KEY, UNIQUE 제약은 테이블 생성 시 자동으로 인덱스 생성
+- 일반 인덱스는 데이터 삽입 후 생성 (대량 데이터 INSERT 성능 향상)
 
+**인덱스 모니터링**:
 ```sql
--- 기본키 제약
-CONSTRAINT PK_User PRIMARY KEY (userId)
-
--- 고유 제약
-CONSTRAINT UK_User_Email UNIQUE (email)
-
--- NOT NULL 제약
-CONSTRAINT NN_User_Email CHECK (email IS NOT NULL)
-CONSTRAINT NN_User_Password CHECK (password IS NOT NULL)
-CONSTRAINT NN_User_Username CHECK (username IS NOT NULL)
-CONSTRAINT NN_User_Role CHECK (role IS NOT NULL)
-
--- CHECK 제약
-CONSTRAINT CK_User_Role CHECK (role IN ('USER', 'ADMIN'))
+-- 인덱스 사용률 확인 (PostgreSQL)
+SELECT
+    schemaname, tablename, indexname, idx_scan, idx_tup_read
+FROM pg_stat_user_indexes
+WHERE schemaname = 'public'
+ORDER BY idx_scan ASC;
 ```
 
-### 5.2 Todo 테이블 제약
-
+**인덱스 재구성**:
 ```sql
--- 기본키 제약
-CONSTRAINT PK_Todo PRIMARY KEY (todoId)
-
--- 외래키 제약
-CONSTRAINT FK_Todo_User FOREIGN KEY (userId)
-    REFERENCES User(userId) ON DELETE CASCADE
-
--- NOT NULL 제약
-CONSTRAINT NN_Todo_UserId CHECK (userId IS NOT NULL)
-CONSTRAINT NN_Todo_Title CHECK (title IS NOT NULL)
-CONSTRAINT NN_Todo_Status CHECK (status IS NOT NULL)
-CONSTRAINT NN_Todo_IsCompleted CHECK (isCompleted IS NOT NULL)
-
--- CHECK 제약
-CONSTRAINT CK_Todo_Status CHECK (status IN ('ACTIVE', 'COMPLETED', 'DELETED'))
-CONSTRAINT CK_Todo_DateRange CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate)
-
--- 비즈니스 규칙 제약
-CONSTRAINT CK_Todo_Title_Length CHECK (LENGTH(title) <= 200)
-```
-
-### 5.3 Holiday 테이블 제약
-
-```sql
--- 기본키 제약
-CONSTRAINT PK_Holiday PRIMARY KEY (holidayId)
-
--- NOT NULL 제약
-CONSTRAINT NN_Holiday_Title CHECK (title IS NOT NULL)
-CONSTRAINT NN_Holiday_Date CHECK (date IS NOT NULL)
-CONSTRAINT NN_Holiday_IsRecurring CHECK (isRecurring IS NOT NULL)
-
--- CHECK 제약
-CONSTRAINT CK_Holiday_Title_Length CHECK (LENGTH(title) <= 100)
+-- 인덱스 재생성 (단편화 해소)
+REINDEX TABLE "Todo";
 ```
 
 ---
 
-## 6. 데이터베이스 설정
+## 6. 제약 조건
 
-### 6.1 PostgreSQL 버전
+### 6.1 기본키 제약 (Primary Key)
 
-- **최소 버전**: PostgreSQL 15+
-- **권장 버전**: PostgreSQL 16
-- **호스팅**: Supabase
+모든 테이블은 UUID 타입의 기본키를 사용합니다.
 
-### 6.2 Connection String
-
-```env
-# Supabase PostgreSQL
-DATABASE_URL="postgresql://[user]:[password]@[host]:[port]/[database]?schema=public"
-
-# 로컬 개발
-DATABASE_URL="postgresql://localhost:5432/pkt_todolist?schema=public"
+```sql
+ALTER TABLE "User" ADD CONSTRAINT user_pkey PRIMARY KEY (userId);
+ALTER TABLE "Todo" ADD CONSTRAINT todo_pkey PRIMARY KEY (todoId);
+ALTER TABLE "Holiday" ADD CONSTRAINT holiday_pkey PRIMARY KEY (holidayId);
 ```
 
-### 6.3 데이터베이스 기능
-
-- **트랜잭션 지원**: ACID 보장
-- **인덱싱**: B-Tree 인덱스 사용
-- **자동 백업**: Supabase 자동 백업
-- **Connection Pooling**: PgBouncer 사용
+**특징**:
+- UUID v4 사용으로 전역적 고유성 보장
+- 자동 증가(AUTO_INCREMENT) 대비 보안성 향상
+- 분산 시스템 환경에서 ID 충돌 방지
 
 ---
 
-## 7. 샘플 데이터
-
-### 7.1 User 샘플
+### 6.2 외래키 제약 (Foreign Key)
 
 ```sql
-INSERT INTO users (userId, email, password, username, role) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'admin@example.com', '$2b$10$...', '관리자', 'ADMIN'),
-('550e8400-e29b-41d4-a716-446655440001', 'user@example.com', '$2b$10$...', '홍길동', 'USER');
+ALTER TABLE "Todo"
+ADD CONSTRAINT fk_todo_user
+FOREIGN KEY (userId)
+REFERENCES "User"(userId)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
 ```
 
-### 7.2 Todo 샘플
+**CASCADE 동작**:
+- `ON DELETE CASCADE`: 사용자 삭제 시 해당 사용자의 모든 할일도 삭제
+- `ON UPDATE CASCADE`: userId 변경 시 Todo의 userId도 자동 갱신 (UUID 사용으로 거의 발생 안 함)
+
+---
+
+### 6.3 고유성 제약 (Unique)
 
 ```sql
-INSERT INTO todos (todoId, userId, title, content, startDate, dueDate, status, isCompleted) VALUES
-('660e8400-e29b-41d4-a716-446655440000', '550e8400-e29b-41d4-a716-446655440001', '프로젝트 마감', 'PRD 작성 완료', '2025-11-25', '2025-11-28', 'ACTIVE', false),
-('660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440001', '회의 준비', '발표 자료 준비', '2025-11-26', '2025-11-27', 'COMPLETED', true);
+-- User 테이블
+ALTER TABLE "User" ADD CONSTRAINT unique_user_email UNIQUE (email);
 ```
 
-### 7.3 Holiday 샘플
+**목적**:
+- 이메일 중복 가입 방지
+- 로그인 시 고유성 보장
+
+---
+
+### 6.4 NOT NULL 제약
+
+| 테이블  | 필수 필드                                                |
+| ------- | -------------------------------------------------------- |
+| User    | userId, email, password, username, role, createdAt, updatedAt |
+| Todo    | todoId, userId, title, status, isCompleted, createdAt, updatedAt |
+| Holiday | holidayId, title, date, isRecurring, createdAt, updatedAt |
+
+---
+
+### 6.5 체크 제약 (Check Constraint)
+
+#### 6.5.1 Todo.dueDate 제약
 
 ```sql
-INSERT INTO holidays (holidayId, title, date, description, isRecurring) VALUES
-('770e8400-e29b-41d4-a716-446655440000', '신정', '2025-01-01', '새해 첫날', true),
-('770e8400-e29b-41d4-a716-446655440001', '설날', '2025-01-29', '음력 1월 1일', true),
-('770e8400-e29b-41d4-a716-446655440002', '삼일절', '2025-03-01', '3.1 독립운동 기념일', true),
-('770e8400-e29b-41d4-a716-446655440003', '어린이날', '2025-05-05', '어린이날', true),
-('770e8400-e29b-41d4-a716-446655440004', '현충일', '2025-06-06', '국가를 위해 희생한 분들을 추모', true),
-('770e8400-e29b-41d4-a716-446655440005', '광복절', '2025-08-15', '대한민국 독립 기념일', true),
-('770e8400-e29b-41d4-a716-446655440006', '개천절', '2025-10-03', '대한민국 건국 기념일', true),
-('770e8400-e29b-41d4-a716-446655440007', '한글날', '2025-10-09', '한글 창제 기념일', true),
-('770e8400-e29b-41d4-a716-446655440008', '크리스마스', '2025-12-25', '성탄절', true);
+ALTER TABLE "Todo"
+ADD CONSTRAINT check_todo_duedate
+CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate);
+```
+
+**규칙**: 만료일은 시작일과 같거나 이후여야 함 (BR-12)
+
+**허용 사례**:
+- startDate='2025-11-25', dueDate='2025-11-28' ✅
+- startDate='2025-11-25', dueDate='2025-11-25' ✅ (같은 날 허용)
+- startDate=NULL, dueDate='2025-11-28' ✅ (시작일 없음)
+- startDate='2025-11-25', dueDate=NULL ✅ (만료일 없음)
+
+**거부 사례**:
+- startDate='2025-11-25', dueDate='2025-11-24' ❌ (만료일이 시작일 이전)
+
+#### 6.5.2 User.role 제약
+
+```sql
+ALTER TABLE "User"
+ADD CONSTRAINT check_user_role
+CHECK (role IN ('user', 'admin'));
+```
+
+**규칙**: role은 'user' 또는 'admin'만 허용
+
+#### 6.5.3 Todo.status 제약
+
+```sql
+ALTER TABLE "Todo"
+ADD CONSTRAINT check_todo_status
+CHECK (status IN ('active', 'completed', 'deleted'));
+```
+
+**규칙**: status는 'active', 'completed', 'deleted'만 허용
+
+---
+
+### 6.6 기본값 제약 (Default)
+
+| 테이블  | 필드        | 기본값      | 설명                |
+| ------- | ----------- | ----------- | ------------------- |
+| User    | userId      | gen_random_uuid() | UUID 자동 생성      |
+| User    | role        | 'user'      | 일반 사용자 역할    |
+| User    | createdAt   | NOW()       | 현재 시각           |
+| User    | updatedAt   | NOW()       | 현재 시각           |
+| Todo    | todoId      | gen_random_uuid() | UUID 자동 생성      |
+| Todo    | status      | 'active'    | 활성 상태           |
+| Todo    | isCompleted | false       | 미완료 상태         |
+| Todo    | createdAt   | NOW()       | 현재 시각           |
+| Todo    | updatedAt   | NOW()       | 현재 시각           |
+| Holiday | holidayId   | gen_random_uuid() | UUID 자동 생성      |
+| Holiday | isRecurring | true        | 매년 반복           |
+| Holiday | createdAt   | NOW()       | 현재 시각           |
+| Holiday | updatedAt   | NOW()       | 현재 시각           |
+
+---
+
+## 7. 비즈니스 규칙 반영
+
+### 7.1 인증 및 권한 (Authentication & Authorization)
+
+| 규칙 ID | 내용                                      | 구현 방법                     |
+| ------- | ----------------------------------------- | ----------------------------- |
+| BR-01   | 인증된 사용자만 접근 가능                 | JWT 토큰 검증 (애플리케이션 레이어) |
+| BR-02   | 사용자는 자신의 할일만 조회/수정/삭제 가능 | WHERE userId = 현재_사용자_ID |
+| BR-04   | 관리자만 국경일 추가/수정 권한            | WHERE role = 'admin'          |
+| BR-09   | 관리자만 국경일 추가/수정 가능            | WHERE role = 'admin'          |
+
+---
+
+### 7.2 할일 관리 규칙
+
+| 규칙 ID | 내용                                           | 구현 방법                                           |
+| ------- | ---------------------------------------------- | --------------------------------------------------- |
+| BR-05   | 할일 삭제 시 휴지통으로 이동                   | UPDATE status='deleted', deletedAt=NOW()            |
+| BR-06   | 휴지통의 할일은 복원 가능                      | UPDATE status='active', deletedAt=NULL              |
+| BR-07   | 영구 삭제 시 DB에서 완전히 제거                | DELETE FROM "Todo" WHERE todoId=?                   |
+| BR-08   | 할일 완료 시 isCompleted=true, status='completed' | UPDATE isCompleted=true, status='completed'         |
+| BR-12   | 만료일은 시작일과 같거나 이후여야 함           | CHECK (dueDate >= startDate)                        |
+| BR-13   | 만료일 지난 할일은 UI에서 시각적 구분          | WHERE dueDate < CURRENT_DATE (애플리케이션 레이어) |
+
+---
+
+### 7.3 국경일 관리 규칙
+
+| 규칙 ID | 내용                     | 구현 방법                        |
+| ------- | ------------------------ | -------------------------------- |
+| BR-03   | 모든 인증된 사용자 조회 가능 | WHERE절 없이 전체 조회 허용      |
+| BR-10   | 국경일은 삭제 불가       | DELETE 기능 미구현 (관리자도 불가) |
+| BR-11   | 매년 반복되는 일정 지원  | isRecurring 필드로 플래그 관리   |
+
+---
+
+## 8. 소프트 삭제 패턴
+
+### 8.1 소프트 삭제란?
+
+데이터를 물리적으로 삭제하지 않고 논리적으로만 삭제 상태로 표시하는 방식입니다.
+
+**장점**:
+- 실수로 삭제한 데이터 복구 가능
+- 데이터 변경 이력 추적 가능
+- 외래키 참조 무결성 유지
+
+**단점**:
+- 스토리지 사용량 증가
+- 쿼리 시 deletedAt 조건 추가 필요
+- 인덱스 효율성 저하 가능성
+
+---
+
+### 8.2 Todo 테이블의 소프트 삭제 구현
+
+#### 8.2.1 데이터 구조
+
+```sql
+-- 삭제 관련 필드
+status      ENUM('active', 'completed', 'deleted')
+deletedAt   TIMESTAMP NULL
+```
+
+#### 8.2.2 삭제 동작
+
+**일반 삭제 (휴지통 이동)**:
+```sql
+UPDATE "Todo"
+SET
+    status = 'deleted',
+    deletedAt = NOW(),
+    updatedAt = NOW()
+WHERE todoId = ? AND userId = ?;
+```
+
+**영구 삭제**:
+```sql
+DELETE FROM "Todo"
+WHERE todoId = ? AND userId = ? AND status = 'deleted';
+```
+
+#### 8.2.3 복원 동작
+
+```sql
+UPDATE "Todo"
+SET
+    status = 'active',
+    deletedAt = NULL,
+    updatedAt = NOW()
+WHERE todoId = ? AND userId = ? AND status = 'deleted';
+```
+
+#### 8.2.4 조회 쿼리 패턴
+
+**활성 할일만 조회**:
+```sql
+SELECT * FROM "Todo"
+WHERE userId = ? AND status IN ('active', 'completed')
+ORDER BY createdAt DESC;
+```
+
+**휴지통 조회**:
+```sql
+SELECT * FROM "Todo"
+WHERE userId = ? AND status = 'deleted'
+ORDER BY deletedAt DESC;
+```
+
+**전체 조회 (관리 목적)**:
+```sql
+SELECT * FROM "Todo"
+WHERE userId = ?
+ORDER BY createdAt DESC;
 ```
 
 ---
 
-## 8. 성능 최적화 전략
+### 8.3 소프트 삭제 주의사항
 
-### 8.1 쿼리 최적화
-
-1. **복합 인덱스 활용**
-   - `(userId, status)` 복합 인덱스로 사용자별 상태 조회 최적화
-
-2. **부분 인덱스**
-   - 휴지통 조회를 위한 `deletedAt IS NOT NULL` 부분 인덱스
-
-3. **인덱스 커버링**
-   - SELECT 절에 필요한 컬럼만 조회하여 인덱스 커버링 최대화
-
-### 8.2 데이터 분할 (향후 고려)
-
-- **파티셔닝**: 할일 데이터가 증가하면 날짜 기준 파티셔닝 고려
-- **아카이빙**: 삭제된 할일은 일정 기간 후 아카이브 테이블로 이동
-
-### 8.3 캐싱 전략 (향후 고려)
-
-- **국경일 데이터**: Redis 캐싱 (변경 빈도 낮음)
-- **사용자 세션**: JWT 토큰 방식 사용으로 DB 부하 최소화
+1. **인덱스 전략**: deletedAt 컬럼에 인덱스 생성 필요
+2. **쿼리 성능**: 모든 SELECT 쿼리에 status 조건 추가 필수
+3. **데이터 정리**: 주기적으로 오래된 삭제 데이터 정리 (예: 30일 이상 경과)
+4. **용량 관리**: 삭제된 데이터가 누적되면 테이블 크기 증가
 
 ---
 
-## 9. 변경 이력
+## 9. SQL DDL 예시
 
-| 버전 | 날짜 | 변경 내용 | 작성자 |
-|------|------|----------|--------|
-| 1.0 | 2025-11-26 | ERD 문서 작성 | Claude |
+### 9.1 테이블 생성 스크립트
+
+#### 9.1.1 User 테이블
+
+```sql
+-- User 테이블 생성
+CREATE TABLE "User" (
+    userId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email       VARCHAR(255) NOT NULL UNIQUE,
+    password    VARCHAR(255) NOT NULL,
+    username    VARCHAR(100) NOT NULL,
+    role        VARCHAR(10) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- 이메일 고유 인덱스 (자동 생성됨)
+-- CREATE UNIQUE INDEX idx_user_email ON "User"(email);
+
+-- 역할 조회 인덱스
+CREATE INDEX idx_user_role ON "User"(role);
+
+-- 테이블 코멘트
+COMMENT ON TABLE "User" IS '사용자 계정 정보';
+COMMENT ON COLUMN "User".userId IS '사용자 고유 ID (UUID)';
+COMMENT ON COLUMN "User".email IS '로그인용 이메일 주소 (고유)';
+COMMENT ON COLUMN "User".password IS 'bcrypt 해시된 비밀번호';
+COMMENT ON COLUMN "User".username IS '사용자 표시 이름';
+COMMENT ON COLUMN "User".role IS '사용자 역할 (user, admin)';
+COMMENT ON COLUMN "User".createdAt IS '계정 생성 일시';
+COMMENT ON COLUMN "User".updatedAt IS '최종 정보 수정 일시';
+```
+
+#### 9.1.2 Todo 테이블
+
+```sql
+-- Todo 테이블 생성
+CREATE TABLE "Todo" (
+    todoId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    userId      UUID NOT NULL REFERENCES "User"(userId) ON DELETE CASCADE ON UPDATE CASCADE,
+    title       VARCHAR(200) NOT NULL,
+    content     TEXT,
+    startDate   DATE,
+    dueDate     DATE,
+    status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'deleted')),
+    isCompleted BOOLEAN NOT NULL DEFAULT false,
+    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW(),
+    deletedAt   TIMESTAMP,
+
+    -- 제약 조건: 만료일은 시작일 이후
+    CONSTRAINT check_todo_duedate CHECK (
+        dueDate IS NULL OR
+        startDate IS NULL OR
+        dueDate >= startDate
+    )
+);
+
+-- 사용자별 상태 조회 복합 인덱스
+CREATE INDEX idx_todo_user_status ON "Todo"(userId, status);
+
+-- 만료일 정렬 인덱스
+CREATE INDEX idx_todo_duedate ON "Todo"(dueDate);
+
+-- 휴지통 조회 인덱스
+CREATE INDEX idx_todo_deletedat ON "Todo"(deletedAt);
+
+-- 생성일 정렬 인덱스
+CREATE INDEX idx_todo_createdat ON "Todo"(createdAt);
+
+-- 테이블 코멘트
+COMMENT ON TABLE "Todo" IS '사용자별 할일 정보';
+COMMENT ON COLUMN "Todo".todoId IS '할일 고유 ID (UUID)';
+COMMENT ON COLUMN "Todo".userId IS '할일 소유자 ID (외래키)';
+COMMENT ON COLUMN "Todo".title IS '할일 제목 (필수, 최대 200자)';
+COMMENT ON COLUMN "Todo".content IS '할일 상세 내용 (선택)';
+COMMENT ON COLUMN "Todo".startDate IS '할일 시작일';
+COMMENT ON COLUMN "Todo".dueDate IS '할일 만료일 (시작일 이후)';
+COMMENT ON COLUMN "Todo".status IS '할일 상태 (active, completed, deleted)';
+COMMENT ON COLUMN "Todo".isCompleted IS '완료 여부 플래그';
+COMMENT ON COLUMN "Todo".createdAt IS '할일 생성 일시';
+COMMENT ON COLUMN "Todo".updatedAt IS '할일 최종 수정 일시';
+COMMENT ON COLUMN "Todo".deletedAt IS '할일 삭제 일시 (소프트 삭제)';
+```
+
+#### 9.1.3 Holiday 테이블
+
+```sql
+-- Holiday 테이블 생성
+CREATE TABLE "Holiday" (
+    holidayId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title       VARCHAR(100) NOT NULL,
+    date        DATE NOT NULL,
+    description TEXT,
+    isRecurring BOOLEAN NOT NULL DEFAULT true,
+    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- 날짜 조회 인덱스
+CREATE INDEX idx_holiday_date ON "Holiday"(date);
+
+-- 테이블 코멘트
+COMMENT ON TABLE "Holiday" IS '공통 국경일 정보';
+COMMENT ON COLUMN "Holiday".holidayId IS '국경일 고유 ID (UUID)';
+COMMENT ON COLUMN "Holiday".title IS '국경일 이름';
+COMMENT ON COLUMN "Holiday".date IS '국경일 날짜';
+COMMENT ON COLUMN "Holiday".description IS '국경일 설명';
+COMMENT ON COLUMN "Holiday".isRecurring IS '매년 반복 여부';
+COMMENT ON COLUMN "Holiday".createdAt IS '데이터 생성 일시';
+COMMENT ON COLUMN "Holiday".updatedAt IS '데이터 최종 수정 일시';
+```
+
+---
+
+### 9.2 트리거 (자동 updatedAt 갱신)
+
+```sql
+-- updatedAt 자동 갱신 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updatedAt = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- User 테이블 트리거
+CREATE TRIGGER trigger_user_updated_at
+BEFORE UPDATE ON "User"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- Todo 테이블 트리거
+CREATE TRIGGER trigger_todo_updated_at
+BEFORE UPDATE ON "Todo"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- Holiday 테이블 트리거
+CREATE TRIGGER trigger_holiday_updated_at
+BEFORE UPDATE ON "Holiday"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+```
+
+---
+
+### 9.3 초기 데이터 삽입
+
+#### 9.3.1 관리자 계정 생성
+
+```sql
+-- 관리자 계정 (비밀번호: admin123, bcrypt 해시 예시)
+INSERT INTO "User" (email, password, username, role)
+VALUES (
+    'admin@pkt-todolist.com',
+    '$2b$10$rQ8kHZQJ9X5nXZ8qZqZqZuZqZqZqZqZqZqZqZqZqZqZqZqZqZq', -- 실제 bcrypt 해시 필요
+    '관리자',
+    'admin'
+);
+```
+
+#### 9.3.2 국경일 데이터 삽입
+
+```sql
+-- 2025년 대한민국 국경일
+INSERT INTO "Holiday" (title, date, description, isRecurring) VALUES
+('신정', '2025-01-01', '새해 첫날', true),
+('설날', '2025-01-29', '음력 1월 1일 (설)', true),
+('삼일절', '2025-03-01', '3·1운동 기념일', true),
+('어린이날', '2025-05-05', '어린이날', true),
+('석가탄신일', '2025-05-05', '부처님 오신 날', true),
+('현충일', '2025-06-06', '호국영령 추념일', true),
+('광복절', '2025-08-15', '대한민국 독립 기념일', true),
+('추석', '2025-10-06', '음력 8월 15일 (추석)', true),
+('개천절', '2025-10-03', '단군 건국 기념일', true),
+('한글날', '2025-10-09', '한글 창제 기념일', true),
+('크리스마스', '2025-12-25', '성탄절', true);
+```
+
+---
+
+### 9.4 데이터 조회 쿼리 예시
+
+#### 9.4.1 사용자별 활성 할일 조회
+
+```sql
+SELECT
+    t.todoId,
+    t.title,
+    t.content,
+    t.startDate,
+    t.dueDate,
+    t.status,
+    t.isCompleted,
+    t.createdAt,
+    t.updatedAt,
+    CASE
+        WHEN t.dueDate < CURRENT_DATE THEN true
+        ELSE false
+    END AS isOverdue
+FROM "Todo" t
+WHERE t.userId = '사용자_UUID'
+  AND t.status IN ('active', 'completed')
+ORDER BY
+    t.isCompleted ASC,
+    t.dueDate ASC NULLS LAST,
+    t.createdAt DESC;
+```
+
+#### 9.4.2 월별 할일 및 국경일 통합 조회
+
+```sql
+-- 2025년 11월 할일 및 국경일
+WITH monthly_data AS (
+    -- 할일
+    SELECT
+        todoId AS id,
+        'todo' AS type,
+        title,
+        startDate AS date,
+        dueDate,
+        status,
+        isCompleted
+    FROM "Todo"
+    WHERE userId = '사용자_UUID'
+      AND status IN ('active', 'completed')
+      AND (
+          (startDate >= '2025-11-01' AND startDate < '2025-12-01')
+          OR (dueDate >= '2025-11-01' AND dueDate < '2025-12-01')
+      )
+
+    UNION ALL
+
+    -- 국경일
+    SELECT
+        holidayId AS id,
+        'holiday' AS type,
+        title,
+        date,
+        NULL AS dueDate,
+        NULL AS status,
+        NULL AS isCompleted
+    FROM "Holiday"
+    WHERE date >= '2025-11-01' AND date < '2025-12-01'
+)
+SELECT * FROM monthly_data
+ORDER BY date ASC, type DESC;
+```
+
+#### 9.4.3 휴지통 조회 (30일 이내 삭제)
+
+```sql
+SELECT
+    todoId,
+    title,
+    deletedAt,
+    EXTRACT(DAY FROM (NOW() - deletedAt)) AS days_in_trash
+FROM "Todo"
+WHERE userId = '사용자_UUID'
+  AND status = 'deleted'
+  AND deletedAt > NOW() - INTERVAL '30 days'
+ORDER BY deletedAt DESC;
+```
+
+---
+
+### 9.5 테이블 삭제 스크립트
+
+```sql
+-- 순서 주의: 외래키 참조 순서의 역순으로 삭제
+DROP TABLE IF EXISTS "Todo" CASCADE;
+DROP TABLE IF EXISTS "User" CASCADE;
+DROP TABLE IF EXISTS "Holiday" CASCADE;
+
+-- 트리거 함수 삭제
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+```
+
+---
+
+## 부록
+
+### A. ERD 버전 관리
+
+| 버전 | 날짜       | 변경 내용         | 작성자 |
+| ---- | ---------- | ----------------- | ------ |
+| 1.0  | 2025-11-26 | 초안 작성 및 최종 | Claude |
+
+---
+
+### B. 데이터베이스 마이그레이션 전략
+
+**초기 구축**:
+1. User 테이블 생성
+2. Todo 테이블 생성 (외래키 설정)
+3. Holiday 테이블 생성
+4. 인덱스 생성
+5. 트리거 생성
+6. 초기 데이터 삽입
+
+**향후 변경 시**:
+- 마이그레이션 스크립트 작성 (예: Flyway, Knex.js)
+- 백업 후 변경 적용
+- 롤백 스크립트 준비
+
+---
+
+### C. 참조 문서
+
+- [PostgreSQL 15 공식 문서](https://www.postgresql.org/docs/15/)
+- [UUID 타입 가이드](https://www.postgresql.org/docs/current/datatype-uuid.html)
+- [인덱스 최적화 가이드](https://www.postgresql.org/docs/current/indexes.html)
 
 ---
 

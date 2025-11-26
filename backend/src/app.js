@@ -1,38 +1,28 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const errorMiddleware = require('./middlewares/errorMiddleware');
 
 const app = express();
 
-// 보안 헤더 설정
-app.use(helmet());
-
-// CORS 설정
+// 미들웨어 설정
 app.use(cors());
-
-// JSON 파싱 미들웨어
-app.use(express.json({ limit: '10mb' }));
+app.use(helmet());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 라우트 설정 (나중에 추가)
+// 헬스체크 엔드포인트
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
+});
+
+// 라우트 등록 (추후 추가)
 // app.use('/api/auth', authRoutes);
 // app.use('/api/todos', todoRoutes);
 // app.use('/api/trash', trashRoutes);
 // app.use('/api/holidays', holidayRoutes);
+// app.use('/api/users', userRoutes);
 
-// 404 핸들러 (정의된 라우트 이외의 경로에 대한 요청)
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      code: 'NOT_FOUND',
-      message: 'The requested resource was not found'
-    }
-  });
-});
-
-// 에러 핸들링 미들웨어 (가장 마지막에 등록)
-app.use(errorMiddleware);
+// 에러 핸들러 (추후 추가)
+// app.use(errorMiddleware);
 
 module.exports = app;

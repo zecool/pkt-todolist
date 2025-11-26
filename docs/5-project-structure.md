@@ -1,11 +1,10 @@
-# pkt-todolist 프로젝트 구조 설계 원칙
+# pkt-TodoList 프로젝트 구조 설계 원칙
 
 **버전**: 1.0
 **작성일**: 2025-11-25
 **상태**: 최종
 **작성자**: Claude
 **참조 문서**:
-
 - [도메인 정의서](./1-domain-definition.md)
 - [PRD](./3-prd.md)
 - [스타일 가이드](./4-style-guide.md)
@@ -20,6 +19,7 @@
 4. [테스트/품질 원칙](#4-테스트품질-원칙)
 5. [설정/보안/운영 원칙](#5-설정보안운영-원칙)
 6. [디렉토리 구조](#6-디렉토리-구조)
+7. [프로젝트별 추가 가이드](#7-프로젝트별-추가-가이드)
 
 ---
 
@@ -30,7 +30,6 @@
 **원칙**: 각 모듈, 컴포넌트, 함수는 하나의 책임만 가지며, 서로 다른 관심사는 명확히 분리합니다.
 
 **체크리스트**:
-
 - [ ] 각 파일은 단일 책임을 가지는가?
 - [ ] UI 로직과 비즈니스 로직이 분리되어 있는가?
 - [ ] 데이터 fetching 로직이 별도 레이어(service)에 있는가?
@@ -42,7 +41,6 @@
 **원칙**: 동일한 코드를 반복하지 말고 재사용 가능한 함수/컴포넌트로 추출합니다.
 
 **체크리스트**:
-
 - [ ] 3번 이상 반복되는 코드가 있는가? → 함수/컴포넌트로 추출
 - [ ] 공통 로직이 utils, hooks, services에 정리되어 있는가?
 - [ ] 컴포넌트 재사용성을 고려했는가?
@@ -54,7 +52,6 @@
 **원칙**: 가능한 한 단순하게 작성합니다. 복잡한 추상화나 과도한 엔지니어링을 지양합니다.
 
 **체크리스트**:
-
 - [ ] 코드가 읽고 이해하기 쉬운가?
 - [ ] 필요 이상의 추상화를 사용하지 않았는가?
 - [ ] 간단한 문제를 복잡하게 해결하지 않았는가?
@@ -66,7 +63,6 @@
 **원칙**: 현재 필요하지 않은 기능은 구현하지 않습니다. MVP에 집중합니다.
 
 **체크리스트**:
-
 - [ ] 이 기능이 MVP에 필수인가?
 - [ ] 현재 요구사항에 명시된 기능인가?
 - [ ] "나중에 필요할 것 같아서"라는 이유로 구현하지 않았는가?
@@ -78,7 +74,6 @@
 **원칙**: 각 함수, 클래스, 컴포넌트는 하나의 책임만 가져야 합니다.
 
 **체크리스트**:
-
 - [ ] 이 파일/함수/컴포넌트가 하나의 책임만 가지는가?
 - [ ] 이름이 역할을 명확히 나타내는가?
 - [ ] 변경 사유가 한 가지인가?
@@ -144,7 +139,6 @@
 ```
 
 **체크리스트**:
-
 - [ ] 각 레이어가 명확히 분리되어 있는가?
 - [ ] 레이어 간 책임이 명확한가?
 - [ ] 레이어를 넘나드는 로직이 없는가?
@@ -164,7 +158,6 @@ Business Logic → Presentation (❌ 금지)
 ```
 
 **체크리스트**:
-
 - [ ] 하위 레이어가 상위 레이어를 import하지 않는가?
 - [ ] 의존성 방향이 일관되게 하향하는가?
 - [ ] 레이어 순서: Routes → Controllers → Services → Repositories
@@ -176,7 +169,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 모듈 간 순환 의존성(Circular Dependency)을 절대 만들지 않습니다.
 
 **체크리스트**:
-
 - [ ] 모듈 A가 B를 import하고, B가 A를 import하지 않는가?
 - [ ] 빌드 시 순환 의존성 경고가 없는가?
 - [ ] 공통 로직이 적절히 분리되었는가?
@@ -188,12 +180,10 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 구체적인 구현이 아닌 인터페이스(또는 추상화)에 의존합니다. (TypeScript 사용 시)
 
 **JavaScript 프로젝트의 경우**:
-
 - TypeScript를 사용하지 않는 경우, 명확한 모듈 분리와 JSDoc으로 대체 가능
 - 의존성 주입보다는 명확한 레이어 분리에 집중
 
 **체크리스트** (TypeScript 사용 시):
-
 - [ ] Service가 구체적인 Repository 구현이 아닌 인터페이스에 의존하는가?
 - [ ] 의존성이 생성자를 통해 주입되는가?
 - [ ] 테스트 시 Mock 객체로 쉽게 대체 가능한가?
@@ -206,31 +196,30 @@ Business Logic → Presentation (❌ 금지)
 
 #### 프론트엔드 (React)
 
-| 파일 유형       | 규칙                        | 예시                                |
-| --------------- | --------------------------- | ----------------------------------- |
-| 컴포넌트        | PascalCase                  | `TodoCard.jsx`, `UserProfile.jsx`   |
-| 페이지          | PascalCase                  | `LoginPage.jsx`, `TodoListPage.jsx` |
-| 훅              | camelCase, `use` 접두사     | `useTodos.js`, `useAuth.js`         |
-| 유틸리티        | camelCase                   | `dateFormatter.js`, `validator.js`  |
-| 스토어          | camelCase, `Store` 접미사   | `todoStore.js`, `authStore.js`      |
-| 서비스          | camelCase, `Service` 접미사 | `todoService.js`, `authService.js`  |
-| 상수            | UPPER_SNAKE_CASE            | `API_ENDPOINTS.js`, `COLORS.js`     |
-| 타입/인터페이스 | PascalCase                  | `Todo.ts`, `User.ts`                |
+| 파일 유형 | 규칙 | 예시 |
+|-----------|------|------|
+| 컴포넌트 | PascalCase | `TodoCard.jsx`, `UserProfile.jsx` |
+| 페이지 | PascalCase | `LoginPage.jsx`, `TodoListPage.jsx` |
+| 훅 | camelCase, `use` 접두사 | `useTodos.js`, `useAuth.js` |
+| 유틸리티 | camelCase | `dateFormatter.js`, `validator.js` |
+| 스토어 | camelCase, `Store` 접미사 | `todoStore.js`, `authStore.js` |
+| 서비스 | camelCase, `Service` 접미사 | `todoService.js`, `authService.js` |
+| 상수 | UPPER_SNAKE_CASE | `API_ENDPOINTS.js`, `COLORS.js` |
+| 타입/인터페이스 | PascalCase | `Todo.ts`, `User.ts` |
 
 #### 백엔드 (Node.js + Express)
 
-| 파일 유형  | 규칙                           | 예시                                      |
-| ---------- | ------------------------------ | ----------------------------------------- |
-| 컨트롤러   | camelCase, `Controller` 접미사 | `todoController.js`, `authController.js`  |
-| 서비스     | camelCase, `Service` 접미사    | `todoService.js`, `authService.js`        |
-| 리포지토리 | camelCase, `Repository` 접미사 | `todoRepository.js`, `userRepository.js`  |
-| 라우트     | camelCase, `Routes` 접미사     | `todoRoutes.js`, `authRoutes.js`          |
-| 미들웨어   | camelCase, `Middleware` 접미사 | `authMiddleware.js`, `errorMiddleware.js` |
-| 유틸리티   | camelCase                      | `jwtHelper.js`, `passwordHelper.js`       |
-| 설정       | camelCase                      | `database.js`, `jwt.js`                   |
+| 파일 유형 | 규칙 | 예시 |
+|-----------|------|------|
+| 컨트롤러 | camelCase, `Controller` 접미사 | `todoController.js`, `authController.js` |
+| 서비스 | camelCase, `Service` 접미사 | `todoService.js`, `authService.js` |
+| 리포지토리 | camelCase, `Repository` 접미사 | `todoRepository.js`, `userRepository.js` |
+| 라우트 | camelCase, `Routes` 접미사 | `todoRoutes.js`, `authRoutes.js` |
+| 미들웨어 | camelCase, `Middleware` 접미사 | `authMiddleware.js`, `errorMiddleware.js` |
+| 유틸리티 | camelCase | `jwtHelper.js`, `passwordHelper.js` |
+| 설정 | camelCase | `database.js`, `jwt.js` |
 
 **체크리스트**:
-
 - [ ] 파일명이 규칙을 따르는가?
 - [ ] 파일명이 내용을 명확히 표현하는가?
 - [ ] 접두사/접미사가 일관되게 사용되는가?
@@ -241,30 +230,29 @@ Business Logic → Presentation (❌ 금지)
 
 #### 일반 규칙
 
-| 유형        | 규칙                      | 예시                                         |
-| ----------- | ------------------------- | -------------------------------------------- |
-| 변수        | camelCase                 | `userName`, `todoList`, `isCompleted`        |
-| 함수        | camelCase, 동사로 시작    | `getTodos()`, `createTodo()`, `deleteTodo()` |
-| 상수        | UPPER_SNAKE_CASE          | `API_BASE_URL`, `MAX_TODO_LENGTH`            |
-| Boolean     | `is`, `has`, `can` 접두사 | `isCompleted`, `hasPermission`, `canEdit`    |
-| 비동기 함수 | 동사 + 명사               | `fetchTodos()`, `saveTodo()`                 |
+| 유형 | 규칙 | 예시 |
+|------|------|------|
+| 변수 | camelCase | `userName`, `todoList`, `isCompleted` |
+| 함수 | camelCase, 동사로 시작 | `getTodos()`, `createTodo()`, `deleteTodo()` |
+| 상수 | UPPER_SNAKE_CASE | `API_BASE_URL`, `MAX_TODO_LENGTH` |
+| Boolean | `is`, `has`, `can` 접두사 | `isCompleted`, `hasPermission`, `canEdit` |
+| 비동기 함수 | 동사 + 명사 | `fetchTodos()`, `saveTodo()` |
 
 #### 함수 네이밍 패턴
 
-| 작업        | 패턴                                | 예시                                    |
-| ----------- | ----------------------------------- | --------------------------------------- |
-| 조회 (단일) | `get{Entity}`                       | `getTodo()`, `getUser()`                |
-| 조회 (목록) | `get{Entity}s` 또는 `list{Entity}s` | `getTodos()`, `listHolidays()`          |
-| 생성        | `create{Entity}`                    | `createTodo()`, `createUser()`          |
-| 수정        | `update{Entity}`                    | `updateTodo()`, `updateUser()`          |
-| 삭제        | `delete{Entity}`                    | `deleteTodo()`, `deleteUser()`          |
-| 검색        | `search{Entity}s`                   | `searchTodos()`                         |
-| 필터        | `filter{Entity}s`                   | `filterTodosByDate()`                   |
-| 검증        | `validate{Entity}`                  | `validateEmail()`, `validatePassword()` |
-| API 호출    | `fetch{Entity}`                     | `fetchTodos()`, `fetchHolidays()`       |
+| 작업 | 패턴 | 예시 |
+|------|------|------|
+| 조회 (단일) | `get{Entity}` | `getTodo()`, `getUser()` |
+| 조회 (목록) | `get{Entity}s` 또는 `list{Entity}s` | `getTodos()`, `listHolidays()` |
+| 생성 | `create{Entity}` | `createTodo()`, `createUser()` |
+| 수정 | `update{Entity}` | `updateTodo()`, `updateUser()` |
+| 삭제 | `delete{Entity}` | `deleteTodo()`, `deleteUser()` |
+| 검색 | `search{Entity}s` | `searchTodos()` |
+| 필터 | `filter{Entity}s` | `filterTodosByDate()` |
+| 검증 | `validate{Entity}` | `validateEmail()`, `validatePassword()` |
+| API 호출 | `fetch{Entity}` | `fetchTodos()`, `fetchHolidays()` |
 
 **체크리스트**:
-
 - [ ] 변수명이 camelCase를 따르는가?
 - [ ] Boolean 변수는 is/has/can으로 시작하는가?
 - [ ] 함수명이 동사로 시작하는가?
@@ -276,16 +264,15 @@ Business Logic → Presentation (❌ 금지)
 
 #### React 컴포넌트
 
-| 유형              | 규칙                          | 예시                                |
-| ----------------- | ----------------------------- | ----------------------------------- |
-| 일반 컴포넌트     | PascalCase                    | `Button`, `TodoCard`, `UserProfile` |
-| 페이지 컴포넌트   | PascalCase + `Page` 접미사    | `LoginPage`, `TodoListPage`         |
-| 레이아웃 컴포넌트 | PascalCase + `Layout` 접미사  | `MainLayout`, `AuthLayout`          |
-| HOC               | `with{Feature}` 접두사        | `withAuth`, `withLoading`           |
-| Context           | PascalCase + `Context` 접미사 | `AuthContext`, `ThemeContext`       |
+| 유형 | 규칙 | 예시 |
+|------|------|------|
+| 일반 컴포넌트 | PascalCase | `Button`, `TodoCard`, `UserProfile` |
+| 페이지 컴포넌트 | PascalCase + `Page` 접미사 | `LoginPage`, `TodoListPage` |
+| 레이아웃 컴포넌트 | PascalCase + `Layout` 접미사 | `MainLayout`, `AuthLayout` |
+| HOC | `with{Feature}` 접두사 | `withAuth`, `withLoading` |
+| Context | PascalCase + `Context` 접미사 | `AuthContext`, `ThemeContext` |
 
 **체크리스트**:
-
 - [ ] 컴포넌트명이 PascalCase인가?
 - [ ] 컴포넌트 역할이 이름에 명확히 드러나는가?
 - [ ] 파일명과 컴포넌트명이 동일한가?
@@ -297,7 +284,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 변경되지 않는 값은 UPPER_SNAKE_CASE를 사용하고, 파일 상단 또는 별도 상수 파일에 정의합니다.
 
 **체크리스트**:
-
 - [ ] 매직 넘버를 상수로 추출했는가?
 - [ ] 하드코딩된 문자열을 상수로 정의했는가?
 - [ ] 상수명이 UPPER_SNAKE_CASE인가?
@@ -310,7 +296,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 일관된 코드 스타일을 위해 ESLint와 Prettier를 설정하고 자동 포맷팅을 적용합니다.
 
 **체크리스트**:
-
 - [ ] ESLint와 Prettier가 프로젝트에 설정되어 있는가?
 - [ ] 저장 시 자동 포맷팅이 적용되는가?
 - [ ] 팀원 간 동일한 설정을 사용하는가?
@@ -323,20 +308,17 @@ Business Logic → Presentation (❌ 금지)
 ### 4.1 테스트 커버리지 목표
 
 **MVP 단계 목표**:
-
 - **핵심 비즈니스 로직**: 70% 이상
 - **유틸리티 함수**: 80% 이상
 - **API 엔드포인트**: 주요 CRUD 작업 커버
 
 **우선순위**:
-
 1. **P0**: 비즈니스 로직 (Services)
 2. **P1**: API 엔드포인트 (Controllers)
 3. **P2**: 유틸리티 함수
 4. **P3**: UI 컴포넌트 (선택)
 
 **체크리스트**:
-
 - [ ] 핵심 비즈니스 로직에 테스트가 있는가?
 - [ ] 엣지 케이스를 테스트하는가?
 - [ ] 실패 케이스를 테스트하는가?
@@ -347,8 +329,9 @@ Business Logic → Presentation (❌ 금지)
 
 **원칙**: 각 함수/모듈을 독립적으로 테스트합니다. 외부 의존성은 Mock으로 대체합니다.
 
-**체크리스트**:
+**테스트 네이밍 패턴**: `describe('ComponentName or FunctionName')` 내부에 `it('should [expected behavior] when [condition]')` 형식으로 작성
 
+**체크리스트**:
 - [ ] 각 테스트가 독립적으로 실행 가능한가?
 - [ ] Arrange-Act-Assert 패턴을 따르는가?
 - [ ] 외부 의존성을 Mock으로 대체했는가?
@@ -361,7 +344,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 여러 모듈이 함께 동작하는지 테스트합니다. 주로 API 엔드포인트를 테스트합니다.
 
 **체크리스트**:
-
 - [ ] 데이터베이스 연동이 포함되어 있는가?
 - [ ] 테스트 전후 데이터 정리가 되는가?
 - [ ] 인증이 필요한 API는 토큰을 포함하는가?
@@ -374,7 +356,6 @@ Business Logic → Presentation (❌ 금지)
 **MVP 단계**: E2E 테스트는 선택 사항입니다. 시간이 허용되면 주요 사용자 플로우만 테스트합니다.
 
 **우선순위 플로우**:
-
 1. 회원가입 → 로그인 → 할일 생성
 2. 할일 완료 처리
 3. 할일 삭제 → 휴지통 → 복원
@@ -382,7 +363,6 @@ Business Logic → Presentation (❌ 금지)
 **도구**: Playwright, Cypress (2차 개발 시 고려)
 
 **체크리스트**:
-
 - [ ] 핵심 사용자 플로우가 E2E로 테스트되는가? (선택)
 - [ ] 테스트 환경이 프로덕션과 유사한가? (선택)
 
@@ -391,39 +371,33 @@ Business Logic → Presentation (❌ 금지)
 ### 4.5 코드 리뷰 체크리스트
 
 **기능**:
-
 - [ ] 요구사항을 충족하는가?
 - [ ] 비즈니스 로직이 올바른가?
 - [ ] 엣지 케이스를 처리하는가?
 
 **코드 품질**:
-
 - [ ] 함수/컴포넌트가 단일 책임을 가지는가?
 - [ ] 중복 코드가 없는가? (DRY)
 - [ ] 과도한 추상화가 없는가? (KISS, YAGNI)
 - [ ] 네이밍이 명확한가?
 
 **보안**:
-
 - [ ] 사용자 입력을 검증하는가?
 - [ ] SQL Injection / XSS 취약점이 없는가?
 - [ ] 민감한 정보가 로그에 출력되지 않는가?
 - [ ] 환경 변수를 사용하는가?
 
 **성능**:
-
 - [ ] 불필요한 렌더링이 없는가? (React)
 - [ ] 데이터베이스 쿼리가 최적화되어 있는가?
 - [ ] N+1 쿼리 문제가 없는가?
 
 **테스트**:
-
 - [ ] 핵심 로직에 테스트가 있는가?
 - [ ] 테스트가 통과하는가?
 - [ ] 테스트 커버리지가 충분한가?
 
 **문서화**:
-
 - [ ] 복잡한 로직에 주석이 있는가?
 - [ ] API 변경 사항이 문서화되었는가?
 
@@ -434,13 +408,11 @@ Business Logic → Presentation (❌ 금지)
 ### 5.1 환경 변수 관리 (.env)
 
 **원칙**:
-
 - 환경별 설정값은 환경 변수로 관리합니다.
 - `.env` 파일은 절대 Git에 커밋하지 않습니다.
 - `.env.example` 파일로 필요한 환경 변수 목록을 공유합니다.
 
 **체크리스트**:
-
 - [ ] `.env` 파일이 `.gitignore`에 포함되어 있는가?
 - [ ] `.env.example` 파일이 제공되는가?
 - [ ] 민감한 정보가 코드에 하드코딩되어 있지 않은가?
@@ -454,16 +426,15 @@ Business Logic → Presentation (❌ 금지)
 
 #### 보안이 필요한 정보
 
-| 유형                  | 예시             | 관리 방법 |
-| --------------------- | ---------------- | --------- |
-| 데이터베이스 자격증명 | `DATABASE_URL`   | 환경 변수 |
-| JWT Secret            | `JWT_SECRET`     | 환경 변수 |
-| API 키                | `OPENAI_API_KEY` | 환경 변수 |
-| 외부 서비스 토큰      | `STRIPE_API_KEY` | 환경 변수 |
-| 암호화 키             | `ENCRYPTION_KEY` | 환경 변수 |
+| 유형 | 예시 | 관리 방법 |
+|------|------|-----------|
+| 데이터베이스 자격증명 | `DATABASE_URL` | 환경 변수 |
+| JWT Secret | `JWT_SECRET` | 환경 변수 |
+| API 키 | `OPENAI_API_KEY` | 환경 변수 |
+| 외부 서비스 토큰 | `STRIPE_API_KEY` | 환경 변수 |
+| 암호화 키 | `ENCRYPTION_KEY` | 환경 변수 |
 
 **체크리스트**:
-
 - [ ] JWT Secret이 안전하게 생성되었는가? (최소 32자 이상)
 - [ ] 프로덕션과 개발 환경의 시크릿이 다른가?
 - [ ] 시크릿이 로그에 출력되지 않는가?
@@ -474,12 +445,10 @@ Business Logic → Presentation (❌ 금지)
 ### 5.3 API 키 보호
 
 **원칙**:
-
 - 프론트엔드에서는 외부 API 키를 직접 사용하지 않습니다.
 - 백엔드를 통해 프록시하여 API 키를 보호합니다.
 
 **체크리스트**:
-
 - [ ] 프론트엔드 코드에 API 키가 노출되지 않는가?
 - [ ] 외부 API 호출은 백엔드를 통하는가?
 - [ ] 환경 변수로 API 키를 관리하는가?
@@ -491,7 +460,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: 허용된 Origin에서만 API 접근을 허용합니다.
 
 **체크리스트**:
-
 - [ ] CORS가 설정되어 있는가?
 - [ ] 허용된 Origin이 명시되어 있는가?
 - [ ] 프로덕션 도메인이 포함되어 있는가?
@@ -504,7 +472,6 @@ Business Logic → Presentation (❌ 금지)
 **원칙**: API 남용을 방지하기 위해 요청 횟수를 제한합니다.
 
 **체크리스트**:
-
 - [ ] Rate Limiting이 설정되어 있는가?
 - [ ] 인증 API에 더 엄격한 제한이 있는가?
 - [ ] 제한 초과 시 명확한 에러 메시지가 반환되는가?
@@ -514,22 +481,20 @@ Business Logic → Presentation (❌ 금지)
 ### 5.6 로깅 전략
 
 **원칙**:
-
 - 적절한 로그 레벨을 사용합니다 (error, warn, info, debug).
 - 민감한 정보는 로그에 출력하지 않습니다.
 - 프로덕션 환경에서는 error와 warn만 로그합니다.
 
 **로그 레벨 사용 가이드**:
 
-| 레벨    | 용도                        | 예시                             |
-| ------- | --------------------------- | -------------------------------- |
-| `error` | 에러 발생                   | `Database connection failed`     |
-| `warn`  | 경고 (정상 동작하지만 주의) | `API rate limit approaching`     |
-| `info`  | 중요한 이벤트               | `User logged in`, `Todo created` |
-| `debug` | 디버깅 정보 (개발 환경만)   | `Request body`, `Query result`   |
+| 레벨 | 용도 | 예시 |
+|------|------|------|
+| `error` | 에러 발생 | `Database connection failed` |
+| `warn` | 경고 (정상 동작하지만 주의) | `API rate limit approaching` |
+| `info` | 중요한 이벤트 | `User logged in`, `Todo created` |
+| `debug` | 디버깅 정보 (개발 환경만) | `Request body`, `Query result` |
 
 **체크리스트**:
-
 - [ ] 적절한 로그 레벨을 사용하는가?
 - [ ] 민감한 정보가 로그에 출력되지 않는가?
 - [ ] 프로덕션 환경에서는 debug 로그가 출력되지 않는가?
@@ -619,16 +584,16 @@ frontend/
 
 #### 각 폴더의 역할
 
-| 폴더          | 역할                        | 예시                                |
-| ------------- | --------------------------- | ----------------------------------- |
-| `components/` | 재사용 가능한 UI 컴포넌트   | `Button.jsx`, `TodoCard.jsx`        |
-| `pages/`      | 라우트별 페이지 컴포넌트    | `LoginPage.jsx`, `TodoListPage.jsx` |
-| `stores/`     | Zustand 스토어 (전역 상태)  | `todoStore.js`, `authStore.js`      |
-| `services/`   | API 통신 레이어             | `todoService.js`                    |
-| `hooks/`      | 커스텀 React 훅             | `useTodos.js`, `useAuth.js`         |
-| `utils/`      | 순수 유틸리티 함수          | `dateFormatter.js`, `validator.js`  |
-| `constants/`  | 상수 정의                   | `API_ENDPOINTS`, `TODO_STATUS`      |
-| `assets/`     | 이미지, 아이콘 등 정적 자산 | `logo.png`                          |
+| 폴더 | 역할 | 예시 |
+|------|------|------|
+| `components/` | 재사용 가능한 UI 컴포넌트 | `Button.jsx`, `TodoCard.jsx` |
+| `pages/` | 라우트별 페이지 컴포넌트 | `LoginPage.jsx`, `TodoListPage.jsx` |
+| `stores/` | Zustand 스토어 (전역 상태) | `todoStore.js`, `authStore.js` |
+| `services/` | API 통신 레이어 | `todoService.js` |
+| `hooks/` | 커스텀 React 훅 | `useTodos.js`, `useAuth.js` |
+| `utils/` | 순수 유틸리티 함수 | `dateFormatter.js`, `validator.js` |
+| `constants/` | 상수 정의 | `API_ENDPOINTS`, `TODO_STATUS` |
+| `assets/` | 이미지, 아이콘 등 정적 자산 | `logo.png` |
 
 ---
 
@@ -697,16 +662,16 @@ backend/
 
 #### 각 폴더의 역할
 
-| 폴더            | 역할                          | 예시                                |
-| --------------- | ----------------------------- | ----------------------------------- |
-| `controllers/`  | HTTP 요청/응답 처리           | `todoController.js`                 |
-| `services/`     | 비즈니스 로직 (핵심 기능)     | `todoService.js`                    |
-| `repositories/` | DB 액세스 (Prisma 사용)       | `todoRepository.js`                 |
-| `middlewares/`  | 요청 전처리 (인증, 검증)      | `authMiddleware.js`                 |
-| `routes/`       | 라우트 정의                   | `todoRoutes.js`                     |
-| `utils/`        | 순수 유틸리티 함수            | `jwtHelper.js`, `passwordHelper.js` |
-| `config/`       | 설정 파일                     | `database.js`, `jwt.js`             |
-| `prisma/`       | Prisma 스키마 및 마이그레이션 | `schema.prisma`                     |
+| 폴더 | 역할 | 예시 |
+|------|------|------|
+| `controllers/` | HTTP 요청/응답 처리 | `todoController.js` |
+| `services/` | 비즈니스 로직 (핵심 기능) | `todoService.js` |
+| `repositories/` | DB 액세스 (Prisma 사용) | `todoRepository.js` |
+| `middlewares/` | 요청 전처리 (인증, 검증) | `authMiddleware.js` |
+| `routes/` | 라우트 정의 | `todoRoutes.js` |
+| `utils/` | 순수 유틸리티 함수 | `jwtHelper.js`, `passwordHelper.js` |
+| `config/` | 설정 파일 | `database.js`, `jwt.js` |
+| `prisma/` | Prisma 스키마 및 마이그레이션 | `schema.prisma` |
 
 ---
 
@@ -730,19 +695,59 @@ backend/
 
 ---
 
-## 7. 부록
+## 7. 프로젝트별 추가 가이드
 
-### 7.1 체크리스트 요약
+### 7.1 React 컴포넌트 작성 가이드
+
+**원칙**:
+- 함수형 컴포넌트를 사용합니다 (React 18 권장)
+- Props는 구조 분해하여 사용합니다
+- 조건부 렌더링을 명확하게 작성합니다
+
+---
+
+### 7.2 Zustand 스토어 작성 가이드
+
+**원칙**:
+- State와 Actions를 명확히 분리합니다
+- 비동기 작업 시 loading, error 상태를 관리합니다
+- Service 레이어를 통해 API를 호출합니다
+- Selectors를 활용하여 파생 상태를 관리합니다
+
+---
+
+### 7.3 Prisma 사용 가이드
+
+**원칙**:
+- 스키마에서 관계를 명확히 정의합니다
+- 인덱스를 적절히 사용하여 쿼리 성능을 최적화합니다
+- Repository 패턴을 사용하여 데이터 액세스 로직을 분리합니다
+- Soft Delete를 고려하여 deletedAt 필드를 활용합니다
+
+---
+
+### 7.4 API 서비스 작성 가이드 (프론트엔드)
+
+**원칙**:
+- Axios 인스턴스를 생성하여 공통 설정을 관리합니다
+- 요청 인터셉터를 사용하여 자동으로 Access Token을 추가합니다
+- 응답 인터셉터를 사용하여 토큰 만료 시 자동 갱신을 처리합니다
+- API 엔드포인트를 상수로 관리합니다
+- 각 엔티티별로 서비스 파일을 분리합니다
+
+---
+
+## 8. 부록
+
+### 8.1 체크리스트 요약
 
 #### 개발 시작 전
-
 - [ ] `.env` 파일 설정 완료
 - [ ] ESLint, Prettier 설정 완료
 - [ ] Git 초기화 및 `.gitignore` 설정
 - [ ] 디렉토리 구조 생성
 
 #### 코드 작성 시
-
 - [ ] 단일 책임 원칙 준수
 - [ ] DRY 원칙 준수 (중복 제거)
 - [ ] KISS 원칙 (단순하게 작성)
@@ -751,7 +756,6 @@ backend/
 - [ ] 레이어 분리 명확
 
 #### 커밋 전
-
 - [ ] ESLint 에러 없음
 - [ ] 테스트 통과
 - [ ] 민감한 정보 제거
@@ -759,7 +763,6 @@ backend/
 - [ ] 코드 리뷰 체크리스트 확인
 
 #### 배포 전
-
 - [ ] 환경 변수 설정 확인 (Vercel)
 - [ ] CORS 설정 확인
 - [ ] Rate Limiting 설정 확인
@@ -768,17 +771,17 @@ backend/
 
 ---
 
-### 7.2 참조 문서
+### 8.2 참조 문서
 
 - [도메인 정의서](./1-domain-definition.md)
 - [PRD](./3-prd.md)
 - [스타일 가이드](./4-style-guide.md)
 
-### 7.3 변경 이력
+### 8.3 변경 이력
 
-| 버전 | 날짜       | 변경 내용 | 작성자 |
-| ---- | ---------- | --------- | ------ |
-| 1.0  | 2025-11-25 | 초안 작성 | Claude |
+| 버전 | 날짜 | 변경 내용 | 작성자 |
+|------|------|----------|--------|
+| 1.0 | 2025-11-25 | 초안 작성 | Claude |
 
 ---
 
