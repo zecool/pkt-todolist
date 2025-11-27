@@ -25,15 +25,15 @@ const register = async (email, password, username) => {
 
   // 사용자 생성
   const result = await pool.query(
-    `INSERT INTO users (email, password, username, role) 
-     VALUES ($1, $2, $3, $4) 
-     RETURNING user_id, email, username, role, created_at`,
-    [email, hashedPassword, username, 'user']
+    `INSERT INTO users (email, password, username, role)
+     VALUES ($1, $2, $3, $4)
+     RETURNING "userId", email, username, role, "createdAt"`,
+    [email, hashedPassword, username, 'USER']
   );
 
   const user = result.rows[0];
   return {
-    userId: user.user_id,
+    userId: user.userId,
     email: user.email,
     username: user.username,
     role: user.role
@@ -49,7 +49,7 @@ const register = async (email, password, username) => {
 const login = async (email, password) => {
   // 이메일로 사용자 조회
   const result = await pool.query(
-    'SELECT user_id, email, password, username, role FROM users WHERE email = $1',
+    'SELECT "userId", email, password, username, role FROM users WHERE email = $1',
     [email]
   );
 
@@ -67,13 +67,13 @@ const login = async (email, password) => {
 
   // 토큰 생성
   const accessToken = generateAccessToken({
-    userId: user.user_id,
+    userId: user.userId,
     email: user.email,
     role: user.role
   });
-  
+
   const refreshToken = generateRefreshToken({
-    userId: user.user_id,
+    userId: user.userId,
     email: user.email
   });
 
@@ -81,7 +81,7 @@ const login = async (email, password) => {
     accessToken,
     refreshToken,
     user: {
-      userId: user.user_id,
+      userId: user.userId,
       email: user.email,
       username: user.username,
       role: user.role
@@ -108,7 +108,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 사용자 존재 여부 확인
   const result = await pool.query(
-    'SELECT user_id, email, role FROM users WHERE user_id = $1',
+    'SELECT "userId", email, role FROM users WHERE "userId" = $1',
     [decoded.userId]
   );
 
@@ -120,7 +120,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 새로운 액세스 토큰 생성
   const newAccessToken = generateAccessToken({
-    userId: user.user_id,
+    userId: user.userId,
     email: user.email,
     role: user.role
   });

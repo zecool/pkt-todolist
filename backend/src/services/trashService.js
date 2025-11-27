@@ -7,8 +7,8 @@ const { pool } = require('../config/database');
  */
 const getTrash = async (userId) => {
   const result = await pool.query(
-    'SELECT * FROM todos WHERE user_id = $1 AND status = $2 ORDER BY deleted_at DESC',
-    [userId, 'deleted']
+    'SELECT * FROM todos WHERE "userId" = $1 AND status = $2 ORDER BY "deletedAt" DESC',
+    [userId, 'DELETED']
   );
 
   return result.rows;
@@ -22,8 +22,8 @@ const getTrash = async (userId) => {
  */
 const permanentlyDelete = async (todoId, userId) => {
   const result = await pool.query(
-    'DELETE FROM todos WHERE todo_id = $1 AND user_id = $2 AND status = $3 RETURNING *',
-    [todoId, userId, 'deleted']
+    'DELETE FROM todos WHERE "todoId" = $1 AND "userId" = $2 AND status = $3 RETURNING *',
+    [todoId, userId, 'DELETED']
   );
 
   if (result.rows.length === 0) {

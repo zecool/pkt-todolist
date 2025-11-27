@@ -184,3 +184,7 @@ frontend/.env*
 # Sensitive files
 secrets/
 credentials.json
+
+# Vercel
+.vercel
+.vercel.json

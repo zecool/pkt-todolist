@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const swaggerUi = require('swagger-ui-express');
+const { specs } = require('./config/swaggerOptions');
 const authRoutes = require('./routes/authRoutes');
 const todoRoutes = require('./routes/todoRoutes');
 const trashRoutes = require('./routes/trashRoutes');
@@ -17,6 +19,9 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger UI 라우트 설정
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // 헬스체크 엔드포인트
 app.get('/health', (req, res) => {

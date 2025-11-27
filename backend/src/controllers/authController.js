@@ -2,7 +2,173 @@ const { validationResult } = require('express-validator');
 const authService = require('../services/authService');
 
 /**
- * 회원가입 컨트롤러
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *         - username
+ *       properties:
+ *         userId:
+ *           type: string
+ *           format: uuid
+ *           description: 사용자 고유 ID
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: 로그인 이메일
+ *         username:
+ *           type: string
+ *           description: 사용자 이름
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *           description: 사용자 역할
+ *           default: user
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 가입일시
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 최종 수정일시
+ *       example:
+ *         userId: 550e8400-e29b-41d4-a716-446655440000
+ *         email: user@example.com
+ *         username: 홍길동
+ *         role: user
+ *         createdAt: '2025-11-25T10:00:00Z'
+ *         updatedAt: '2025-11-25T10:00:00Z'
+ *     AuthInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: 로그인 이메일
+ *         password:
+ *           type: string
+ *           description: 비밀번호
+ *     LoginInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: 로그인 이메일
+ *         password:
+ *           type: string
+ *           description: 비밀번호
+ *     LoginResponse:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           description: Access 토큰
+ *         refreshToken:
+ *           type: string
+ *           description: Refresh 토큰
+ *         user:
+ *           $ref: '#/components/schemas/User'
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         error:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: string
+ *               example: 'ERROR_CODE'
+ *             message:
+ *               type: string
+ *               example: '에러 메시지'
+ *             details:
+ *               type: array
+ *               items:
+ *                 type: object
+ *     SuccessResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: '성공 메시지'
+ *         data:
+ *           type: object
+ *           description: 응답 데이터
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: 인증 API
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: 회원가입
+ *     description: 이메일, 비밀번호, 사용자 이름으로 신규 계정을 생성합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *               username:
+ *                 type: string
+ *                 example: 홍길동
+ *     responses:
+ *       201:
+ *         description: 회원가입 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: 요청 데이터 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *         description: 이메일 중복
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const register = async (req, res) => {
   try {
@@ -50,7 +216,43 @@ const register = async (req, res) => {
 };
 
 /**
- * 로그인 컨트롤러
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: 로그인
+ *     description: 이메일/비밀번호 인증 후 JWT 토큰을 발급합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginInput'
+ *     responses:
+ *       200:
+ *         description: 로그인 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/LoginResponse'
+ *       400:
+ *         description: 요청 데이터 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const login = async (req, res) => {
   try {
@@ -88,7 +290,45 @@ const login = async (req, res) => {
 };
 
 /**
- * 토큰 갱신 컨트롤러
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: 토큰 갱신
+ *     description: Refresh Token을 사용하여 새로운 Access Token을 발급합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     responses:
+ *       200:
+ *         description: 토큰 갱신 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       401:
+ *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 const refresh = async (req, res) => {
   try {
@@ -123,7 +363,23 @@ const refresh = async (req, res) => {
 };
 
 /**
- * 로그아웃 컨트롤러
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: 로그아웃
+ *     description: 클라이언트 토큰을 삭제합니다.
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 로그아웃 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  */
 const logout = async (req, res) => {
   // 클라이언트에서 토큰을 삭제하도록 안내

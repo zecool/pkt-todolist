@@ -4,6 +4,5 @@
       "command": "path/to/command",
       "trust": true
     }
-  },
-  "$version": 2
+  }
 }

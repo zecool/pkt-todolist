@@ -7,18 +7,18 @@ const { pool } = require('../config/database');
  * @returns {Promise<Array>} 할일 목록
  */
 const getTodos = async (userId, filters = {}) => {
-  let query = 'SELECT * FROM todos WHERE user_id = $1';
+  let query = 'SELECT * FROM todos WHERE "userId" = $1';
   const params = [userId];
   let paramIndex = 2;
 
   // status 필터
   if (filters.status) {
     query += ` AND status = $${paramIndex}`;
-    params.push(filters.status);
+    params.push(filters.status.toUpperCase());
     paramIndex++;
   } else {
     // 기본적으로 deleted 상태 제외
-    query += ` AND status != 'deleted'`;
+    query += ` AND status != 'DELETED'`;
   }
 
   // 검색 필터
@@ -29,9 +29,9 @@ const getTodos = async (userId, filters = {}) => {
   }
 
   // 정렬
-  let sortBy = 'created_at';
+  let sortBy = '"createdAt"';
   if (filters.sortBy === 'dueDate') {
-    sortBy = 'due_date';
+    sortBy = '"dueDate"';
   }
   const order = filters.order === 'asc' ? 'ASC' : 'DESC';
   query += ` ORDER BY ${sortBy} ${order}`;
@@ -48,7 +48,7 @@ const getTodos = async (userId, filters = {}) => {
  */
 const getTodoById = async (todoId, userId) => {
   const result = await pool.query(
-    'SELECT * FROM todos WHERE todo_id = $1 AND user_id = $2',
+    'SELECT * FROM todos WHERE "todoId" = $1 AND "userId" = $2',
     [todoId, userId]
   );
 
@@ -79,8 +79,8 @@ const createTodo = async (userId, todoData) => {
   }
 
   const result = await pool.query(
-    `INSERT INTO todos (user_id, title, content, start_date, due_date) 
-     VALUES ($1, $2, $3, $4, $5) 
+    `INSERT INTO todos ("userId", title, content, "startDate", "dueDate")
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
     [userId, title, content, startDate, dueDate]
   );
@@ -124,21 +124,21 @@ const updateTodo = async (todoId, userId, updateData) => {
     paramIndex++;
   }
   if (startDate !== undefined) {
-    fields.push(`start_date = $${paramIndex}`);
+    fields.push(`"startDate" = $${paramIndex}`);
     values.push(startDate);
     paramIndex++;
   }
   if (dueDate !== undefined) {
-    fields.push(`due_date = $${paramIndex}`);
+    fields.push(`"dueDate" = $${paramIndex}`);
     values.push(dueDate);
     paramIndex++;
   }
 
   // 최종 업데이트 시간 업데이트
-  fields.push(`updated_at = CURRENT_TIMESTAMP`);
+  fields.push(`"updatedAt" = CURRENT_TIMESTAMP`);
   values.push(todoId, userId);
 
-  const query = `UPDATE todos SET ${fields.join(', ')} WHERE todo_id = $${paramIndex - 1} AND user_id = $${paramIndex} RETURNING *`;
+  const query = `UPDATE todos SET ${fields.join(', ')} WHERE "todoId" = $${paramIndex - 1} AND "userId" = $${paramIndex} RETURNING *`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {
@@ -156,8 +156,8 @@ const updateTodo = async (todoId, userId, updateData) => {
  */
 const completeTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'completed', is_completed = true, updated_at = CURRENT_TIMESTAMP 
-     WHERE todo_id = $1 AND user_id = $2 AND status != 'deleted'
+    `UPDATE todos SET status = 'COMPLETED', "isCompleted" = true, "updatedAt" = CURRENT_TIMESTAMP
+     WHERE "todoId" = $1 AND "userId" = $2 AND status != 'DELETED'
      RETURNING *`,
     [todoId, userId]
   );
@@ -177,8 +177,8 @@ const completeTodo = async (todoId, userId) => {
  */
 const deleteTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'deleted', deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
-     WHERE todo_id = $1 AND user_id = $2 AND status != 'deleted'
+    `UPDATE todos SET status = 'DELETED', "deletedAt" = CURRENT_TIMESTAMP, "updatedAt" = CURRENT_TIMESTAMP
+     WHERE "todoId" = $1 AND "userId" = $2 AND status != 'DELETED'
      RETURNING *`,
     [todoId, userId]
   );
@@ -198,8 +198,8 @@ const deleteTodo = async (todoId, userId) => {
  */
 const restoreTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'active', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP 
-     WHERE todo_id = $1 AND user_id = $2 AND status = 'deleted'
+    `UPDATE todos SET status = 'ACTIVE', "deletedAt" = NULL, "updatedAt" = CURRENT_TIMESTAMP
+     WHERE "todoId" = $1 AND "userId" = $2 AND status = 'DELETED'
      RETURNING *`,
     [todoId, userId]
   );
