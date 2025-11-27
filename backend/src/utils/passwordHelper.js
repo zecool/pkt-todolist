@@ -1,31 +1,26 @@
-import bcrypt from 'bcrypt';
+const bcrypt = require('bcrypt');
 
 /**
- * Hashes a plain text password using bcrypt.
- * @param {string} plainPassword - The password to hash.
- * @returns {Promise<string>} The hashed password.
+ * 비밀번호 해싱
+ * @param {string} plainPassword - 평문 비밀번호
+ * @returns {Promise<string>} 해싱된 비밀번호
  */
-export const hashPassword = async (plainPassword) => {
-  try {
-    const saltRounds = 10;
-    const hash = await bcrypt.hash(plainPassword, saltRounds);
-    return hash;
-  } catch (error) {
-    throw new Error(`Password hashing failed: ${error.message}`);
-  }
+const hashPassword = async (plainPassword) => {
+  const saltRounds = 10; // 기본 salt rounds
+  return await bcrypt.hash(plainPassword, saltRounds);
 };
 
 /**
- * Compares a plain text password with a hashed password.
- * @param {string} plainPassword - The plain text password.
- * @param {string} hashedPassword - The hashed password to compare against.
- * @returns {Promise<boolean>} True if passwords match, false otherwise.
+ * 비밀번호 비교
+ * @param {string} plainPassword - 평문 비밀번호
+ * @param {string} hashedPassword - 해싱된 비밀번호
+ * @returns {Promise<boolean>} 비밀번호 일치 여부
  */
-export const comparePassword = async (plainPassword, hashedPassword) => {
-  try {
-    const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
-    return isMatch;
-  } catch (error) {
-    throw new Error(`Password comparison failed: ${error.message}`);
-  }
+const comparePassword = async (plainPassword, hashedPassword) => {
+  return await bcrypt.compare(plainPassword, hashedPassword);
+};
+
+module.exports = {
+  hashPassword,
+  comparePassword
 };

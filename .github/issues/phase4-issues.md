@@ -28,6 +28,7 @@
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] 로컬 환경에서 프론트엔드와 백엔드 동시 실행
 - [ ] CORS 설정 확인
 - [ ] API 연동 확인
@@ -56,10 +57,12 @@
   - HTTPS: 로컬에서는 HTTP, 프로덕션에서는 HTTPS
 - **코드 확인 (backend/src/app.js)**:
   ```javascript
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+    })
+  );
   ```
 
 ---
@@ -67,10 +70,12 @@
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - Phase 2 완료 (백엔드 개발)
 - Phase 3 완료 (프론트엔드 개발)
 
 #### 후행 작업 (Blocks):
+
 - #40 - Task 4.2: Supabase PostgreSQL 설정
 
 ---
@@ -108,6 +113,7 @@ Supabase 프로젝트 생성 및 PostgreSQL 데이터베이스 설정
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] Supabase 계정 생성 (https://supabase.com/)
 - [ ] 새 프로젝트 생성
 - [ ] PostgreSQL 데이터베이스 확인
@@ -123,7 +129,7 @@ Supabase 프로젝트 생성 및 PostgreSQL 데이터베이스 설정
 - **Supabase 프로젝트 생성**:
   1. https://supabase.com/ 접속
   2. "New Project" 클릭
-  3. 프로젝트명: `whs-todolist`
+  3. 프로젝트명: `pkt-todolist`
   4. Database 비밀번호 설정 (강력한 비밀번호)
   5. Region: 한국 또는 일본 선택 (낮은 지연시간)
 - **스키마 실행 방법**:
@@ -149,11 +155,13 @@ Supabase 프로젝트 생성 및 PostgreSQL 데이터베이스 설정
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #2 - Task 1.2: 데이터베이스 스키마 작성
 - #3 - Task 1.3: 스키마 실행 및 검증
 - #4 - Task 1.4: 초기 데이터 삽입
 
 #### 후행 작업 (Blocks):
+
 - #41 - Task 4.3: Vercel 백엔드 배포
 
 ---
@@ -191,6 +199,7 @@ Vercel Serverless Functions로 백엔드 API 배포
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] GitHub 레포지토리에 코드 푸시
 - [ ] Vercel 계정 생성 및 연결
 - [ ] `backend/` 디렉토리를 Serverless Functions로 배포
@@ -240,8 +249,8 @@ Vercel Serverless Functions로 백엔드 API 배포
   - `JWT_SECRET`: 강력한 시크릿 키 (최소 32자)
   - `NODE_ENV=production`
 - **배포 URL 확인**:
-  - 배포 완료 후 URL: `https://whs-todolist-api.vercel.app/api`
-  - 테스트: `https://whs-todolist-api.vercel.app/api/holidays`
+  - 배포 완료 후 URL: `https://pkt-todolist-api.vercel.app/api`
+  - 테스트: `https://pkt-todolist-api.vercel.app/api/holidays`
 - **보안 고려사항** (PRD 6.2):
   - HTTPS 자동 적용 (Vercel 기본)
   - 환경 변수는 Vercel 대시보드에만 저장
@@ -252,17 +261,19 @@ Vercel Serverless Functions로 백엔드 API 배포
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #40 - Task 4.2: Supabase PostgreSQL 설정
 - Phase 2 완료 (백엔드 개발)
 
 #### 후행 작업 (Blocks):
+
 - #42 - Task 4.4: Vercel 프론트엔드 배포
 
 ---
 
 ### 📦 산출물
 
-- 백엔드 배포 URL (예: `https://whs-todolist-api.vercel.app/api`)
+- 백엔드 배포 URL (예: `https://pkt-todolist-api.vercel.app/api`)
 
 ---
 
@@ -292,6 +303,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] GitHub 레포지토리에 코드 푸시 (프론트엔드)
 - [ ] Vercel 프로젝트 생성 (frontend 디렉토리)
 - [ ] 환경 변수 설정
@@ -314,16 +326,16 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 - **환경 변수 설정**:
   - Vercel 대시보드 → Settings → Environment Variables
   - `VITE_API_BASE_URL`: 백엔드 API URL (Task 4.3에서 생성된 URL)
-  - 예: `VITE_API_BASE_URL=https://whs-todolist-api.vercel.app/api`
+  - 예: `VITE_API_BASE_URL=https://pkt-todolist-api.vercel.app/api`
 - **빌드 설정 확인**:
   - `vite.config.js`에서 빌드 설정 확인
   - `.env.production` 파일 생성 (선택사항)
 - **배포 URL 확인**:
-  - 배포 완료 후 URL: `https://whs-todolist.vercel.app`
+  - 배포 완료 후 URL: `https://pkt-todolist.vercel.app`
   - 브라우저에서 접속 확인
 - **CORS 확인**:
   - 백엔드에서 프론트엔드 도메인 허용 확인
-  - `backend/.env`: `FRONTEND_URL=https://whs-todolist.vercel.app`
+  - `backend/.env`: `FRONTEND_URL=https://pkt-todolist.vercel.app`
 - **주의사항**:
   - Vite 환경 변수는 빌드 시점에 주입됨
   - 환경 변수 변경 시 재배포 필요
@@ -333,17 +345,19 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #41 - Task 4.3: Vercel 백엔드 배포
 - Phase 3 완료 (프론트엔드 개발)
 
 #### 후행 작업 (Blocks):
+
 - #43 - Task 4.5: 프로덕션 환경 테스트
 
 ---
 
 ### 📦 산출물
 
-- 프론트엔드 배포 URL (예: `https://whs-todolist.vercel.app`)
+- 프론트엔드 배포 URL (예: `https://pkt-todolist.vercel.app`)
 
 ---
 
@@ -374,6 +388,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] 배포된 프론트엔드에서 전체 플로우 테스트
   - 회원가입 → 로그인 → 할일 CRUD → 휴지통 → 국경일 조회 → 프로필 → 로그아웃
 - [ ] 성능 확인 (Lighthouse)
@@ -442,9 +457,11 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #42 - Task 4.4: Vercel 프론트엔드 배포
 
 #### 후행 작업 (Blocks):
+
 - #44 - Task 4.6: 문서화 및 README 작성
 
 ---
@@ -482,6 +499,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `README.md` 작성
   - 프로젝트 개요
   - 기술 스택
@@ -498,19 +516,21 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 🔧 기술적 고려사항
 
 - **README.md 구조**:
-  ```markdown
-  # WHS-TodoList
+
+  ````markdown
+  # pkt-TodoList
 
   JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능을 제공하는 풀스택 웹 애플리케이션
 
   ## 🚀 배포 URL
 
-  - 프론트엔드: https://whs-todolist.vercel.app
-  - 백엔드 API: https://whs-todolist-api.vercel.app/api
+  - 프론트엔드: https://pkt-todolist.vercel.app
+  - 백엔드 API: https://pkt-todolist-api.vercel.app/api
 
   ## 🛠 기술 스택
 
   ### 프론트엔드
+
   - React 18
   - Vite
   - Tailwind CSS
@@ -518,6 +538,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   - React Router v6
 
   ### 백엔드
+
   - Node.js 18+
   - Express.js
   - PostgreSQL (Supabase)
@@ -525,6 +546,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   - bcrypt
 
   ### 배포 및 인프라
+
   - Vercel (Frontend + Backend)
   - Supabase (PostgreSQL)
 
@@ -533,23 +555,28 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   ### 백엔드
 
   1. 패키지 설치
+
   ```bash
   cd backend
   npm install
   ```
+  ````
 
   2. 환경 변수 설정
+
   ```bash
   cp .env.example .env
   # .env 파일 수정 (DATABASE_URL, JWT_SECRET 등)
   ```
 
   3. 데이터베이스 스키마 실행
+
   ```bash
-  psql -U postgres -d whs_todolist_dev -f database/schema.sql
+  psql -U postgres -d pkt_todolist_dev -f database/schema.sql
   ```
 
   4. 서버 실행
+
   ```bash
   npm run dev
   ```
@@ -557,18 +584,21 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   ### 프론트엔드
 
   1. 패키지 설치
+
   ```bash
   cd frontend
   npm install
   ```
 
   2. 환경 변수 설정
+
   ```bash
   cp .env.example .env
   # .env 파일 수정 (VITE_API_BASE_URL)
   ```
 
   3. 개발 서버 실행
+
   ```bash
   npm run dev
   ```
@@ -576,8 +606,9 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   ## 🔑 환경 변수
 
   ### 백엔드 (.env)
+
   ```env
-  DATABASE_URL=postgresql://postgres:password@localhost:5432/whs_todolist_dev
+  DATABASE_URL=postgresql://postgres:password@localhost:5432/pkt_todolist_dev
   JWT_SECRET=your-secret-key-change-this
   JWT_ACCESS_EXPIRATION=15m
   JWT_REFRESH_EXPIRATION=7d
@@ -586,6 +617,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   ```
 
   ### 프론트엔드 (.env)
+
   ```env
   VITE_API_BASE_URL=http://localhost:3000/api
   ```
@@ -615,6 +647,9 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 
   - Name: [Your Name]
   - Email: [Your Email]
+
+  ```
+
   ```
 
 ---
@@ -622,9 +657,11 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - Phase 4의 모든 Task 완료
 
 #### 후행 작업 (Blocks):
+
 - #45 - Task 4.7: 최종 점검 및 런칭
 
 ---
@@ -662,6 +699,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] 모든 Task 완료 확인
 - [ ] 체크리스트 점검
 - [ ] 배포 URL 공유
@@ -686,8 +724,8 @@ Vercel로 React 프론트엔드 정적 사이트 배포
   - [ ] HTTPS 적용
   - [ ] JWT 인증 정상 동작
 - **배포 URL**:
-  - 프론트엔드: `https://whs-todolist.vercel.app`
-  - 백엔드 API: `https://whs-todolist-api.vercel.app/api`
+  - 프론트엔드: `https://pkt-todolist.vercel.app`
+  - 백엔드 API: `https://pkt-todolist-api.vercel.app/api`
 - **런칭 공지** (선택):
   - GitHub README에 배포 URL 업데이트
   - 포트폴리오에 프로젝트 추가
@@ -698,9 +736,11 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - 모든 Task 완료
 
 #### 후행 작업 (Blocks):
+
 - 없음 (프로젝트 완료)
 
 ---
@@ -716,6 +756,7 @@ Vercel로 React 프론트엔드 정적 사이트 배포
 ## 전체 Phase 4 체크리스트
 
 ### 통합 및 배포
+
 - [ ] 로컬 통합 테스트
 - [ ] Supabase PostgreSQL 설정
 - [ ] Vercel 백엔드 배포

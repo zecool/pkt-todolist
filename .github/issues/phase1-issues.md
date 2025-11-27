@@ -19,8 +19,8 @@ PostgreSQL 15+ 로컬 개발 환경 설정 및 데이터베이스 생성
 ### ✅ 완료 조건
 
 - [ ] PostgreSQL 서비스 실행 중
-- [ ] `whs_todolist_dev` 데이터베이스 생성 완료
-- [ ] 연결 문자열 확인: `postgresql://localhost:5432/whs_todolist_dev`
+- [ ] `pkt_todolist_dev` 데이터베이스 생성 완료
+- [ ] 연결 문자열 확인: `postgresql://localhost:5432/pkt_todolist_dev`
 - [ ] 관리 도구로 접속 가능
 
 ---
@@ -28,10 +28,11 @@ PostgreSQL 15+ 로컬 개발 환경 설정 및 데이터베이스 생성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] PostgreSQL 15+ 설치 (Windows 환경)
 - [ ] pgAdmin 또는 DBeaver 설치 (DB 관리 도구)
 - [ ] 로컬 PostgreSQL 서버 실행 확인
-- [ ] 데이터베이스 생성 (`whs_todolist_dev`)
+- [ ] 데이터베이스 생성 (`pkt_todolist_dev`)
 - [ ] 연결 테스트 (`psql` 또는 GUI 도구)
 
 ---
@@ -46,16 +47,18 @@ PostgreSQL 15+ 로컬 개발 환경 설정 및 데이터베이스 생성
 - **주의사항**:
   - 슈퍼유저 비밀번호 안전하게 보관
   - 로컬 개발용이므로 외부 접속 차단
-  - 데이터베이스명: `whs_todolist_dev`
+  - 데이터베이스명: `pkt_todolist_dev`
 
 ---
 
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - 없음 (독립 작업)
 
 #### 후행 작업 (Blocks):
+
 - #2 - Task 1.2: 데이터베이스 스키마 작성
 
 ---
@@ -63,7 +66,7 @@ PostgreSQL 15+ 로컬 개발 환경 설정 및 데이터베이스 생성
 ### 📦 산출물
 
 - PostgreSQL 설치 완료
-- 데이터베이스: `whs_todolist_dev`
+- 데이터베이스: `pkt_todolist_dev`
 - 연결 정보 메모 (`.env` 작성용)
 
 ---
@@ -95,6 +98,7 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] User 테이블 정의 (userId, email, password, username, role, createdAt, updatedAt)
 - [ ] Todo 테이블 정의 (todoId, userId, title, content, startDate, dueDate, status, isCompleted, createdAt, updatedAt, deletedAt)
 - [ ] Holiday 테이블 정의 (holidayId, title, date, description, isRecurring, createdAt, updatedAt)
@@ -124,9 +128,11 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #1 - Task 1.1: 로컬 PostgreSQL 설치 및 설정
 
 #### 후행 작업 (Blocks):
+
 - #3 - Task 1.3: 스키마 실행 및 검증
 
 ---
@@ -163,7 +169,8 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
-- [ ] `schema.sql` 실행 (`psql -U postgres -d whs_todolist_dev -f schema.sql`)
+
+- [ ] `schema.sql` 실행 (`psql -U postgres -d pkt_todolist_dev -f schema.sql`)
 - [ ] 테이블 생성 확인 (User, Todo, Holiday)
 - [ ] 인덱스 생성 확인
 - [ ] 제약 조건 테스트 (이메일 중복, 날짜 검증)
@@ -188,9 +195,11 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #2 - Task 1.2: 데이터베이스 스키마 작성
 
 #### 후행 작업 (Blocks):
+
 - #4 - Task 1.4: 초기 데이터 삽입 (국경일)
 - #7 - Task 2.3: 데이터베이스 연결 설정
 
@@ -228,6 +237,7 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] 2025년 주요 국경일 데이터 삽입
   - 신정(1/1)
   - 삼일절(3/1)
@@ -266,9 +276,11 @@ User, Todo, Holiday 테이블 스키마 정의 및 제약조건 설정
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #3 - Task 1.3: 스키마 실행 및 검증
 
 #### 후행 작업 (Blocks):
+
 - 없음 (독립 작업)
 
 ---

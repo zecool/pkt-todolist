@@ -1,18 +1,18 @@
-const fs = require('fs');
-const { execSync } = require('child_process');
-const path = require('path');
+const fs = require("fs");
+const { execSync } = require("child_process");
+const path = require("path");
 
 // Phase 파일 목록
 const phaseFiles = [
-  '.github/issues/phase1-issues.md',
-  '.github/issues/phase2-issues.md',
-  '.github/issues/phase3-issues.md',
-  '.github/issues/phase4-issues.md'
+  ".github/issues/phase1-issues.md",
+  ".github/issues/phase2-issues.md",
+  ".github/issues/phase3-issues.md",
+  ".github/issues/phase4-issues.md",
 ];
 
 // 각 Phase 파일을 읽어서 개별 Task로 분리
 function parsePhaseFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
+  const content = fs.readFileSync(filePath, "utf-8");
 
   // ## [Phase로 시작하는 부분을 기준으로 분리
   const tasks = [];
@@ -23,23 +23,25 @@ function parsePhaseFile(filePath) {
     const taskContent = taskMatches[i].trim();
 
     // Title 추출
-    const titleMatch = taskContent.match(/## (\[Phase \d+\] Task \d+\.\d+: .+)/);
+    const titleMatch = taskContent.match(
+      /## (\[Phase \d+\] Task \d+\.\d+: .+)/
+    );
     if (!titleMatch) continue;
 
     const title = titleMatch[1];
 
     // Labels 추출
     const labelsMatch = taskContent.match(/\*\*Labels\*\*: `(.+?)`/);
-    const labels = labelsMatch ? labelsMatch[1].split('`, `').join(',') : '';
+    const labels = labelsMatch ? labelsMatch[1].split("`, `").join(",") : "";
 
     // Body 추출 (Title과 Labels 제외한 나머지)
     let body = taskContent
-      .replace(/## \[Phase \d+\] Task \d+\.\d+: .+\n\n/, '')
-      .replace(/\*\*Labels\*\*: `.+`\n\n/, '')
+      .replace(/## \[Phase \d+\] Task \d+\.\d+: .+\n\n/, "")
+      .replace(/\*\*Labels\*\*: `.+`\n\n/, "")
       .trim();
 
     // --- 구분자 제거
-    body = body.replace(/^---\n\n/, '').replace(/\n\n---$/, '');
+    body = body.replace(/^---\n\n/, "").replace(/\n\n---$/, "");
 
     tasks.push({ title, labels, body });
   }
@@ -52,11 +54,11 @@ function createIssue(task, dryRun = false) {
   const { title, labels, body } = task;
 
   // body를 임시 파일로 저장
-  const tempFile = path.join(__dirname, 'temp-issue-body.md');
-  fs.writeFileSync(tempFile, body, 'utf-8');
+  const tempFile = path.join(__dirname, "temp-issue-body.md");
+  fs.writeFileSync(tempFile, body, "utf-8");
 
   try {
-    const labelsArg = labels ? `--label "${labels}"` : '';
+    const labelsArg = labels ? `--label "${labels}"` : "";
     const command = `gh issue create --title "${title}" ${labelsArg} --body-file "${tempFile}"`;
 
     if (dryRun) {
@@ -66,7 +68,7 @@ function createIssue(task, dryRun = false) {
       return null;
     } else {
       console.log(`Creating issue: ${title}...`);
-      const result = execSync(command, { encoding: 'utf-8' });
+      const result = execSync(command, { encoding: "utf-8" });
       console.log(`  ✓ Created: ${result.trim()}`);
       return result;
     }
@@ -84,14 +86,14 @@ function createIssue(task, dryRun = false) {
 
 // 메인 실행
 function main() {
-  const dryRun = process.argv.includes('--dry-run');
+  const dryRun = process.argv.includes("--dry-run");
 
-  console.log('='.repeat(60));
-  console.log('GitHub Issues 생성 스크립트');
-  console.log('='.repeat(60));
+  console.log("=".repeat(60));
+  console.log("GitHub Issues 생성 스크립트");
+  console.log("=".repeat(60));
 
   if (dryRun) {
-    console.log('[DRY RUN MODE] 실제로 이슈를 생성하지 않습니다.\n');
+    console.log("[DRY RUN MODE] 실제로 이슈를 생성하지 않습니다.\n");
   }
 
   let totalTasks = 0;
@@ -99,7 +101,7 @@ function main() {
 
   phaseFiles.forEach((filePath, index) => {
     console.log(`\n[Phase ${index + 1}] Processing: ${filePath}`);
-    console.log('-'.repeat(60));
+    console.log("-".repeat(60));
 
     const tasks = parsePhaseFile(filePath);
     console.log(`  Found ${tasks.length} tasks`);
@@ -113,14 +115,14 @@ function main() {
       if (result && !dryRun) {
         createdIssues++;
         // 1초 대기 (rate limit 방지)
-        execSync('timeout /t 1 > nul 2>&1 || sleep 1', { shell: true });
+        execSync("timeout /t 1 > nul 2>&1 || sleep 1", { shell: true });
       }
     });
   });
 
-  console.log('\n' + '='.repeat(60));
-  console.log('완료!');
-  console.log('='.repeat(60));
+  console.log("\n" + "=".repeat(60));
+  console.log("완료!");
+  console.log("=".repeat(60));
   console.log(`  총 Task 수: ${totalTasks}`);
 
   if (!dryRun) {
@@ -128,7 +130,7 @@ function main() {
     console.log(`  실패한 이슈: ${totalTasks - createdIssues}`);
   }
 
-  console.log('\n이슈 확인: https://github.com/stephenwon/whs-todolist/issues');
+  console.log("\n이슈 확인: https://github.com/stephenwon/pkt-todolist/issues");
 }
 
 // 실행

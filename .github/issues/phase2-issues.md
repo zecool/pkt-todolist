@@ -29,6 +29,7 @@ Node.js 백엔드 프로젝트 생성 및 필수 패키지 설치
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `backend/` 디렉토리 생성
 - [ ] `npm init -y` 실행
 - [ ] 필수 패키지 설치:
@@ -55,7 +56,7 @@ Node.js 백엔드 프로젝트 생성 및 필수 패키지 설치
   - nodemon 사용 (개발 서버 자동 재시작)
 - **.env 설정 항목**:
   ```env
-  DATABASE_URL=postgresql://postgres:password@localhost:5432/whs_todolist_dev
+  DATABASE_URL=postgresql://postgres:password@localhost:5432/pkt_todolist_dev
   JWT_SECRET=your-secret-key-change-this
   JWT_ACCESS_EXPIRATION=15m
   JWT_REFRESH_EXPIRATION=7d
@@ -81,9 +82,11 @@ Node.js 백엔드 프로젝트 생성 및 필수 패키지 설치
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #3 - Task 1.3: 스키마 실행 및 검증
 
 #### 후행 작업 (Blocks):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 
 ---
@@ -122,6 +125,7 @@ Node.js 백엔드 프로젝트 생성 및 필수 패키지 설치
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/controllers/` (컨트롤러)
 - [ ] `src/services/` (비즈니스 로직)
 - [ ] `src/routes/` (라우트)
@@ -154,9 +158,11 @@ Node.js 백엔드 프로젝트 생성 및 필수 패키지 설치
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #5 - Task 2.1: 백엔드 프로젝트 초기화
 
 #### 후행 작업 (Blocks):
+
 - #7 - Task 2.3: 데이터베이스 연결 설정
 - #8 - Task 2.4: JWT 유틸리티 작성
 - #9 - Task 2.5: 비밀번호 해싱 유틸리티 작성
@@ -196,6 +202,7 @@ PostgreSQL 연결 풀(Connection Pool) 설정 및 연결 테스트
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/config/database.js` 작성
 - [ ] `pg.Pool` 설정 (Connection Pool)
 - [ ] 연결 문자열 환경 변수로 관리
@@ -212,8 +219,9 @@ PostgreSQL 연결 풀(Connection Pool) 설정 및 연결 테스트
   - 환경 변수 `DATABASE_URL`에서 연결 문자열 읽기
   - Connection Pool 설정: max 10개, idle timeout 30초
 - **코드 예시**:
+
   ```javascript
-  const { Pool } = require('pg');
+  const { Pool } = require("pg");
 
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -224,15 +232,16 @@ PostgreSQL 연결 풀(Connection Pool) 설정 및 연결 테스트
   const testConnection = async () => {
     try {
       const client = await pool.connect();
-      console.log('✅ Database connected successfully');
+      console.log("✅ Database connected successfully");
       client.release();
     } catch (error) {
-      console.error('❌ Database connection failed:', error);
+      console.error("❌ Database connection failed:", error);
     }
   };
 
   module.exports = { pool, testConnection };
   ```
+
 - **주의사항**:
   - 연결 풀을 통한 효율적인 연결 관리
   - 에러 발생 시 서버 시작 중단 고려
@@ -243,10 +252,12 @@ PostgreSQL 연결 풀(Connection Pool) 설정 및 연결 테스트
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 - #3 - Task 1.3: 스키마 실행 및 검증
 
 #### 후행 작업 (Blocks):
+
 - #12 - Task 2.8: 인증 API 구현
 - #13 - Task 2.9: 할일 CRUD API 구현
 - #15 - Task 2.11: 국경일 API 구현
@@ -285,6 +296,7 @@ JWT Access Token 및 Refresh Token 생성/검증 함수 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/utils/jwtHelper.js` 작성
 - [ ] `generateAccessToken(payload)` 함수 (15분 만료)
 - [ ] `generateRefreshToken(payload)` 함수 (7일 만료)
@@ -302,12 +314,13 @@ JWT Access Token 및 Refresh Token 생성/검증 함수 작성
   - `jwt.verify()` 메서드로 토큰 검증
   - 환경 변수로 SECRET KEY 관리
 - **코드 예시**:
+
   ```javascript
-  const jwt = require('jsonwebtoken');
+  const jwt = require("jsonwebtoken");
 
   const generateAccessToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+      expiresIn: process.env.JWT_ACCESS_EXPIRATION || "15m",
     });
   };
 
@@ -315,13 +328,14 @@ JWT Access Token 및 Refresh Token 생성/검증 함수 작성
     try {
       return jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
-        throw new Error('TOKEN_EXPIRED');
+      if (error.name === "TokenExpiredError") {
+        throw new Error("TOKEN_EXPIRED");
       }
-      throw new Error('INVALID_TOKEN');
+      throw new Error("INVALID_TOKEN");
     }
   };
   ```
+
 - **페이로드 구조**:
   ```json
   {
@@ -340,9 +354,11 @@ JWT Access Token 및 Refresh Token 생성/검증 함수 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 
 #### 후행 작업 (Blocks):
+
 - #10 - Task 2.6: 인증 미들웨어 작성
 - #12 - Task 2.8: 인증 API 구현
 
@@ -379,6 +395,7 @@ bcrypt를 사용한 비밀번호 해싱 및 비교 함수 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/utils/passwordHelper.js` 작성
 - [ ] `hashPassword(plainPassword)` 함수 (bcrypt, salt rounds: 10)
 - [ ] `comparePassword(plainPassword, hashedPassword)` 함수
@@ -394,8 +411,9 @@ bcrypt를 사용한 비밀번호 해싱 및 비교 함수 작성
   - `bcrypt.compare()` 메서드로 비교
   - Salt rounds: 10 (보안과 성능 균형)
 - **코드 예시**:
+
   ```javascript
-  const bcrypt = require('bcrypt');
+  const bcrypt = require("bcrypt");
 
   const hashPassword = async (plainPassword) => {
     const saltRounds = 10;
@@ -408,6 +426,7 @@ bcrypt를 사용한 비밀번호 해싱 및 비교 함수 작성
 
   module.exports = { hashPassword, comparePassword };
   ```
+
 - **보안 고려사항** (PRD 6.2):
   - bcrypt는 레인보우 테이블 공격 방어
   - Salt rounds: 10 (2^10 = 1024번 해싱)
@@ -418,9 +437,11 @@ bcrypt를 사용한 비밀번호 해싱 및 비교 함수 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 
 #### 후행 작업 (Blocks):
+
 - #12 - Task 2.8: 인증 API 구현
 
 ---
@@ -458,6 +479,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/middlewares/authMiddleware.js` 작성
 - [ ] `authenticate` 미들웨어: JWT 검증 후 `req.user`에 사용자 정보 저장
 - [ ] `requireAdmin` 미들웨어: 관리자 권한 확인
@@ -475,16 +497,17 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - 검증 성공 시 `req.user`에 페이로드 저장
   - 실패 시 401 에러 반환
 - **코드 예시**:
+
   ```javascript
-  const { verifyAccessToken } = require('../utils/jwtHelper');
+  const { verifyAccessToken } = require("../utils/jwtHelper");
 
   const authenticate = (req, res, next) => {
     try {
       const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({
           success: false,
-          error: { code: 'UNAUTHORIZED', message: '인증 토큰이 필요합니다' }
+          error: { code: "UNAUTHORIZED", message: "인증 토큰이 필요합니다" },
         });
       }
 
@@ -495,21 +518,22 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
     } catch (error) {
       return res.status(401).json({
         success: false,
-        error: { code: error.message, message: '유효하지 않은 토큰입니다' }
+        error: { code: error.message, message: "유효하지 않은 토큰입니다" },
       });
     }
   };
 
   const requireAdmin = (req, res, next) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
-        error: { code: 'ADMIN_REQUIRED', message: '관리자 권한이 필요합니다' }
+        error: { code: "ADMIN_REQUIRED", message: "관리자 권한이 필요합니다" },
       });
     }
     next();
   };
   ```
+
 - **보안 규칙** (PRD 6.2):
   - [BR-01] 인증된 사용자만 접근 가능
   - 토큰 만료 시 재인증 필요
@@ -520,9 +544,11 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #8 - Task 2.4: JWT 유틸리티 작성
 
 #### 후행 작업 (Blocks):
+
 - #13 - Task 2.9: 할일 CRUD API 구현
 - #15 - Task 2.11: 국경일 API 구현
 
@@ -560,6 +586,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/middlewares/errorMiddleware.js` 작성
 - [ ] 통일된 에러 응답 형식 (`{success: false, error: {code, message}}`)
 - [ ] HTTP 상태 코드 매핑
@@ -576,26 +603,28 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - 에러 타입에 따라 HTTP 상태 코드 매핑
   - 개발 환경에서는 스택 트레이스 포함
 - **코드 예시**:
+
   ```javascript
   const errorHandler = (err, req, res, next) => {
-    console.error('❌ Error:', err);
+    console.error("❌ Error:", err);
 
     const statusCode = err.statusCode || 500;
-    const code = err.code || 'INTERNAL_ERROR';
-    const message = err.message || '서버 내부 오류가 발생했습니다';
+    const code = err.code || "INTERNAL_ERROR";
+    const message = err.message || "서버 내부 오류가 발생했습니다";
 
     const response = {
       success: false,
-      error: { code, message }
+      error: { code, message },
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       response.error.stack = err.stack;
     }
 
     res.status(statusCode).json(response);
   };
   ```
+
 - **에러 코드 매핑** (PRD 9.7):
   - 400: BAD_REQUEST, INVALID_DATE_RANGE, TITLE_REQUIRED
   - 401: UNAUTHORIZED, TOKEN_EXPIRED, INVALID_TOKEN
@@ -610,9 +639,11 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 
 #### 후행 작업 (Blocks):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 ---
@@ -650,6 +681,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/services/authService.js` 작성
   - `register(email, password, username)`: 회원가입
   - `login(email, password)`: 로그인
@@ -677,18 +709,25 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - `POST /api/auth/refresh` → 200 OK (새 accessToken)
   - `POST /api/auth/logout` → 200 OK
 - **코드 예시 (authService.js)**:
+
   ```javascript
-  const { pool } = require('../config/database');
-  const { hashPassword, comparePassword } = require('../utils/passwordHelper');
-  const { generateAccessToken, generateRefreshToken } = require('../utils/jwtHelper');
+  const { pool } = require("../config/database");
+  const { hashPassword, comparePassword } = require("../utils/passwordHelper");
+  const {
+    generateAccessToken,
+    generateRefreshToken,
+  } = require("../utils/jwtHelper");
 
   const register = async (email, password, username) => {
     // 이메일 중복 체크
-    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const existingUser = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
     if (existingUser.rows.length > 0) {
-      const error = new Error('이미 사용 중인 이메일입니다');
+      const error = new Error("이미 사용 중인 이메일입니다");
       error.statusCode = 409;
-      error.code = 'EMAIL_EXISTS';
+      error.code = "EMAIL_EXISTS";
       throw error;
     }
 
@@ -697,13 +736,14 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 
     // 사용자 생성
     const result = await pool.query(
-      'INSERT INTO users (email, password, username, role) VALUES ($1, $2, $3, $4) RETURNING userId, email, username, role',
-      [email, hashedPassword, username, 'user']
+      "INSERT INTO users (email, password, username, role) VALUES ($1, $2, $3, $4) RETURNING userId, email, username, role",
+      [email, hashedPassword, username, "user"]
     );
 
     return result.rows[0];
   };
   ```
+
 - **보안 고려사항** (PRD 6.2):
   - [BR-01] 인증된 사용자만 접근 가능
   - 비밀번호 bcrypt 해싱 (salt rounds: 10)
@@ -715,11 +755,13 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #7 - Task 2.3: 데이터베이스 연결 설정
 - #8 - Task 2.4: JWT 유틸리티 작성
 - #9 - Task 2.5: 비밀번호 해싱 유틸리티 작성
 
 #### 후행 작업 (Blocks):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 ---
@@ -760,6 +802,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/services/todoService.js` 작성
   - `getTodos(userId, filters)`: 할일 목록 조회
   - `getTodoById(todoId, userId)`: 할일 상세 조회
@@ -799,18 +842,19 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - [BR-12] 만료일은 시작일과 같거나 이후여야 함
   - [BR-05] 할일 삭제 시 휴지통으로 이동
 - **코드 예시 (todoService.js)**:
+
   ```javascript
   const createTodo = async (userId, { title, content, startDate, dueDate }) => {
     // 날짜 검증
     if (dueDate && startDate && new Date(dueDate) < new Date(startDate)) {
-      const error = new Error('만료일은 시작일보다 이전일 수 없습니다');
+      const error = new Error("만료일은 시작일보다 이전일 수 없습니다");
       error.statusCode = 400;
-      error.code = 'INVALID_DATE_RANGE';
+      error.code = "INVALID_DATE_RANGE";
       throw error;
     }
 
     const result = await pool.query(
-      'INSERT INTO todos (userId, title, content, startDate, dueDate) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      "INSERT INTO todos (userId, title, content, startDate, dueDate) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [userId, title, content, startDate, dueDate]
     );
 
@@ -819,14 +863,14 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 
   const deleteTodo = async (todoId, userId) => {
     const result = await pool.query(
-      'UPDATE todos SET status = $1, deletedAt = NOW() WHERE todoId = $2 AND userId = $3 RETURNING *',
-      ['deleted', todoId, userId]
+      "UPDATE todos SET status = $1, deletedAt = NOW() WHERE todoId = $2 AND userId = $3 RETURNING *",
+      ["deleted", todoId, userId]
     );
 
     if (result.rows.length === 0) {
-      const error = new Error('할일을 찾을 수 없습니다');
+      const error = new Error("할일을 찾을 수 없습니다");
       error.statusCode = 404;
-      error.code = 'TODO_NOT_FOUND';
+      error.code = "TODO_NOT_FOUND";
       throw error;
     }
 
@@ -839,10 +883,12 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #7 - Task 2.3: 데이터베이스 연결 설정
 - #10 - Task 2.6: 인증 미들웨어 작성
 
 #### 후행 작업 (Blocks):
+
 - #14 - Task 2.10: 휴지통 API 구현
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
@@ -882,6 +928,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/services/trashService.js` 작성
   - `getTrash(userId)`: 휴지통 조회 (status='deleted')
   - `permanentlyDelete(todoId, userId)`: 영구 삭제
@@ -906,11 +953,12 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - [BR-06] 휴지통의 할일은 복원 가능
   - [BR-07] 영구 삭제 시 DB에서 완전히 제거
 - **코드 예시 (trashService.js)**:
+
   ```javascript
   const getTrash = async (userId) => {
     const result = await pool.query(
-      'SELECT * FROM todos WHERE userId = $1 AND status = $2 ORDER BY deletedAt DESC',
-      [userId, 'deleted']
+      "SELECT * FROM todos WHERE userId = $1 AND status = $2 ORDER BY deletedAt DESC",
+      [userId, "deleted"]
     );
     return result.rows;
   };
@@ -918,25 +966,28 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   const permanentlyDelete = async (todoId, userId) => {
     // 삭제 상태 확인
     const checkResult = await pool.query(
-      'SELECT status FROM todos WHERE todoId = $1 AND userId = $2',
+      "SELECT status FROM todos WHERE todoId = $1 AND userId = $2",
       [todoId, userId]
     );
 
     if (checkResult.rows.length === 0) {
-      const error = new Error('할일을 찾을 수 없습니다');
+      const error = new Error("할일을 찾을 수 없습니다");
       error.statusCode = 404;
-      error.code = 'TODO_NOT_FOUND';
+      error.code = "TODO_NOT_FOUND";
       throw error;
     }
 
-    if (checkResult.rows[0].status !== 'deleted') {
-      const error = new Error('삭제된 할일만 영구 삭제할 수 있습니다');
+    if (checkResult.rows[0].status !== "deleted") {
+      const error = new Error("삭제된 할일만 영구 삭제할 수 있습니다");
       error.statusCode = 400;
-      error.code = 'BAD_REQUEST';
+      error.code = "BAD_REQUEST";
       throw error;
     }
 
-    await pool.query('DELETE FROM todos WHERE todoId = $1 AND userId = $2', [todoId, userId]);
+    await pool.query("DELETE FROM todos WHERE todoId = $1 AND userId = $2", [
+      todoId,
+      userId,
+    ]);
   };
   ```
 
@@ -945,9 +996,11 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #13 - Task 2.9: 할일 CRUD API 구현
 
 #### 후행 작업 (Blocks):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 ---
@@ -987,6 +1040,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/services/holidayService.js` 작성
   - `getHolidays(year, month)`: 국경일 조회
   - `createHoliday(holidayData)`: 국경일 추가 (관리자 전용)
@@ -1017,9 +1071,10 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
   - [BR-10] 국경일은 삭제 불가
   - [BR-11] 매년 반복되는 일정 지원 (isRecurring)
 - **코드 예시 (holidayService.js)**:
+
   ```javascript
   const getHolidays = async (year, month) => {
-    let query = 'SELECT * FROM holidays WHERE 1=1';
+    let query = "SELECT * FROM holidays WHERE 1=1";
     const params = [];
 
     if (year) {
@@ -1032,7 +1087,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
       query += ` AND EXTRACT(MONTH FROM date) = $${params.length}`;
     }
 
-    query += ' ORDER BY date ASC';
+    query += " ORDER BY date ASC";
 
     const result = await pool.query(query, params);
     return result.rows;
@@ -1040,7 +1095,7 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 
   const createHoliday = async ({ title, date, description, isRecurring }) => {
     const result = await pool.query(
-      'INSERT INTO holidays (title, date, description, isRecurring) VALUES ($1, $2, $3, $4) RETURNING *',
+      "INSERT INTO holidays (title, date, description, isRecurring) VALUES ($1, $2, $3, $4) RETURNING *",
       [title, date, description, isRecurring || true]
     );
     return result.rows[0];
@@ -1052,10 +1107,12 @@ JWT 토큰 검증 미들웨어 및 관리자 권한 확인 미들웨어 작성
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #7 - Task 2.3: 데이터베이스 연결 설정
 - #10 - Task 2.6: 인증 미들웨어 작성
 
 #### 후행 작업 (Blocks):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 ---
@@ -1093,6 +1150,7 @@ API 요청 제한 미들웨어 설정 (DDoS 방어)
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/middlewares/rateLimitMiddleware.js` 작성
 - [ ] 일반 API: 100 req/min per IP
 - [ ] 인증 API: 5 req/15min per IP
@@ -1110,16 +1168,17 @@ API 요청 제한 미들웨어 설정 (DDoS 방어)
   - Rate Limiting: 100 req/min per user (일반 API)
   - 인증 API: 5 req/15min (브루트 포스 공격 방어)
 - **코드 예시**:
+
   ```javascript
-  const rateLimit = require('express-rate-limit');
+  const rateLimit = require("express-rate-limit");
 
   const generalLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1분
     max: 100,
     message: {
       success: false,
-      error: { code: 'TOO_MANY_REQUESTS', message: '요청 횟수를 초과했습니다' }
-    }
+      error: { code: "TOO_MANY_REQUESTS", message: "요청 횟수를 초과했습니다" },
+    },
   });
 
   const authLimiter = rateLimit({
@@ -1127,8 +1186,11 @@ API 요청 제한 미들웨어 설정 (DDoS 방어)
     max: 5,
     message: {
       success: false,
-      error: { code: 'TOO_MANY_REQUESTS', message: '로그인 시도 횟수를 초과했습니다' }
-    }
+      error: {
+        code: "TOO_MANY_REQUESTS",
+        message: "로그인 시도 횟수를 초과했습니다",
+      },
+    },
   });
 
   module.exports = { generalLimiter, authLimiter };
@@ -1139,9 +1201,11 @@ API 요청 제한 미들웨어 설정 (DDoS 방어)
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #6 - Task 2.2: 디렉토리 구조 생성
 
 #### 후행 작업 (Blocks):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 ---
@@ -1179,6 +1243,7 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] `src/app.js` 작성
   - CORS 설정 (cors 미들웨어)
   - Helmet 설정 (보안 헤더)
@@ -1203,33 +1268,36 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
   - Helmet으로 XSS, Clickjacking 방어
   - HTTPS 통신 필수 (프로덕션)
 - **코드 예시 (app.js)**:
-  ```javascript
-  const express = require('express');
-  const cors = require('cors');
-  const helmet = require('helmet');
-  const { testConnection } = require('./config/database');
-  const errorHandler = require('./middlewares/errorMiddleware');
 
-  const authRoutes = require('./routes/authRoutes');
-  const todoRoutes = require('./routes/todoRoutes');
-  const trashRoutes = require('./routes/trashRoutes');
-  const holidayRoutes = require('./routes/holidayRoutes');
+  ```javascript
+  const express = require("express");
+  const cors = require("cors");
+  const helmet = require("helmet");
+  const { testConnection } = require("./config/database");
+  const errorHandler = require("./middlewares/errorMiddleware");
+
+  const authRoutes = require("./routes/authRoutes");
+  const todoRoutes = require("./routes/todoRoutes");
+  const trashRoutes = require("./routes/trashRoutes");
+  const holidayRoutes = require("./routes/holidayRoutes");
 
   const app = express();
 
   // 미들웨어
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+    })
+  );
   app.use(helmet());
   app.use(express.json());
 
   // 라우트
-  app.use('/api/auth', authRoutes);
-  app.use('/api/todos', todoRoutes);
-  app.use('/api/trash', trashRoutes);
-  app.use('/api/holidays', holidayRoutes);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/todos", todoRoutes);
+  app.use("/api/trash", trashRoutes);
+  app.use("/api/holidays", holidayRoutes);
 
   // 에러 핸들러 (가장 마지막)
   app.use(errorHandler);
@@ -1239,10 +1307,12 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
 
   module.exports = app;
   ```
+
 - **코드 예시 (server.js)**:
+
   ```javascript
-  require('dotenv').config();
-  const app = require('./app');
+  require("dotenv").config();
+  const app = require("./app");
 
   const PORT = process.env.PORT || 3000;
 
@@ -1256,12 +1326,14 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #12 - Task 2.8: 인증 API 구현
 - #13 - Task 2.9: 할일 CRUD API 구현
 - #14 - Task 2.10: 휴지통 API 구현
 - #15 - Task 2.11: 국경일 API 구현
 
 #### 후행 작업 (Blocks):
+
 - #18 - Task 2.14: API 테스트
 
 ---
@@ -1300,6 +1372,7 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
 ### 📝 Todo (작업 상세)
 
 #### 주요 작업:
+
 - [ ] Postman 또는 Thunder Client 컬렉션 생성
 - [ ] 모든 API 엔드포인트 테스트
   - 회원가입 → 로그인 → 할일 생성 → 조회 → 수정 → 삭제 → 복원 → 영구 삭제
@@ -1350,9 +1423,11 @@ Express 앱 설정, 미들웨어 적용, 라우트 연결
 ### 🔗 의존성
 
 #### 선행 작업 (Blocked by):
+
 - #17 - Task 2.13: Express 앱 통합 및 라우트 연결
 
 #### 후행 작업 (Blocks):
+
 - 없음 (Phase 2 마지막 작업)
 
 ---

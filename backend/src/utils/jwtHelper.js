@@ -1,38 +1,52 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+const jwt = require('jsonwebtoken');
 
-dotenv.config();
+/**
+ * Access Token 생성
+ * @param {Object} payload - 토큰에 포함할 데이터 (주의: 비밀번호 등 민감한 정보는 포함하지 말 것)
+ * @returns {string} JWT Access Token
+ */
+function generateAccessToken(payload) {
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_ACCESS_EXPIRATION
+  });
+}
 
-const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET;
-const ACCESS_TOKEN_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || '15m';
-const REFRESH_TOKEN_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '7d';
+/**
+ * Refresh Token 생성
+ * @param {Object} payload - 토큰에 포함할 데이터 (주의: 비밀번호 등 민감한 정보는 포함하지 말 것)
+ * @returns {string} JWT Refresh Token
+ */
+function generateRefreshToken(payload) {
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRATION
+  });
+}
 
-// In a real scenario, refresh token secret should be different and stronger, 
-// or stored securely. For MVP, we might reuse JWT_SECRET or assume another env var.
-// Let's use the same secret for simplicity unless defined otherwise, 
-// but it's better practice to separate them.
-const REFRESH_TOKEN_SECRET = process.env.JWT_SECRET; 
+/**
+ * Access Token 검증
+ * @param {string} token - 검증할 JWT 토큰
+ * @returns {Object} 디코딩된 payload
+ * @throws {TokenExpiredError} 토큰 만료 시
+ * @throws {JsonWebTokenError} 유효하지 않은 토큰 시
+ */
+function verifyAccessToken(token) {
+  return jwt.verify(token, process.env.JWT_SECRET);
+}
 
-export const generateAccessToken = (payload) => {
-  return jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
-};
+/**
+ * Refresh Token 검증
+ * @param {string} token - 검증할 JWT 토큰
+ * @returns {Object} 디코딩된 payload
+ * @throws {TokenExpiredError} 토큰 만료 시
+ * @throws {JsonWebTokenError} 유효하지 않은 토큰 시
+ */
+function verifyRefreshToken(token) {
+  return jwt.verify(token, process.env.JWT_SECRET);
+}
 
-export const generateRefreshToken = (payload) => {
-  return jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRATION });
-};
-
-export const verifyAccessToken = (token) => {
-  try {
-    return jwt.verify(token, ACCESS_TOKEN_SECRET);
-  } catch (error) {
-    throw error; // Let the caller handle specific JWT errors (expired, invalid)
-  }
-};
-
-export const verifyRefreshToken = (token) => {
-  try {
-    return jwt.verify(token, REFRESH_TOKEN_SECRET);
-  } catch (error) {
-    throw error;
-  }
+module.exports = {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken
 };

@@ -1,4 +1,4 @@
-# pkt-todolist 프로젝트 실행계획
+# pkt-TodoList 프로젝트 실행계획
 
 **버전**: 1.0
 **작성일**: 2025-11-26
@@ -53,14 +53,14 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 - PostgreSQL 15+ 설치 (Windows 환경)
 - pgAdmin 또는 DBeaver 설치 (DB 관리 도구)
 - 로컬 PostgreSQL 서버 실행 확인
-- 데이터베이스 생성 (`whs_todolist_dev`)
+- 데이터베이스 생성 (`pkt_todolist_dev`)
 - 연결 테스트 (`psql` 또는 GUI 도구)
 
 **완료 조건**:
 
 - [x] PostgreSQL 서비스 실행 중
-- [x] `whs_todolist_dev` 데이터베이스 생성 완료
-- [x] 연결 문자열 확인: `postgresql://localhost:5432/whs_todolist_dev`
+- [x] `pkt_todolist_dev` 데이터베이스 생성 완료
+- [x] 연결 문자열 확인: `postgresql://localhost:5432/pkt_todolist_dev`
 - [x] 관리 도구로 접속 가능
 
 **의존성**:
@@ -70,7 +70,7 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 **산출물**:
 
 - PostgreSQL 설치 완료
-- 데이터베이스: `whs_todolist_dev`
+- 데이터베이스: `pkt_todolist_dev`
 - 연결 정보 메모 (`.env` 작성용)
 
 ---
@@ -80,6 +80,10 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 **담당**: 백엔드 개발자
 **예상 시간**: 2시간
 **우선순위**: P0
+
+**사용 파일**:
+
+- database/schema.sql
 
 **작업 내용**:
 
@@ -103,10 +107,6 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 
 - [x] Task 1.1 완료 (데이터베이스 생성)
 
-**산출물**:
-
-- `backend/prisma/schema.sql`
-
 ---
 
 ### Task 1.3: 스키마 실행 및 검증
@@ -117,7 +117,7 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 
 **작업 내용**:
 
-- `schema.sql` 실행 (`psql -U postgres -d whs_todolist_dev -f schema.sql`)
+- `schema.sql` 실행 (`psql -U postgres -d pkt_todolist_dev -f schema.sql`)
 - 테이블 생성 확인 (User, Todo, Holiday)
 - 인덱스 생성 확인
 - 제약 조건 테스트 (이메일 중복, 날짜 검증)
@@ -161,11 +161,6 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 **의존성**:
 
 - [x] Task 1.3 완료 (테이블 생성)
-
-**산출물**:
-
-- 국경일 데이터 10+개
-- `seed-holidays.sql` (선택)
 
 ---
 
@@ -1737,7 +1732,7 @@ JWT 기반 사용자 인증과 할일 관리, 휴지통, 국경일 조회 기능
 ### Phase 1: 데이터베이스
 
 - [ ] PostgreSQL 설치 및 실행
-- [ ] 데이터베이스 생성 (`whs_todolist_dev`)
+- [ ] 데이터베이스 생성 (`pkt_todolist_dev`)
 - [ ] `schema.sql` 작성 및 실행
 - [ ] 테이블 3개 생성 확인
 - [ ] 인덱스 설정 확인
