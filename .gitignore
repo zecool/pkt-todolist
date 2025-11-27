@@ -26,6 +26,9 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
+# Windows specific
+nul
+
 # IDE files
 .vscode/
 .idea/
