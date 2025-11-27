@@ -59,6 +59,7 @@ Environment Variables 섹션에서 다음 변수들을 추가:
 DATABASE_URL=postgresql://username:password@host/dbname?sslmode=require
 JWT_SECRET=production-secret-key-minimum-32-characters-recommended-64-characters
 NODE_ENV=production
+API_URL=https://your-project.vercel.app/api
 
 # 선택 변수 (기본값 사용 가능)
 JWT_ACCESS_EXPIRATION=15m
@@ -71,6 +72,7 @@ FRONTEND_URL=https://your-frontend-domain.vercel.app
 - `DATABASE_URL`: PostgreSQL 데이터베이스 연결 문자열 (필수)
 - `JWT_SECRET`: JWT 서명에 사용할 비밀키, 최소 32자 이상 (필수)
 - `NODE_ENV`: 환경 설정 (production 고정)
+- `API_URL`: Swagger UI에서 표시할 API 서버 URL (배포 후 실제 URL로 수정)
 - `JWT_ACCESS_EXPIRATION`: Access 토큰 만료 시간 (기본: 15분)
 - `JWT_REFRESH_EXPIRATION`: Refresh 토큰 만료 시간 (기본: 7일)
 - `PORT`: 포트 번호 (Vercel에서는 자동 설정)

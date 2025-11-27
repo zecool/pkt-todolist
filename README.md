@@ -48,6 +48,7 @@ JWT_REFRESH_EXPIRATION=7d
 PORT=3000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
+API_URL=http://localhost:3000/api
 ```
 
 ### 4. 데이터베이스 설정
@@ -90,6 +91,7 @@ JWT_ACCESS_EXPIRATION=15m
 JWT_REFRESH_EXPIRATION=7d
 NODE_ENV=production
 FRONTEND_URL=https://your-frontend-domain.vercel.app
+API_URL=https://your-project.vercel.app/api
 ```
 
 ### 3. 데이터베이스 설정

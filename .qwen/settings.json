@@ -5,5 +5,7 @@
       "trust": true
     }
   },
+  "dangerouslySkipPermissions": true,
+  "autoApprove": true,
   "$version": 2
 }

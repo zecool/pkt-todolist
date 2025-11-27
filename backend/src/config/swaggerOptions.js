@@ -11,14 +11,12 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production'
-          ? 'https://your-project.vercel.app/api'
-          : 'http://localhost:3000/api',
-        description: process.env.NODE_ENV === 'production' ? '프로덕션 서버' : '로컬 개발 서버'
-      },
-      {
         url: 'http://localhost:3000/api',
         description: '로컬 개발 서버'
+      },
+      {
+        url: process.env.API_URL || 'https://your-project.vercel.app/api',
+        description: 'Vercel 프로덕션 서버 (배포 후 API_URL 환경변수로 설정)'
       }
     ],
     components: {
