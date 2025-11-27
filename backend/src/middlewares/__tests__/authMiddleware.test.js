@@ -21,8 +21,16 @@ describe('authMiddleware', () => {
     };
     next = jest.fn();
 
+    // console.error 스파이 설정 (테스트 중 에러 로그 숨기기)
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
     // Mock 함수 초기화
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // 모든 스파이 복구 (console.error 포함)
+    jest.restoreAllMocks();
   });
 
   describe('authenticate 미들웨어', () => {

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "myServer": {
+      "command": "path/to/command",
+      "trust": true
+    }
+  }
+}
