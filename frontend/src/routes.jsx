@@ -22,8 +22,9 @@ const router = createBrowserRouter([
       },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterPage /> },
-      // Protected routes (require authentication)
+      // Protected routes (require authentication) - nested within App
       {
+        path: "",
         element: (
           <ProtectedRoute>
             <Layout />

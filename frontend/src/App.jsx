@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
@@ -33,7 +34,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* Routes are handled by RouterProvider in main.jsx */}
+      <Outlet />
     </div>
   );
 }
