@@ -125,12 +125,32 @@ export const useAuthStore = create((set) => ({
   },
 
   // Initialize auth state from stored tokens
-  initializeAuth: () => {
-    if (tokenManager.isAuthenticated()) {
+  initializeAuth: async () => {
+    try {
+      set({isLoading: true}); // Set loading state initially
+
+      if (tokenManager.isAuthenticated()) {
+        // Optionally fetch user info here to set the user state
+        // For now, just set the authentication state
+        set({
+          isAuthenticated: true,
+          isLoading: false
+        });
+      } else {
+        set({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false
+        });
+      }
+    } catch (error) {
+      // In case of any error during initialization, reset state safely
+      console.error("Error during auth initialization:", error);
+      tokenManager.clearTokens();
       set({
-        isAuthenticated: true,
-        // We don't set user here since we need to fetch user data
-        // This would typically be done in a separate action or effect
+        user: null,
+        isAuthenticated: false,
+        isLoading: false
       });
     }
   },

@@ -7,8 +7,14 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   if (isLoading) {
-    // You could return a loading spinner here if desired
-    return <div>로딩 중...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#00C73C]"></div>
+          <p className="mt-4 text-[#757575]">로딩 중...</p>
+        </div>
+      </div>
+    );
   }
 
   // If not authenticated, redirect to login page with return url
