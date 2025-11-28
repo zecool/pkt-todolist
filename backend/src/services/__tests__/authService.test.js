@@ -38,7 +38,7 @@ describe('authService', () => {
 
         expect(pool.query).toHaveBeenCalledTimes(2);
         expect(pool.query).toHaveBeenNthCalledWith(1,
-          'SELECT email FROM "User" WHERE email = $1',
+          'SELECT email FROM "users" WHERE email = $1',
           [validEmail]
         );
         expect(hashPassword).toHaveBeenCalledWith(validPassword);
@@ -191,7 +191,7 @@ describe('authService', () => {
         const result = await authService.login(validEmail, validPassword);
 
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, password, username, role FROM "User" WHERE email = $1',
+          'SELECT "userId", email, password, username, role FROM "users" WHERE email = $1',
           [validEmail]
         );
         expect(comparePassword).toHaveBeenCalledWith(validPassword, mockUser.password);
@@ -358,7 +358,7 @@ describe('authService', () => {
 
         expect(verifyRefreshToken).toHaveBeenCalledWith(validRefreshToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, role FROM "User" WHERE "userId" = $1',
+          'SELECT "userId", email, role FROM "users" WHERE "userId" = $1',
           [mockDecoded.userId]
         );
         expect(generateAccessToken).toHaveBeenCalledWith({

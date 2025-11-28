@@ -294,10 +294,10 @@ ON UPDATE CASCADE
 
 ```sql
 -- 로그인 시 이메일 조회 (UNIQUE INDEX 활용)
-SELECT * FROM "User" WHERE email = 'user@example.com';
+SELECT * FROM "users" WHERE email = 'user@example.com';
 
 -- 관리자 목록 조회 (INDEX 활용)
-SELECT * FROM "User" WHERE role = 'admin';
+SELECT * FROM "users" WHERE role = 'admin';
 ```
 
 ---
@@ -397,7 +397,7 @@ REINDEX TABLE "Todo";
 모든 테이블은 UUID 타입의 기본키를 사용합니다.
 
 ```sql
-ALTER TABLE "User" ADD CONSTRAINT user_pkey PRIMARY KEY (userId);
+ALTER TABLE "users" ADD CONSTRAINT user_pkey PRIMARY KEY (userId);
 ALTER TABLE "Todo" ADD CONSTRAINT todo_pkey PRIMARY KEY (todoId);
 ALTER TABLE "Holiday" ADD CONSTRAINT holiday_pkey PRIMARY KEY (holidayId);
 ```
@@ -416,7 +416,7 @@ ALTER TABLE "Holiday" ADD CONSTRAINT holiday_pkey PRIMARY KEY (holidayId);
 ALTER TABLE "Todo"
 ADD CONSTRAINT fk_todo_user
 FOREIGN KEY (userId)
-REFERENCES "User"(userId)
+REFERENCES "users"(userId)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 ```
@@ -432,7 +432,7 @@ ON UPDATE CASCADE;
 
 ```sql
 -- User 테이블
-ALTER TABLE "User" ADD CONSTRAINT unique_user_email UNIQUE (email);
+ALTER TABLE "users" ADD CONSTRAINT unique_user_email UNIQUE (email);
 ```
 
 **목적**:
@@ -478,7 +478,7 @@ CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate);
 #### 6.5.2 User.role 제약
 
 ```sql
-ALTER TABLE "User"
+ALTER TABLE "users"
 ADD CONSTRAINT check_user_role
 CHECK (role IN ('user', 'admin'));
 ```
@@ -659,7 +659,7 @@ ORDER BY createdAt DESC;
 
 ```sql
 -- User 테이블 생성
-CREATE TABLE "User" (
+CREATE TABLE "users" (
     userId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email       VARCHAR(255) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
@@ -670,20 +670,20 @@ CREATE TABLE "User" (
 );
 
 -- 이메일 고유 인덱스
-CREATE UNIQUE INDEX idx_user_email ON "User"(email);
+CREATE UNIQUE INDEX idx_user_email ON "users"(email);
 
 -- 역할 조회 인덱스
-CREATE INDEX idx_user_role ON "User"(role);
+CREATE INDEX idx_user_role ON "users"(role);
 
 -- 테이블 코멘트
-COMMENT ON TABLE "User" IS '사용자 계정 정보';
-COMMENT ON COLUMN "User".userId IS '사용자 고유 ID (UUID)';
-COMMENT ON COLUMN "User".email IS '로그인용 이메일 주소 (고유)';
-COMMENT ON COLUMN "User".password IS 'bcrypt 해시된 비밀번호';
-COMMENT ON COLUMN "User".username IS '사용자 표시 이름';
-COMMENT ON COLUMN "User".role IS '사용자 역할 (user, admin)';
-COMMENT ON COLUMN "User".createdAt IS '계정 생성 일시';
-COMMENT ON COLUMN "User".updatedAt IS '최종 정보 수정 일시';
+COMMENT ON TABLE "users" IS '사용자 계정 정보';
+COMMENT ON COLUMN "users".userId IS '사용자 고유 ID (UUID)';
+COMMENT ON COLUMN "users".email IS '로그인용 이메일 주소 (고유)';
+COMMENT ON COLUMN "users".password IS 'bcrypt 해시된 비밀번호';
+COMMENT ON COLUMN "users".username IS '사용자 표시 이름';
+COMMENT ON COLUMN "users".role IS '사용자 역할 (user, admin)';
+COMMENT ON COLUMN "users".createdAt IS '계정 생성 일시';
+COMMENT ON COLUMN "users".updatedAt IS '최종 정보 수정 일시';
 ```
 
 #### 9.1.2 Todo 테이블
@@ -692,7 +692,7 @@ COMMENT ON COLUMN "User".updatedAt IS '최종 정보 수정 일시';
 -- Todo 테이블 생성
 CREATE TABLE "Todo" (
     todoId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    userId      UUID NOT NULL REFERENCES "User"(userId) ON DELETE CASCADE ON UPDATE CASCADE,
+    userId      UUID NOT NULL REFERENCES "users"(userId) ON DELETE CASCADE ON UPDATE CASCADE,
     title       VARCHAR(200) NOT NULL,
     content     TEXT,
     startDate   DATE,
@@ -782,7 +782,7 @@ $$ LANGUAGE plpgsql;
 
 -- User 테이블 트리거
 CREATE TRIGGER trigger_user_updated_at
-BEFORE UPDATE ON "User"
+BEFORE UPDATE ON "users"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
@@ -807,7 +807,7 @@ EXECUTE FUNCTION update_updated_at_column();
 
 ```sql
 -- 관리자 계정 (비밀번호: admin123, bcrypt 해시 예시)
-INSERT INTO "User" (email, password, username, role)
+INSERT INTO "users" (email, password, username, role)
 VALUES (
     'admin@pkt-todolist.com',
     '$2b$10$rQ8kHZQJ9X5nXZ8qZqZqZuZqZqZqZqZqZqZqZqZqZqZqZqZqZq', -- 실제 bcrypt 해시 필요
@@ -925,14 +925,14 @@ ORDER BY deletedAt DESC;
 
 ```sql
 -- 순서 주의: 외래키 참조 순서의 역순으로 삭제
-DROP TRIGGER IF EXISTS trigger_user_updated_at ON "User";
+DROP TRIGGER IF EXISTS trigger_user_updated_at ON "users";
 DROP TRIGGER IF EXISTS trigger_todo_updated_at ON "Todo";
 DROP TRIGGER IF EXISTS trigger_holiday_updated_at ON "Holiday";
 
 DROP FUNCTION IF EXISTS update_updated_at_column();
 
 DROP TABLE IF EXISTS "Todo" CASCADE;
-DROP TABLE IF EXISTS "User" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
 DROP TABLE IF EXISTS "Holiday" CASCADE;
 ```
 

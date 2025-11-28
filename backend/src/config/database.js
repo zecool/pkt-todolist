@@ -22,7 +22,7 @@ const checkTablesExist = async () => {
       SELECT EXISTS (
         SELECT FROM information_schema.tables
         WHERE table_schema = 'public'
-        AND table_name = 'User'
+        AND table_name = 'users'
       ) AS table_exists;
     `);
 

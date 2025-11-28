@@ -473,7 +473,7 @@ Version Control: Git
 **제약 조건**:
 
 - CHECK: dueDate >= startDate (만료일은 시작일 이후)
-- FOREIGN KEY: userId REFERENCES User(userId) ON DELETE CASCADE
+- FOREIGN KEY: userId REFERENCES "users"(userId) ON DELETE CASCADE
 
 **인덱스**:
 

@@ -12,7 +12,7 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/jwtHelpe
 const register = async (email, password, username) => {
   // 이메일 중복 체크
   const existingUser = await pool.query(
-    'SELECT email FROM "User" WHERE email = $1',
+    'SELECT email FROM "users" WHERE email = $1',
     [email]
   );
 
@@ -25,7 +25,7 @@ const register = async (email, password, username) => {
 
   // 사용자 생성
   const result = await pool.query(
-    `INSERT INTO "User" (email, password, username, role)
+    `INSERT INTO "users" (email, password, username, role)
      VALUES ($1, $2, $3, $4)
      RETURNING "userId", email, username, role, "createdAt"`,
     [email, hashedPassword, username, 'user']
@@ -67,7 +67,7 @@ const register = async (email, password, username) => {
 const login = async (email, password) => {
   // 이메일로 사용자 조회
   const result = await pool.query(
-    'SELECT "userId", email, password, username, role FROM "User" WHERE email = $1',
+    'SELECT "userId", email, password, username, role FROM "users" WHERE email = $1',
     [email]
   );
 
@@ -126,7 +126,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 사용자 존재 여부 확인
   const result = await pool.query(
-    'SELECT "userId", email, role FROM "User" WHERE "userId" = $1',
+    'SELECT "userId", email, role FROM "users" WHERE "userId" = $1',
     [decoded.userId]
   );
 

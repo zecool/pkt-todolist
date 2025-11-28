@@ -8,7 +8,7 @@ const { hashPassword } = require('../utils/passwordHelper');
  */
 const getProfile = async (userId) => {
   const result = await pool.query(
-    'SELECT "userId", email, username, role, "createdAt" FROM "User" WHERE "userId" = $1',
+    'SELECT "userId", email, username, role, "createdAt" FROM "users" WHERE "userId" = $1',
     [userId]
   );
 
@@ -35,7 +35,7 @@ const getProfile = async (userId) => {
 const updateProfile = async (userId, updateData) => {
   // 현재 사용자 정보 조회
   const currentUser = await pool.query(
-    'SELECT email, username FROM "User" WHERE "userId" = $1',
+    'SELECT email, username FROM "users" WHERE "userId" = $1',
     [userId]
   );
 
@@ -52,7 +52,7 @@ const updateProfile = async (userId, updateData) => {
   if (username !== undefined) {
     // 사용자 이름 중복 체크
     const existingUser = await pool.query(
-      'SELECT "userId" FROM "User" WHERE username = $1 AND "userId" != $2',
+      'SELECT "userId" FROM "users" WHERE username = $1 AND "userId" != $2',
       [username, userId]
     );
 
@@ -82,7 +82,7 @@ const updateProfile = async (userId, updateData) => {
   fields.push(`"updatedAt" = CURRENT_TIMESTAMP`);
   values.push(userId);
 
-  const query = `UPDATE "User" SET ${fields.join(', ')} WHERE "userId" = $${paramIndex} RETURNING "userId", email, username, role`;
+  const query = `UPDATE "users" SET ${fields.join(', ')} WHERE "userId" = $${paramIndex} RETURNING "userId", email, username, role`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {

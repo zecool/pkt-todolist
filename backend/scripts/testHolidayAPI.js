@@ -20,7 +20,7 @@ async function testHolidayAPI() {
     // 1. 테스트 사용자 생성 또는 조회
     console.log('1️⃣ 테스트 사용자 확인 중...');
     let user = await pool.query(
-      "SELECT \"userId\", email, username, role FROM \"User\" WHERE email = 'test@example.com'"
+      "SELECT \"userId\", email, username, role FROM \"users\" WHERE email = 'test@example.com'"
     );
 
     if (user.rows.length === 0) {
@@ -29,7 +29,7 @@ async function testHolidayAPI() {
       const hashedPassword = await bcrypt.hash('test1234', 10);
 
       user = await pool.query(
-        `INSERT INTO "User" (email, password, username, role)
+        `INSERT INTO "users" (email, password, username, role)
          VALUES ('test@example.com', $1, 'Test User', 'user')
          RETURNING "userId", email, username, role`,
         [hashedPassword]

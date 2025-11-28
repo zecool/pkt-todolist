@@ -41,7 +41,7 @@
       "description": "국경일 관리 API (조회, 추가, 수정)"
     },
     {
-      "name": "Users",
+      "name": "users",
       "description": "사용자 프로필 관리 API"
     }
   ],
@@ -1017,7 +1017,7 @@
     },
     "/users/me": {
       "get": {
-        "tags": ["Users"],
+        "tags": ["users"],
         "summary": "현재 사용자 프로필 조회",
         "description": "로그인한 사용자의 프로필 정보를 조회합니다.",
         "operationId": "getMyProfile",
@@ -1053,7 +1053,7 @@
         }
       },
       "patch": {
-        "tags": ["Users"],
+        "tags": ["users"],
         "summary": "현재 사용자 프로필 수정",
         "description": "로그인한 사용자의 프로필 정보를 수정합니다.",
         "operationId": "updateMyProfile",

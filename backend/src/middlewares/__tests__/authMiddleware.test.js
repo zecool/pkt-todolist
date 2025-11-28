@@ -57,7 +57,7 @@ describe('authMiddleware', () => {
 
         expect(verifyAccessToken).toHaveBeenCalledWith(validToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, username, role, "createdAt" FROM "User" WHERE "userId" = $1',
+          'SELECT "userId", email, username, role, "createdAt" FROM "users" WHERE "userId" = $1',
           [decodedToken.userId]
         );
         expect(next).toHaveBeenCalled();

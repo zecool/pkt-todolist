@@ -55,7 +55,7 @@ const authenticate = async (req, res, next) => {
 
     // 사용자 정보 DB에서 조회
     const { rows } = await pool.query(
-      'SELECT "userId", email, username, role, "createdAt" FROM "User" WHERE "userId" = $1',
+      'SELECT "userId", email, username, role, "createdAt" FROM "users" WHERE "userId" = $1',
       [decoded.userId]
     );
 
