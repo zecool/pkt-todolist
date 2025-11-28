@@ -2,32 +2,32 @@
 export const API_ENDPOINTS = {
   // Authentication
   AUTH: {
-    REGISTER: '/auth/register',
-    LOGIN: '/auth/login',
-    REFRESH: '/auth/refresh',
-    LOGOUT: '/auth/logout',
+    REGISTER: '/api/auth/register',
+    LOGIN: '/api/auth/login',
+    REFRESH: '/api/auth/refresh',
+    LOGOUT: '/api/auth/logout',
   },
-  
+
   // Todos
   TODOS: {
-    BASE: '/todos',
-    COMPLETE: (id) => `/todos/${id}/complete`,
-    RESTORE: (id) => `/todos/${id}/restore`,
+    BASE: '/api/todos',
+    COMPLETE: (id) => `/api/todos/${id}/complete`,
+    RESTORE: (id) => `/api/todos/${id}/restore`,
   },
-  
+
   // Trash
   TRASH: {
-    BASE: '/trash',
-    PERMANENT_DELETE: (id) => `/trash/${id}`,
+    BASE: '/api/trash',
+    PERMANENT_DELETE: (id) => `/api/trash/${id}`,
   },
-  
+
   // Holidays
   HOLIDAYS: {
-    BASE: '/holidays',
+    BASE: '/api/holidays',
   },
-  
+
   // Users
   USERS: {
-    PROFILE: '/users/me',
+    PROFILE: '/api/users/me',
   },
 };

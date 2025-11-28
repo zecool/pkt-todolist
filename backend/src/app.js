@@ -80,7 +80,10 @@ app.use('/trash', trashRoutes);
 app.use('/holidays', holidayRoutes);
 app.use('/users', userRoutes);
 
-// 404 처리
+// 에러 핸들러 (에러 처리 미들웨어)
+app.use(errorHandler);
+
+// 404 처리 - 모든 라우트 및 에러 핸들러 이후에 위치해야 함
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -90,8 +93,5 @@ app.use('*', (req, res) => {
     }
   });
 });
-
-// 에러 핸들러 (가장 마지막에 등록)
-app.use(errorHandler);
 
 module.exports = app;

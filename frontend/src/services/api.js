@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000', // Default to local backend without /api suffix
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ api.interceptors.response.use(
         }
 
         // Try to refresh the access token
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/auth/refresh`, {
           refreshToken,
         });
 
