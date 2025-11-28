@@ -27,34 +27,39 @@ const register = async (email, password, username) => {
   const result = await pool.query(
     `INSERT INTO "users" (email, password, username, role)
      VALUES ($1, $2, $3, $4)
-     RETURNING "userId", email, username, role, "createdAt", "updatedAt"`,
+     RETURNING "userid", email, username, role, "createdat", "updatedat"`,
     [email, hashedPassword, username, 'user']
   );
 
   const user = result.rows[0];
 
-  // 회원가입 후 자동 로그인을 위한 토큰 생성
-  const accessToken = generateAccessToken({
-    userId: user.userId,
+  // Map database column names to JavaScript property names
+  const mappedUser = {
+    userId: user.userid,
     email: user.email,
     username: user.username,
-    role: user.role
+    role: user.role,
+    createdAt: user.createdat,
+    updatedAt: user.updatedat
+  };
+
+  // 회원가입 후 자동 로그인을 위한 토큰 생성
+  const accessToken = generateAccessToken({
+    userId: mappedUser.userId,
+    email: mappedUser.email,
+    username: mappedUser.username,
+    role: mappedUser.role
   });
 
   const refreshToken = generateRefreshToken({
-    userId: user.userId,
-    email: user.email
+    userId: mappedUser.userId,
+    email: mappedUser.email
   });
 
   return {
     accessToken,
     refreshToken,
-    user: {
-      userId: user.userId,
-      email: user.email,
-      username: user.username,
-      role: user.role
-    }
+    user: mappedUser
   };
 };
 
@@ -67,7 +72,7 @@ const register = async (email, password, username) => {
 const login = async (email, password) => {
   // 이메일로 사용자 조회
   const result = await pool.query(
-    'SELECT "userId", email, password, username, role, "createdAt", "updatedAt" FROM "users" WHERE email = $1',
+    'SELECT "userid", email, password, username, role, "createdat", "updatedat" FROM "users" WHERE email = $1',
     [email]
   );
 
@@ -77,32 +82,43 @@ const login = async (email, password) => {
 
   const user = result.rows[0];
 
+  // Map database column names to JavaScript property names
+  const mappedUser = {
+    userId: user.userid,
+    email: user.email,
+    username: user.username,
+    password: user.password,
+    role: user.role,
+    createdAt: user.createdat,
+    updatedAt: user.updatedat
+  };
+
   // 비밀번호 검증
-  const isValidPassword = await comparePassword(password, user.password);
+  const isValidPassword = await comparePassword(password, mappedUser.password);
   if (!isValidPassword) {
     throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
   }
 
   // 토큰 생성
   const accessToken = generateAccessToken({
-    userId: user.userId,
-    email: user.email,
-    role: user.role
+    userId: mappedUser.userId,
+    email: mappedUser.email,
+    role: mappedUser.role
   });
 
   const refreshToken = generateRefreshToken({
-    userId: user.userId,
-    email: user.email
+    userId: mappedUser.userId,
+    email: mappedUser.email
   });
 
   return {
     accessToken,
     refreshToken,
     user: {
-      userId: user.userId,
-      email: user.email,
-      username: user.username,
-      role: user.role
+      userId: mappedUser.userId,
+      email: mappedUser.email,
+      username: mappedUser.username,
+      role: mappedUser.role
     }
   };
 };
@@ -126,7 +142,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 사용자 존재 여부 확인
   const result = await pool.query(
-    'SELECT "userId", email, role, "createdAt", "updatedAt" FROM "users" WHERE "userId" = $1',
+    'SELECT "userid", email, role, "createdat", "updatedat" FROM "users" WHERE "userid" = $1',
     [decoded.userId]
   );
 
@@ -136,11 +152,20 @@ const refreshAccessToken = async (refreshToken) => {
 
   const user = result.rows[0];
 
+  // Map database column names to JavaScript property names
+  const mappedUser = {
+    userId: user.userid,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdat,
+    updatedAt: user.updatedat
+  };
+
   // 새로운 액세스 토큰 생성
   const newAccessToken = generateAccessToken({
-    userId: user.userId,
-    email: user.email,
-    role: user.role
+    userId: mappedUser.userId,
+    email: mappedUser.email,
+    role: mappedUser.role
   });
 
   return {

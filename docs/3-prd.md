@@ -444,9 +444,9 @@ Version Control: Git
 | email     | VARCHAR(255)          | UNIQUE, NOT NULL         | 로그인 이메일          |
 | password  | VARCHAR(255)          | NOT NULL                 | bcrypt 해시된 비밀번호 |
 | username  | VARCHAR(100)          | NOT NULL                 | 사용자 이름            |
-| role      | ENUM('user', 'admin') | NOT NULL, DEFAULT 'user' | 사용자 역할            |
-| createdAt | TIMESTAMP             | NOT NULL                 | 가입일시               |
-| updatedAt | TIMESTAMP             | NOT NULL                 | 최종 수정일시          |
+| role      | VARCHAR(20)           | NOT NULL, DEFAULT 'user' | 사용자 역할            |
+| createdAt | TIMESTAMP WITH TIME ZONE | NOT NULL                 | 가입일시               |
+| updatedAt | TIMESTAMP WITH TIME ZONE | NOT NULL                 | 최종 수정일시          |
 
 **인덱스**:
 
@@ -460,15 +460,15 @@ Version Control: Git
 | ----------- | -------------------------------------- | -------------------------- | ---------------------- |
 | todoId      | UUID                                   | PK                         | 할일 고유 ID           |
 | userId      | UUID                                   | FK, NOT NULL               | 소유자 ID              |
-| title       | VARCHAR(200)                           | NOT NULL                   | 할일 제목              |
+| title       | VARCHAR(255)                           | NOT NULL                   | 할일 제목              |
 | content     | TEXT                                   | NULL                       | 할일 상세 내용         |
 | startDate   | DATE                                   | NULL                       | 시작일                 |
 | dueDate     | DATE                                   | NULL                       | 만료일                 |
 | status      | ENUM('active', 'completed', 'deleted') | NOT NULL, DEFAULT 'active' | 할일 상태              |
 | isCompleted | BOOLEAN                                | NOT NULL, DEFAULT false    | 완료 여부              |
-| createdAt   | TIMESTAMP                              | NOT NULL                   | 생성일시               |
-| updatedAt   | TIMESTAMP                              | NOT NULL                   | 최종 수정일시          |
-| deletedAt   | TIMESTAMP                              | NULL                       | 삭제일시 (소프트 삭제) |
+| createdAt   | TIMESTAMP WITH TIME ZONE               | NOT NULL                   | 생성일시               |
+| updatedAt   | TIMESTAMP WITH TIME ZONE               | NOT NULL                   | 최종 수정일시          |
+| deletedAt   | TIMESTAMP WITH TIME ZONE               | NULL                       | 삭제일시 (소프트 삭제) |
 
 **제약 조건**:
 
@@ -487,12 +487,12 @@ Version Control: Git
 | 필드        | 타입         | 제약                   | 설명           |
 | ----------- | ------------ | ---------------------- | -------------- |
 | holidayId   | UUID         | PK                     | 국경일 고유 ID |
-| title       | VARCHAR(100) | NOT NULL               | 국경일 이름    |
+| title       | VARCHAR(255) | NOT NULL               | 국경일 이름    |
 | date        | DATE         | NOT NULL               | 국경일 날짜    |
 | description | TEXT         | NULL                   | 설명           |
-| isRecurring | BOOLEAN      | NOT NULL, DEFAULT true | 매년 반복 여부 |
-| createdAt   | TIMESTAMP    | NOT NULL               | 생성일시       |
-| updatedAt   | TIMESTAMP    | NOT NULL               | 최종 수정일시  |
+| isRecurring | BOOLEAN      | NOT NULL, DEFAULT false | 매년 반복 여부 |
+| createdAt   | TIMESTAMP WITH TIME ZONE | NOT NULL               | 생성일시       |
+| updatedAt   | TIMESTAMP WITH TIME ZONE | NOT NULL               | 최종 수정일시  |
 
 **인덱스**:
 
@@ -1365,7 +1365,7 @@ wide: 1440px
 
 **도메인 정의서 5.3 참조**:
 
-- 할일 제목: 필수 입력, VARCHAR(200)
+- 할일 제목: 필수 입력, VARCHAR(255)
 - 이메일: 고유, VARCHAR(255)
 - 비밀번호: bcrypt 해싱, VARCHAR(255)
 - 날짜: dueDate >= startDate

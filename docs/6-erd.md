@@ -70,33 +70,33 @@ erDiagram
         VARCHAR(255) email UK "로그인 이메일"
         VARCHAR(255) password "bcrypt 해시 비밀번호"
         VARCHAR(100) username "사용자 이름"
-        VARCHAR(10) role "user, admin"
-        TIMESTAMP createdAt "가입일시"
-        TIMESTAMP updatedAt "최종 수정일시"
+        VARCHAR(20) role "user, admin"
+        TIMESTAMP WITH TIME ZONE createdAt "가입일시"
+        TIMESTAMP WITH TIME ZONE updatedAt "최종 수정일시"
     }
 
     Todo {
         UUID todoId PK "할일 고유 ID"
         UUID userId FK "소유자 ID"
-        VARCHAR(200) title "할일 제목"
+        VARCHAR(255) title "할일 제목"
         TEXT content "할일 상세 내용"
         DATE startDate "시작일"
         DATE dueDate "만료일"
         VARCHAR(20) status "active, completed, deleted"
         BOOLEAN isCompleted "완료 여부"
-        TIMESTAMP createdAt "생성일시"
-        TIMESTAMP updatedAt "최종 수정일시"
-        TIMESTAMP deletedAt "삭제일시 (소프트 삭제)"
+        TIMESTAMP WITH TIME ZONE createdAt "생성일시"
+        TIMESTAMP WITH TIME ZONE updatedAt "최종 수정일시"
+        TIMESTAMP WITH TIME ZONE deletedAt "삭제일시 (소프트 삭제)"
     }
 
     Holiday {
         UUID holidayId PK "국경일 고유 ID"
-        VARCHAR(100) title "국경일 이름"
+        VARCHAR(255) title "국경일 이름"
         DATE date "국경일 날짜"
         TEXT description "설명"
         BOOLEAN isRecurring "매년 반복 여부"
-        TIMESTAMP createdAt "생성일시"
-        TIMESTAMP updatedAt "최종 수정일시"
+        TIMESTAMP WITH TIME ZONE createdAt "생성일시"
+        TIMESTAMP WITH TIME ZONE updatedAt "최종 수정일시"
     }
 ```
 
@@ -110,15 +110,15 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명    | 데이터 타입           | NULL | 기본값            | 제약 조건                | 설명                                     |
-| --------- | --------------------- | ---- | ----------------- | ------------------------ | ---------------------------------------- |
-| userId    | UUID                  | NO   | gen_random_uuid() | PRIMARY KEY              | 사용자 고유 식별자                       |
-| email     | VARCHAR(255)          | NO   | -                 | UNIQUE, NOT NULL         | 로그인용 이메일 주소                     |
-| password  | VARCHAR(255)          | NO   | -                 | NOT NULL                 | bcrypt 해시된 비밀번호 (salt rounds: 10) |
-| username  | VARCHAR(100)          | NO   | -                 | NOT NULL                 | 사용자 표시 이름                         |
-| role      | VARCHAR(10)           | NO   | 'user'            | NOT NULL, DEFAULT 'user' | 사용자 권한 역할 ('user', 'admin' 중 하나) |
-| createdAt | TIMESTAMP             | NO   | NOW()             | NOT NULL                 | 계정 생성 일시 (UTC)                     |
-| updatedAt | TIMESTAMP             | NO   | NOW()             | NOT NULL                 | 최종 정보 수정 일시 (UTC)                |
+| 필드명    | 데이터 타입                  | NULL | 기본값              | 제약 조건                | 설명                                     |
+| --------- | ---------------------------- | ---- | ------------------- | ------------------------ | ---------------------------------------- |
+| userId    | UUID                         | NO   | uuid_generate_v4()  | PRIMARY KEY              | 사용자 고유 식별자                       |
+| email     | VARCHAR(255)                 | NO   | -                   | UNIQUE, NOT NULL         | 로그인용 이메일 주소                     |
+| password  | VARCHAR(255)                 | NO   | -                   | NOT NULL                 | bcrypt 해시된 비밀번호 (salt rounds: 10) |
+| username  | VARCHAR(100)                 | NO   | -                   | NOT NULL                 | 사용자 표시 이름                         |
+| role      | VARCHAR(20)                  | NO   | 'user'              | NOT NULL, DEFAULT 'user' | 사용자 권한 역할 ('user', 'admin' 중 하나) |
+| createdAt | TIMESTAMP WITH TIME ZONE     | NO   | CURRENT_TIMESTAMP   | NOT NULL                 | 계정 생성 일시 (UTC)                     |
+| updatedAt | TIMESTAMP WITH TIME ZONE     | NO   | CURRENT_TIMESTAMP   | NOT NULL                 | 최종 정보 수정 일시 (UTC)                |
 
 #### 비즈니스 규칙
 
@@ -142,19 +142,19 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명      | 데이터 타입                            | NULL | 기본값            | 제약 조건                                             | 설명                             |
-| ----------- | -------------------------------------- | ---- | ----------------- | ----------------------------------------------------- | -------------------------------- |
-| todoId      | UUID                                   | NO   | gen_random_uuid() | PRIMARY KEY                                           | 할일 고유 식별자                 |
-| userId      | UUID                                   | NO   | -                 | FOREIGN KEY REFERENCES User(userId) ON DELETE CASCADE ON UPDATE CASCADE | 할일 소유자 ID                   |
-| title       | VARCHAR(200)                           | NO   | -                 | NOT NULL                                              | 할일 제목 (최대 200자)           |
-| content     | TEXT                                   | YES  | NULL              | -                                                     | 할일 상세 내용 (선택사항)        |
-| startDate   | DATE                                   | YES  | NULL              | -                                                     | 할일 시작일                      |
-| dueDate     | DATE                                   | YES  | NULL              | CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate) | 할일 만료일 (시작일 이후여야 함) |
-| status      | VARCHAR(20)                            | NO   | 'active'          | NOT NULL, DEFAULT 'active', CHECK (status IN ('active', 'completed', 'deleted')) | 할일 상태 (활성/완료/삭제)       |
-| isCompleted | BOOLEAN                                | NO   | false             | NOT NULL, DEFAULT false                               | 완료 여부 플래그                 |
-| createdAt   | TIMESTAMP                              | NO   | NOW()             | NOT NULL                                              | 할일 생성 일시 (UTC)             |
-| updatedAt   | TIMESTAMP                              | NO   | NOW()             | NOT NULL                                              | 할일 최종 수정 일시 (UTC)        |
-| deletedAt   | TIMESTAMP                              | YES  | NULL              | -                                                     | 할일 삭제 일시 (소프트 삭제용)   |
+| 필드명      | 데이터 타입                                | NULL | 기본값                | 제약 조건                                             | 설명                             |
+| ----------- | ------------------------------------------ | ---- | --------------------- | ----------------------------------------------------- | -------------------------------- |
+| todoId      | UUID                                       | NO   | uuid_generate_v4()    | PRIMARY KEY                                           | 할일 고유 식별자                 |
+| userId      | UUID                                       | NO   | -                     | FOREIGN KEY REFERENCES User(userId) ON DELETE CASCADE ON UPDATE CASCADE | 할일 소유자 ID                   |
+| title       | VARCHAR(255)                               | NO   | -                     | NOT NULL                                              | 할일 제목 (최대 255자)           |
+| content     | TEXT                                       | YES  | NULL                  | -                                                     | 할일 상세 내용 (선택사항)        |
+| startDate   | DATE                                       | YES  | NULL                  | -                                                     | 할일 시작일                      |
+| dueDate     | DATE                                       | YES  | NULL                  | CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate) | 할일 만료일 (시작일 이후여야 함) |
+| status      | VARCHAR(20)                                | NO   | 'active'              | NOT NULL, DEFAULT 'active', CHECK (status IN ('active', 'completed', 'deleted')) | 할일 상태 (활성/완료/삭제)       |
+| isCompleted | BOOLEAN                                    | NO   | false                 | NOT NULL, DEFAULT false                               | 완료 여부 플래그                 |
+| createdAt   | TIMESTAMP WITH TIME ZONE                   | NO   | CURRENT_TIMESTAMP     | NOT NULL                                              | 할일 생성 일시 (UTC)             |
+| updatedAt   | TIMESTAMP WITH TIME ZONE                   | NO   | CURRENT_TIMESTAMP     | NOT NULL                                              | 할일 최종 수정 일시 (UTC)        |
+| deletedAt   | TIMESTAMP WITH TIME ZONE                   | YES  | NULL                  | -                                                     | 할일 삭제 일시 (소프트 삭제용)   |
 
 #### 비즈니스 규칙
 
@@ -196,15 +196,15 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명      | 데이터 타입  | NULL | 기본값            | 제약 조건              | 설명                               |
-| ----------- | ------------ | ---- | ----------------- | ---------------------- | ---------------------------------- |
-| holidayId   | UUID         | NO   | gen_random_uuid() | PRIMARY KEY            | 국경일 고유 식별자                 |
-| title       | VARCHAR(100) | NO   | -                 | NOT NULL               | 국경일 이름 (예: 신정, 설날)       |
-| date        | DATE         | NO   | -                 | NOT NULL               | 국경일 날짜                        |
-| description | TEXT         | YES  | NULL              | -                      | 국경일 설명                        |
-| isRecurring | BOOLEAN      | NO   | true              | NOT NULL, DEFAULT true | 매년 반복 여부                     |
-| createdAt   | TIMESTAMP    | NO   | NOW()             | NOT NULL               | 국경일 데이터 생성 일시 (UTC)      |
-| updatedAt   | TIMESTAMP    | NO   | NOW()             | NOT NULL               | 국경일 데이터 최종 수정 일시 (UTC) |
+| 필드명      | 데이터 타입                  | NULL | 기본값                | 제약 조건                  | 설명                               |
+| ----------- | ---------------------------- | ---- | --------------------- | -------------------------- | ---------------------------------- |
+| holidayId   | UUID                         | NO   | uuid_generate_v4()    | PRIMARY KEY                | 국경일 고유 식별자                 |
+| title       | VARCHAR(255)                 | NO   | -                     | NOT NULL                   | 국경일 이름 (예: 신정, 설날)       |
+| date        | DATE                         | NO   | -                     | NOT NULL                   | 국경일 날짜                        |
+| description | TEXT                         | YES  | NULL                  | -                          | 국경일 설명                        |
+| isRecurring | BOOLEAN                      | NO   | false                 | NOT NULL, DEFAULT false    | 매년 반복 여부                     |
+| createdAt   | TIMESTAMP WITH TIME ZONE     | NO   | CURRENT_TIMESTAMP     | NOT NULL                   | 국경일 데이터 생성 일시 (UTC)      |
+| updatedAt   | TIMESTAMP WITH TIME ZONE     | NO   | CURRENT_TIMESTAMP     | NOT NULL                   | 국경일 데이터 최종 수정 일시 (UTC) |
 
 #### 비즈니스 규칙
 
@@ -499,21 +499,21 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 
 ### 6.6 기본값 제약 (Default)
 
-| 테이블  | 필드        | 기본값            | 설명             |
-| ------- | ----------- | ----------------- | ---------------- |
-| User    | userId      | gen_random_uuid() | UUID 자동 생성   |
-| User    | role        | 'user'            | 일반 사용자 역할 |
-| User    | createdAt   | NOW()             | 현재 시각        |
-| User    | updatedAt   | NOW()             | 현재 시각        |
-| Todo    | todoId      | gen_random_uuid() | UUID 자동 생성   |
-| Todo    | status      | 'active'          | 활성 상태        |
-| Todo    | isCompleted | false             | 미완료 상태      |
-| Todo    | createdAt   | NOW()             | 현재 시각        |
-| Todo    | updatedAt   | NOW()             | 현재 시각        |
-| Holiday | holidayId   | gen_random_uuid() | UUID 자동 생성   |
-| Holiday | isRecurring | true              | 매년 반복        |
-| Holiday | createdAt   | NOW()             | 현재 시각        |
-| Holiday | updatedAt   | NOW()             | 현재 시각        |
+| 테이블  | 필드        | 기본값              | 설명             |
+| ------- | ----------- | ------------------- | ---------------- |
+| User    | userId      | uuid_generate_v4()  | UUID 자동 생성   |
+| User    | role        | 'user'              | 일반 사용자 역할 |
+| User    | createdAt   | CURRENT_TIMESTAMP   | 현재 시각        |
+| User    | updatedAt   | CURRENT_TIMESTAMP   | 현재 시각        |
+| Todo    | todoId      | uuid_generate_v4()  | UUID 자동 생성   |
+| Todo    | status      | 'active'            | 활성 상태        |
+| Todo    | isCompleted | false               | 미완료 상태      |
+| Todo    | createdAt   | CURRENT_TIMESTAMP   | 현재 시각        |
+| Todo    | updatedAt   | CURRENT_TIMESTAMP   | 현재 시각        |
+| Holiday | holidayId   | uuid_generate_v4()  | UUID 자동 생성   |
+| Holiday | isRecurring | false               | 매년 반복        |
+| Holiday | createdAt   | CURRENT_TIMESTAMP   | 현재 시각        |
+| Holiday | updatedAt   | CURRENT_TIMESTAMP   | 현재 시각        |
 
 ---
 
@@ -534,7 +534,7 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 
 | 규칙 ID | 내용                                              | 구현 방법                                          |
 | ------- | ------------------------------------------------- | -------------------------------------------------- |
-| BR-05   | 할일 삭제 시 휴지통으로 이동                      | UPDATE status='deleted', deletedAt=NOW()           |
+| BR-05   | 할일 삭제 시 휴지통으로 이동                      | UPDATE status='deleted', deletedAt=CURRENT_TIMESTAMP |
 | BR-06   | 휴지통의 할일은 복원 가능                         | UPDATE status='active', deletedAt=NULL             |
 | BR-07   | 영구 삭제 시 DB에서 완전히 제거                   | DELETE FROM "Todo" WHERE todoId=?                  |
 | BR-08   | 할일 완료 시 isCompleted=true, status='completed' | UPDATE isCompleted=true, status='completed'        |
@@ -591,8 +591,8 @@ deletedAt   TIMESTAMP NULL
 UPDATE "Todo"
 SET
     status = 'deleted',
-    deletedAt = NOW(),
-    updatedAt = NOW()
+    deletedAt = CURRENT_TIMESTAMP,
+    updatedAt = CURRENT_TIMESTAMP
 WHERE todoId = ? AND userId = ?;
 ```
 
@@ -610,7 +610,7 @@ UPDATE "Todo"
 SET
     status = 'active',
     deletedAt = NULL,
-    updatedAt = NOW()
+    updatedAt = CURRENT_TIMESTAMP
 WHERE todoId = ? AND userId = ? AND status = 'deleted';
 ```
 
@@ -660,13 +660,13 @@ ORDER BY createdAt DESC;
 ```sql
 -- User 테이블 생성
 CREATE TABLE "users" (
-    userId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    userId      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email       VARCHAR(255) NOT NULL UNIQUE,
     password    VARCHAR(255) NOT NULL,
     username    VARCHAR(100) NOT NULL,
-    role        VARCHAR(10) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
+    role        VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    createdAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 이메일 고유 인덱스
@@ -691,17 +691,17 @@ COMMENT ON COLUMN "users".updatedAt IS '최종 정보 수정 일시';
 ```sql
 -- Todo 테이블 생성
 CREATE TABLE "Todo" (
-    todoId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    todoId      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     userId      UUID NOT NULL REFERENCES "users"(userId) ON DELETE CASCADE ON UPDATE CASCADE,
-    title       VARCHAR(200) NOT NULL,
+    title       VARCHAR(255) NOT NULL,
     content     TEXT,
     startDate   DATE,
     dueDate     DATE,
     status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'deleted')),
     isCompleted BOOLEAN NOT NULL DEFAULT false,
-    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-    deletedAt   TIMESTAMP,
+    createdAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deletedAt   TIMESTAMP WITH TIME ZONE,
 
     -- 제약 조건: 만료일은 시작일 이후
     CONSTRAINT check_todo_duedate CHECK (
@@ -743,13 +743,13 @@ COMMENT ON COLUMN "Todo".deletedAt IS '할일 삭제 일시 (소프트 삭제)';
 ```sql
 -- Holiday 테이블 생성
 CREATE TABLE "Holiday" (
-    holidayId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title       VARCHAR(100) NOT NULL,
+    holidayId   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title       VARCHAR(255) NOT NULL,
     date        DATE NOT NULL,
     description TEXT,
-    isRecurring BOOLEAN NOT NULL DEFAULT true,
-    createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
+    isRecurring BOOLEAN NOT NULL DEFAULT false,
+    createdAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 날짜 조회 인덱스
@@ -775,7 +775,7 @@ COMMENT ON COLUMN "Holiday".updatedAt IS '데이터 최종 수정 일시';
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updatedAt = NOW();
+    NEW.updatedAt = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -911,11 +911,11 @@ SELECT
     todoId,
     title,
     deletedAt,
-    EXTRACT(DAY FROM (NOW() - deletedAt)) AS days_in_trash
+    EXTRACT(DAY FROM (CURRENT_TIMESTAMP - deletedAt)) AS days_in_trash
 FROM "Todo"
 WHERE userId = '사용자_UUID'
   AND status = 'deleted'
-  AND deletedAt > NOW() - INTERVAL '30 days'
+  AND deletedAt > CURRENT_TIMESTAMP - INTERVAL '30 days'
 ORDER BY deletedAt DESC;
 ```
 

@@ -25,12 +25,12 @@ describe('authService', () => {
           .mockResolvedValueOnce({ rows: [] }) // 이메일 중복 체크
           .mockResolvedValueOnce({ // 사용자 생성
             rows: [{
-              userId: 'user-123',
+              userid: 'user-123',
               email: validEmail,
               username: validUsername,
               role: 'user',
-              createdAt: '2025-11-26T00:00:00Z',
-              updatedAt: '2025-11-26T00:00:00Z'
+              createdat: '2025-11-26T00:00:00Z',
+              updatedat: '2025-11-26T00:00:00Z'
             }]
           });
         hashPassword.mockResolvedValue('hashed_password_123');
@@ -200,7 +200,7 @@ describe('authService', () => {
         const result = await authService.login(validEmail, validPassword);
 
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, password, username, role, "createdAt", "updatedAt" FROM "users" WHERE email = $1',
+          'SELECT "userid", email, password, username, role, "createdat", "updatedat" FROM "users" WHERE email = $1',
           [validEmail]
         );
         expect(comparePassword).toHaveBeenCalledWith(validPassword, mockUser.password);
@@ -367,7 +367,7 @@ describe('authService', () => {
 
         expect(verifyRefreshToken).toHaveBeenCalledWith(validRefreshToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, role, "createdAt", "updatedAt" FROM "users" WHERE "userId" = $1',
+          'SELECT "userid", email, role, "createdat", "updatedat" FROM "users" WHERE "userid" = $1',
           [mockDecoded.userId]
         );
         expect(generateAccessToken).toHaveBeenCalledWith({

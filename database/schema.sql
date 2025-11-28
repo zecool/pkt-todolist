@@ -1,121 +1,155 @@
- -- 기존 테이블 삭제 (외래키 때문에 순서 중요)
-  DROP TABLE IF EXISTS "Todo" CASCADE;
-  DROP TABLE IF EXISTS "users" CASCADE;
-  DROP TABLE IF EXISTS "Holiday" CASCADE;
+-- WHS-TodoList Database Schema
+-- 버전: 2.0
+-- 최종 수정: 2025-11-28
+-- 실제 DB 스키마 반영
 
-  -- UUID extension 활성화
-  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-  -- User 테이블 정의
-  CREATE TABLE "users" (
-      userId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      email       VARCHAR(255) NOT NULL UNIQUE,
-      password    VARCHAR(255) NOT NULL,
-      username    VARCHAR(100) NOT NULL,
-      role        VARCHAR(10) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-      createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-      updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
-  );
+-- ============================================
+-- User 테이블 정의
+-- ============================================
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
-  -- Todo 테이블 정의
-  CREATE TABLE "Todo" (
-      todoId      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      userId      UUID NOT NULL REFERENCES "users"(userId) ON DELETE CASCADE ON UPDATE CASCADE,
-      title       VARCHAR(200) NOT NULL,
-      content     TEXT,
-      startDate   DATE,
-      dueDate     DATE,
-      status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'deleted')),
-      isCompleted BOOLEAN NOT NULL DEFAULT false,
-      createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-      updatedAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-      deletedAt   TIMESTAMP,
+    -- CHECK 제약 조건
+    CONSTRAINT chk_user_role CHECK (role IN ('user', 'admin'))
+);
 
-      -- 제약 조건: 만료일은 시작일 이후
-      CONSTRAINT check_todo_duedate CHECK (
-          dueDate IS NULL OR
-          startDate IS NULL OR
-          dueDate >= startDate
-      )
-  );
+-- User 테이블 코멘트
+COMMENT ON TABLE users IS '사용자 계정 정보';
+COMMENT ON COLUMN users.user_id IS '사용자 고유 ID (UUID)';
+COMMENT ON COLUMN users.email IS '로그인용 이메일 주소 (고유)';
+COMMENT ON COLUMN users.password IS 'bcrypt 해시된 비밀번호';
+COMMENT ON COLUMN users.username IS '사용자 표시 이름';
+COMMENT ON COLUMN users.role IS '사용자 역할 (user, admin)';
+COMMENT ON COLUMN users.created_at IS '계정 생성 일시';
+COMMENT ON COLUMN users.updated_at IS '최종 정보 수정 일시';
 
-  -- Holiday 테이블 정의
-  CREATE TABLE "Holiday" (
-      holidayId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      title       VARCHAR(100) NOT NULL,
-      date        DATE NOT NULL,
-      description TEXT,
-      isRecurring BOOLEAN NOT NULL DEFAULT true,
-      createdAt   TIMESTAMP NOT NULL DEFAULT NOW(),
-      updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
-  );
+-- ============================================
+-- Todo 테이블 정의
+-- ============================================
+CREATE TABLE todos (
+    todo_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    start_date DATE,
+    due_date DATE,
+    status VARCHAR(20) DEFAULT 'active',
+    is_completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE,
 
-  -- UNIQUE INDEX 추가
-  CREATE UNIQUE INDEX idx_user_email ON "users"(email);
+    -- CHECK 제약 조건
+    CONSTRAINT chk_todo_status CHECK (status IN ('active', 'completed', 'deleted')),
+    CONSTRAINT chk_due_date_after_start_date CHECK (
+        due_date IS NULL OR
+        start_date IS NULL OR
+        due_date >= start_date
+    )
+);
 
-  -- INDEX 추가
-  CREATE INDEX idx_todo_user_status ON "Todo"(userId, status);
-  CREATE INDEX idx_todo_duedate ON "Todo"(dueDate);
-  CREATE INDEX idx_todo_deletedat ON "Todo"(deletedAt);
-  CREATE INDEX idx_todo_createdat ON "Todo"(createdAt);
-  CREATE INDEX idx_user_role ON "users"(role);
-  CREATE INDEX idx_holiday_date ON "Holiday"(date);
+-- Todo 테이블 코멘트
+COMMENT ON TABLE todos IS '사용자별 할일 정보';
+COMMENT ON COLUMN todos.todo_id IS '할일 고유 ID (UUID)';
+COMMENT ON COLUMN todos.user_id IS '할일 소유자 ID (외래키)';
+COMMENT ON COLUMN todos.title IS '할일 제목 (필수, 최대 255자)';
+COMMENT ON COLUMN todos.content IS '할일 상세 내용 (선택)';
+COMMENT ON COLUMN todos.start_date IS '할일 시작일';
+COMMENT ON COLUMN todos.due_date IS '할일 만료일 (시작일 이후)';
+COMMENT ON COLUMN todos.status IS '할일 상태 (active, completed, deleted)';
+COMMENT ON COLUMN todos.is_completed IS '완료 여부 플래그';
+COMMENT ON COLUMN todos.created_at IS '할일 생성 일시';
+COMMENT ON COLUMN todos.updated_at IS '할일 최종 수정 일시';
+COMMENT ON COLUMN todos.deleted_at IS '할일 삭제 일시 (소프트 삭제)';
 
-  -- 트리거 함수 생성 (updatedAt 자동 갱신)
-  CREATE OR REPLACE FUNCTION update_updated_at_column()
-  RETURNS TRIGGER AS $$
-  BEGIN
-      NEW.updatedAt = NOW();
-      RETURN NEW;
-  END;
-  $$ LANGUAGE plpgsql;
+-- ============================================
+-- Holiday 테이블 정의
+-- ============================================
+CREATE TABLE holidays (
+    holiday_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    description TEXT,
+    is_recurring BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
-  -- User 테이블 트리거
-  CREATE TRIGGER trigger_user_updated_at
-  BEFORE UPDATE ON "users"
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+-- Holiday 테이블 코멘트
+COMMENT ON TABLE holidays IS '공통 국경일 정보';
+COMMENT ON COLUMN holidays.holiday_id IS '국경일 고유 ID (UUID)';
+COMMENT ON COLUMN holidays.title IS '국경일 이름';
+COMMENT ON COLUMN holidays.date IS '국경일 날짜';
+COMMENT ON COLUMN holidays.description IS '국경일 설명';
+COMMENT ON COLUMN holidays.is_recurring IS '매년 반복 여부';
+COMMENT ON COLUMN holidays.created_at IS '데이터 생성 일시';
+COMMENT ON COLUMN holidays.updated_at IS '데이터 최종 수정 일시';
 
-  -- Todo 테이블 트리거
-  CREATE TRIGGER trigger_todo_updated_at
-  BEFORE UPDATE ON "Todo"
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+-- ============================================
+-- INDEXES
+-- ============================================
 
-  -- Holiday 테이블 트리거
-  CREATE TRIGGER trigger_holiday_updated_at
-  BEFORE UPDATE ON "Holiday"
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+-- User 테이블 인덱스
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 
-  -- 테이블 코멘트
-  COMMENT ON TABLE "users" IS '사용자 계정 정보';
-  COMMENT ON COLUMN "users".userId IS '사용자 고유 ID (UUID)';
-  COMMENT ON COLUMN "users".email IS '로그인용 이메일 주소 (고유)';
-  COMMENT ON COLUMN "users".password IS 'bcrypt 해시된 비밀번호';
-  COMMENT ON COLUMN "users".username IS '사용자 표시 이름';
-  COMMENT ON COLUMN "users".role IS '사용자 역할 (user, admin)';
-  COMMENT ON COLUMN "users".createdAt IS '계정 생성 일시';
-  COMMENT ON COLUMN "users".updatedAt IS '최종 정보 수정 일시';
+-- Todo 테이블 인덱스
+CREATE INDEX IF NOT EXISTS idx_todos_user_id_status ON todos(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_todos_due_date ON todos(due_date);
+CREATE INDEX IF NOT EXISTS idx_todos_created_at ON todos(created_at);
+CREATE INDEX IF NOT EXISTS idx_todos_deleted_at ON todos(deleted_at);
 
-  COMMENT ON TABLE "Todo" IS '사용자별 할일 정보';
-  COMMENT ON COLUMN "Todo".todoId IS '할일 고유 ID (UUID)';
-  COMMENT ON COLUMN "Todo".userId IS '할일 소유자 ID (외래키)';
-  COMMENT ON COLUMN "Todo".title IS '할일 제목 (필수, 최대 200자)';
-  COMMENT ON COLUMN "Todo".content IS '할일 상세 내용 (선택)';
-  COMMENT ON COLUMN "Todo".startDate IS '할일 시작일';
-  COMMENT ON COLUMN "Todo".dueDate IS '할일 만료일 (시작일 이후)';
-  COMMENT ON COLUMN "Todo".status IS '할일 상태 (active, completed, deleted)';
-  COMMENT ON COLUMN "Todo".isCompleted IS '완료 여부 플래그';
-  COMMENT ON COLUMN "Todo".createdAt IS '할일 생성 일시';
-  COMMENT ON COLUMN "Todo".updatedAt IS '할일 최종 수정 일시';
-  COMMENT ON COLUMN "Todo".deletedAt IS '할일 삭제 일시 (소프트 삭제)';
+-- Holiday 테이블 인덱스
+CREATE INDEX IF NOT EXISTS idx_holidays_date ON holidays(date);
 
-  COMMENT ON TABLE "Holiday" IS '공통 국경일 정보';
-  COMMENT ON COLUMN "Holiday".holidayId IS '국경일 고유 ID (UUID)';
-  COMMENT ON COLUMN "Holiday".title IS '국경일 이름';
-  COMMENT ON COLUMN "Holiday".date IS '국경일 날짜';
-  COMMENT ON COLUMN "Holiday".description IS '국경일 설명';
-  COMMENT ON COLUMN "Holiday".isRecurring IS '매년 반복 여부';
-  COMMENT ON COLUMN "Holiday".createdAt IS '데이터 생성 일시';
-  COMMENT ON COLUMN "Holiday".updatedAt IS '데이터 최종 수정 일시';
+-- ============================================
+-- FOREIGN KEY 제약 조건
+-- ============================================
+
+ALTER TABLE todos ADD CONSTRAINT fk_todos_user_id
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+-- ============================================
+-- TRIGGERS (자동 updated_at 갱신)
+-- ============================================
+
+-- updatedAt 자동 갱신 함수
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- User 테이블 트리거
+DROP TRIGGER IF EXISTS trigger_users_updated_at ON users;
+CREATE TRIGGER trigger_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Todo 테이블 트리거
+DROP TRIGGER IF EXISTS trigger_todos_updated_at ON todos;
+CREATE TRIGGER trigger_todos_updated_at
+    BEFORE UPDATE ON todos
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Holiday 테이블 트리거
+DROP TRIGGER IF EXISTS trigger_holidays_updated_at ON holidays;
+CREATE TRIGGER trigger_holidays_updated_at
+    BEFORE UPDATE ON holidays
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
