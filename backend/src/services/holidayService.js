@@ -7,9 +7,9 @@ const { pool } = require('../config/database');
  * @returns {Promise<Array>} 국경일 목록
  */
 const getHolidays = async (year, month) => {
-  let query = 'SELECT * FROM holidays WHERE ';
+  let query = 'SELECT * FROM "Holiday" WHERE ';
   const params = [];
-  
+
   if (month) {
     // 특정 연도와 월의 국경일 조회
     query += 'EXTRACT(YEAR FROM date) = $1 AND EXTRACT(MONTH FROM date) = $2';
@@ -19,18 +19,18 @@ const getHolidays = async (year, month) => {
     query += 'EXTRACT(YEAR FROM date) = $1';
     params.push(year);
   }
-  
+
   query += ' ORDER BY date';
 
   const result = await pool.query(query, params);
   return result.rows.map(row => ({
-    holidayId: row.holiday_id,
+    holidayId: row.holidayId,
     title: row.title,
     date: row.date,
     description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
+    isRecurring: row.isRecurring,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
   }));
 };
 
@@ -43,7 +43,7 @@ const createHoliday = async (holidayData) => {
   const { title, date, description = null, isRecurring = true } = holidayData;
 
   const result = await pool.query(
-    `INSERT INTO holidays (title, date, description, is_recurring)
+    `INSERT INTO "Holiday" (title, date, description, "isRecurring")
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
     [title, date, description, isRecurring]
@@ -51,13 +51,13 @@ const createHoliday = async (holidayData) => {
 
   const row = result.rows[0];
   return {
-    holidayId: row.holiday_id,
+    holidayId: row.holidayId,
     title: row.title,
     date: row.date,
     description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
+    isRecurring: row.isRecurring,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
   };
 };
 
@@ -70,7 +70,7 @@ const createHoliday = async (holidayData) => {
 const updateHoliday = async (holidayId, updateData) => {
   // 현재 국경일 조회
   const currentHoliday = await pool.query(
-    'SELECT * FROM holidays WHERE holiday_id = $1',
+    'SELECT * FROM "Holiday" WHERE "holidayId" = $1',
     [holidayId]
   );
 
@@ -100,16 +100,16 @@ const updateHoliday = async (holidayId, updateData) => {
     paramIndex++;
   }
   if (isRecurring !== undefined) {
-    fields.push(`is_recurring = $${paramIndex}`);
+    fields.push(`"isRecurring" = $${paramIndex}`);
     values.push(isRecurring);
     paramIndex++;
   }
 
   // 최종 업데이트 시간 업데이트
-  fields.push(`updated_at = CURRENT_TIMESTAMP`);
+  fields.push(`"updatedAt" = CURRENT_TIMESTAMP`);
   values.push(holidayId);
 
-  const query = `UPDATE holidays SET ${fields.join(', ')} WHERE holiday_id = $${paramIndex} RETURNING *`;
+  const query = `UPDATE "Holiday" SET ${fields.join(', ')} WHERE "holidayId" = $${paramIndex} RETURNING *`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {
@@ -118,13 +118,13 @@ const updateHoliday = async (holidayId, updateData) => {
 
   const row = result.rows[0];
   return {
-    holidayId: row.holiday_id,
+    holidayId: row.holidayId,
     title: row.title,
     date: row.date,
     description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
+    isRecurring: row.isRecurring,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
   };
 };
 

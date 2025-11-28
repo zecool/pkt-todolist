@@ -7,22 +7,22 @@ const { pool } = require('../config/database');
  */
 const getTrash = async (userId) => {
   const result = await pool.query(
-    'SELECT * FROM todos WHERE user_id = $1 AND deleted_at IS NOT NULL ORDER BY deleted_at DESC',
+    'SELECT * FROM "Todo" WHERE "userId" = $1 AND "deletedAt" IS NOT NULL ORDER BY "deletedAt" DESC',
     [userId]
   );
 
   return result.rows.map(row => ({
-    todoId: row.todo_id,
-    userId: row.user_id,
+    todoId: row.todoId,
+    userId: row.userId,
     title: row.title,
     content: row.content,
-    startDate: row.start_date,
-    dueDate: row.due_date,
+    startDate: row.startDate,
+    dueDate: row.dueDate,
     status: row.status,
-    isCompleted: row.is_completed,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    deletedAt: row.deleted_at
+    isCompleted: row.isCompleted,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt
   }));
 };
 
@@ -34,7 +34,7 @@ const getTrash = async (userId) => {
  */
 const permanentlyDelete = async (todoId, userId) => {
   const result = await pool.query(
-    'DELETE FROM todos WHERE todo_id = $1 AND user_id = $2 AND deleted_at IS NOT NULL RETURNING *',
+    'DELETE FROM "Todo" WHERE "todoId" = $1 AND "userId" = $2 AND "deletedAt" IS NOT NULL RETURNING *',
     [todoId, userId]
   );
 
