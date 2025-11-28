@@ -1,9 +1,9 @@
 # pkt-TodoList 데이터베이스 ERD
 
-**버전**: 1.0
-**작성일**: 2025-11-26
+**버전**: 1.1
+**작성일**: 2025-11-28
 **상태**: 최종
-**작성자**: Claude
+**작성자**: Qwen
 **참조 문서**:
 
 - [도메인 정의서](./1-domain-definition.md)
@@ -55,7 +55,7 @@ pkt-TodoList 애플리케이션의 데이터 저장 및 관리를 위한 Postgre
 | 문자 인코딩       | UTF-8                       |
 | 타임존            | UTC                         |
 | 기본 ID 타입      | UUID                        |
-| 타임스탬프 정밀도 | TIMESTAMP WITHOUT TIME ZONE |
+| 타임스탬프 정밀도 | TIMESTAMP (WITH TIME ZONE)  |
 
 ---
 
@@ -70,7 +70,7 @@ erDiagram
         VARCHAR(255) email UK "로그인 이메일"
         VARCHAR(255) password "bcrypt 해시 비밀번호"
         VARCHAR(100) username "사용자 이름"
-        ENUM role "user, admin"
+        VARCHAR(10) role "user, admin"
         TIMESTAMP createdAt "가입일시"
         TIMESTAMP updatedAt "최종 수정일시"
     }
@@ -82,7 +82,7 @@ erDiagram
         TEXT content "할일 상세 내용"
         DATE startDate "시작일"
         DATE dueDate "만료일"
-        ENUM status "active, completed, deleted"
+        VARCHAR(20) status "active, completed, deleted"
         BOOLEAN isCompleted "완료 여부"
         TIMESTAMP createdAt "생성일시"
         TIMESTAMP updatedAt "최종 수정일시"
@@ -116,7 +116,7 @@ erDiagram
 | email     | VARCHAR(255)          | NO   | -                 | UNIQUE, NOT NULL         | 로그인용 이메일 주소                     |
 | password  | VARCHAR(255)          | NO   | -                 | NOT NULL                 | bcrypt 해시된 비밀번호 (salt rounds: 10) |
 | username  | VARCHAR(100)          | NO   | -                 | NOT NULL                 | 사용자 표시 이름                         |
-| role      | ENUM('user', 'admin') | NO   | 'user'            | NOT NULL, DEFAULT 'user' | 사용자 권한 역할                         |
+| role      | VARCHAR(10)           | NO   | 'user'            | NOT NULL, DEFAULT 'user' | 사용자 권한 역할 ('user', 'admin' 중 하나) |
 | createdAt | TIMESTAMP             | NO   | NOW()             | NOT NULL                 | 계정 생성 일시 (UTC)                     |
 | updatedAt | TIMESTAMP             | NO   | NOW()             | NOT NULL                 | 최종 정보 수정 일시 (UTC)                |
 
@@ -132,7 +132,7 @@ erDiagram
 
 - UUID v4 사용으로 예측 불가능성 보장
 - 이메일은 대소문자 구분 없이 저장 (소문자 변환 권장)
-- updatedAt은 프로필 수정 시마다 자동 갱신
+- updatedAt은 트리거를 통해 자동 갱신
 
 ---
 
@@ -145,12 +145,12 @@ erDiagram
 | 필드명      | 데이터 타입                            | NULL | 기본값            | 제약 조건                                             | 설명                             |
 | ----------- | -------------------------------------- | ---- | ----------------- | ----------------------------------------------------- | -------------------------------- |
 | todoId      | UUID                                   | NO   | gen_random_uuid() | PRIMARY KEY                                           | 할일 고유 식별자                 |
-| userId      | UUID                                   | NO   | -                 | FOREIGN KEY REFERENCES User(userId) ON DELETE CASCADE | 할일 소유자 ID                   |
+| userId      | UUID                                   | NO   | -                 | FOREIGN KEY REFERENCES User(userId) ON DELETE CASCADE ON UPDATE CASCADE | 할일 소유자 ID                   |
 | title       | VARCHAR(200)                           | NO   | -                 | NOT NULL                                              | 할일 제목 (최대 200자)           |
 | content     | TEXT                                   | YES  | NULL              | -                                                     | 할일 상세 내용 (선택사항)        |
 | startDate   | DATE                                   | YES  | NULL              | -                                                     | 할일 시작일                      |
-| dueDate     | DATE                                   | YES  | NULL              | CHECK (dueDate >= startDate OR dueDate IS NULL)       | 할일 만료일 (시작일 이후여야 함) |
-| status      | ENUM('active', 'completed', 'deleted') | NO   | 'active'          | NOT NULL, DEFAULT 'active'                            | 할일 상태 (활성/완료/삭제)       |
+| dueDate     | DATE                                   | YES  | NULL              | CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate) | 할일 만료일 (시작일 이후여야 함) |
+| status      | VARCHAR(20)                            | NO   | 'active'          | NOT NULL, DEFAULT 'active', CHECK (status IN ('active', 'completed', 'deleted')) | 할일 상태 (활성/완료/삭제)       |
 | isCompleted | BOOLEAN                                | NO   | false             | NOT NULL, DEFAULT false                               | 완료 여부 플래그                 |
 | createdAt   | TIMESTAMP                              | NO   | NOW()             | NOT NULL                                              | 할일 생성 일시 (UTC)             |
 | updatedAt   | TIMESTAMP                              | NO   | NOW()             | NOT NULL                                              | 할일 최종 수정 일시 (UTC)        |
@@ -186,6 +186,7 @@ erDiagram
 - startDate와 dueDate는 선택사항
 - deletedAt은 소프트 삭제 시에만 값이 설정됨
 - 사용자 삭제 시 해당 사용자의 모든 할일도 CASCADE로 삭제
+- updatedAt은 트리거를 통해 자동 갱신
 
 ---
 
@@ -228,6 +229,7 @@ erDiagram
 - 음력 기반 국경일(설날, 추석)은 연도별로 별도 레코드 생성 필요
 - 국경일은 삭제 기능 없음 (관리자만 수정 가능)
 - User 테이블과 관계 없음 (공통 데이터)
+- updatedAt은 트리거를 통해 자동 갱신
 
 ---
 
@@ -248,9 +250,11 @@ erDiagram
 
 ```sql
 ON DELETE CASCADE
+ON UPDATE CASCADE
 ```
 
 - 사용자 삭제 시 해당 사용자의 모든 할일도 함께 삭제됩니다.
+- 사용자 ID가 변경될 경우 Todo 테이블의 userId도 자동으로 변경됩니다.
 - 데이터 정합성을 보장합니다.
 
 **참조 무결성**:
@@ -534,7 +538,7 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 | BR-06   | 휴지통의 할일은 복원 가능                         | UPDATE status='active', deletedAt=NULL             |
 | BR-07   | 영구 삭제 시 DB에서 완전히 제거                   | DELETE FROM "Todo" WHERE todoId=?                  |
 | BR-08   | 할일 완료 시 isCompleted=true, status='completed' | UPDATE isCompleted=true, status='completed'        |
-| BR-12   | 만료일은 시작일과 같거나 이후여야 함              | CHECK (dueDate >= startDate)                       |
+| BR-12   | 만료일은 시작일과 같거나 이후여야 함              | CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate) |
 | BR-13   | 만료일 지난 할일은 UI에서 시각적 구분             | WHERE dueDate < CURRENT_DATE (애플리케이션 레이어) |
 
 ---
@@ -665,8 +669,8 @@ CREATE TABLE "User" (
     updatedAt   TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- 이메일 고유 인덱스 (자동 생성됨)
--- CREATE UNIQUE INDEX idx_user_email ON "User"(email);
+-- 이메일 고유 인덱스
+CREATE UNIQUE INDEX idx_user_email ON "User"(email);
 
 -- 역할 조회 인덱스
 CREATE INDEX idx_user_role ON "User"(role);
@@ -921,12 +925,26 @@ ORDER BY deletedAt DESC;
 
 ```sql
 -- 순서 주의: 외래키 참조 순서의 역순으로 삭제
+DROP TRIGGER IF EXISTS trigger_user_updated_at ON "User";
+DROP TRIGGER IF EXISTS trigger_todo_updated_at ON "Todo";
+DROP TRIGGER IF EXISTS trigger_holiday_updated_at ON "Holiday";
+
+DROP FUNCTION IF EXISTS update_updated_at_column();
+
 DROP TABLE IF EXISTS "Todo" CASCADE;
 DROP TABLE IF EXISTS "User" CASCADE;
 DROP TABLE IF EXISTS "Holiday" CASCADE;
+```
 
--- 트리거 함수 삭제
-DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+---
+
+### 9.6 데이터베이스 설정 및 확장
+
+#### 9.6.1 UUID 확장 활성화
+
+```sql
+-- UUID 생성 함수 사용을 위해 확장 활성화
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
 
 ---
