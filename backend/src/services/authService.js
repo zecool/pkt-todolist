@@ -27,7 +27,7 @@ const register = async (email, password, username) => {
   const result = await pool.query(
     `INSERT INTO "users" (email, password, username, role)
      VALUES ($1, $2, $3, $4)
-     RETURNING "userid", email, username, role, "createdat", "updatedat"`,
+     RETURNING user_id, email, username, role, created_at, updated_at`,
     [email, hashedPassword, username, 'user']
   );
 
@@ -35,12 +35,12 @@ const register = async (email, password, username) => {
 
   // Map database column names to JavaScript property names
   const mappedUser = {
-    userId: user.userid,
+    userId: user.user_id,
     email: user.email,
     username: user.username,
     role: user.role,
-    createdAt: user.createdat,
-    updatedAt: user.updatedat
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
   };
 
   // 회원가입 후 자동 로그인을 위한 토큰 생성
@@ -72,7 +72,7 @@ const register = async (email, password, username) => {
 const login = async (email, password) => {
   // 이메일로 사용자 조회
   const result = await pool.query(
-    'SELECT "userid", email, password, username, role, "createdat", "updatedat" FROM "users" WHERE email = $1',
+    'SELECT user_id, email, password, username, role, created_at, updated_at FROM "users" WHERE email = $1',
     [email]
   );
 
@@ -84,13 +84,13 @@ const login = async (email, password) => {
 
   // Map database column names to JavaScript property names
   const mappedUser = {
-    userId: user.userid,
+    userId: user.user_id,
     email: user.email,
     username: user.username,
     password: user.password,
     role: user.role,
-    createdAt: user.createdat,
-    updatedAt: user.updatedat
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
   };
 
   // 비밀번호 검증
@@ -142,7 +142,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 사용자 존재 여부 확인
   const result = await pool.query(
-    'SELECT "userid", email, role, "createdat", "updatedat" FROM "users" WHERE "userid" = $1',
+    'SELECT user_id, email, role, created_at, updated_at FROM "users" WHERE user_id = $1',
     [decoded.userId]
   );
 
@@ -154,11 +154,11 @@ const refreshAccessToken = async (refreshToken) => {
 
   // Map database column names to JavaScript property names
   const mappedUser = {
-    userId: user.userid,
+    userId: user.user_id,
     email: user.email,
     role: user.role,
-    createdAt: user.createdat,
-    updatedAt: user.updatedat
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
   };
 
   // 새로운 액세스 토큰 생성

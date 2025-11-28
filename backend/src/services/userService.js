@@ -8,7 +8,7 @@ const { hashPassword } = require('../utils/passwordHelper');
  */
 const getProfile = async (userId) => {
   const result = await pool.query(
-    'SELECT "userid", email, username, role, "createdat", "updatedat" FROM "users" WHERE "userid" = $1',
+    'SELECT user_id, email, username, role, created_at, updated_at FROM "users" WHERE user_id = $1',
     [userId]
   );
 
@@ -18,12 +18,12 @@ const getProfile = async (userId) => {
 
   const user = result.rows[0];
   return {
-    userId: user.userid,
+    userId: user.user_id,
     email: user.email,
     username: user.username,
     role: user.role,
-    createdAt: user.createdat,
-    updatedAt: user.updatedat
+    createdAt: user.created_at,
+    updatedAt: user.updated_at
   };
 };
 
@@ -36,7 +36,7 @@ const getProfile = async (userId) => {
 const updateProfile = async (userId, updateData) => {
   // 현재 사용자 정보 조회
   const currentUser = await pool.query(
-    'SELECT email, username FROM "users" WHERE "userid" = $1',
+    'SELECT email, username FROM "users" WHERE user_id = $1',
     [userId]
   );
 
@@ -53,7 +53,7 @@ const updateProfile = async (userId, updateData) => {
   if (username !== undefined) {
     // 사용자 이름 중복 체크
     const existingUser = await pool.query(
-      'SELECT "userid" FROM "users" WHERE username = $1 AND "userid" != $2',
+      'SELECT user_id FROM "users" WHERE username = $1 AND user_id != $2',
       [username, userId]
     );
 
@@ -80,10 +80,10 @@ const updateProfile = async (userId, updateData) => {
   }
 
   // 최종 업데이트 시간 업데이트
-  fields.push(`"updatedat" = CURRENT_TIMESTAMP`);
+  fields.push(`updated_at = CURRENT_TIMESTAMP`);
   values.push(userId);
 
-  const query = `UPDATE "users" SET ${fields.join(', ')} WHERE "userid" = $${paramIndex} RETURNING "userid", email, username, role`;
+  const query = `UPDATE "users" SET ${fields.join(', ')} WHERE user_id = $${paramIndex} RETURNING user_id, email, username, role`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {
@@ -92,7 +92,7 @@ const updateProfile = async (userId, updateData) => {
 
   const user = result.rows[0];
   return {
-    userId: user.userid,
+    userId: user.user_id,
     email: user.email,
     username: user.username,
     role: user.role
