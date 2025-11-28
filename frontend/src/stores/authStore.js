@@ -83,11 +83,29 @@ const useAuthStore = create(
 
           return true;
         } catch (error) {
+          let errorMessage = '회원가입에 실패했습니다.';
+
+          // 서버에서 반환된 구체적인 오류 메시지 처리
+          if (error.response?.data?.error?.message) {
+            errorMessage = error.response.data.error.message;
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          // HTTP 상태 코드에 따른 오류 메시지 처리
+          if (error.response?.status === 409) {
+            errorMessage = '이미 사용 중인 이메일입니다.';
+          } else if (error.response?.status === 400) {
+            errorMessage = '요청 데이터가 유효하지 않습니다.';
+          }
+
           set({
             user: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error.response?.data?.message || '회원가입에 실패했습니다.',
+            error: errorMessage,
           });
 
           return false;
