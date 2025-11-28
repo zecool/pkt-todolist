@@ -70,7 +70,7 @@ const LoginPage = () => {
           {/* 카드 헤더 */}
           <div className="text-center py-8 px-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-fg-default mb-2">
-              강사 할일 관리 앱
+              할일 관리 앱
             </h1>
             <p className="text-gray-600 dark:text-dark-fg-muted">
               로그인하여 할일을 관리하세요
