@@ -66,12 +66,19 @@ app.get('/api', (req, res) => {
   });
 });
 
-// 라우트 등록
+// 라우트 등록 - API prefix 버전 (기존)
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 app.use('/api/trash', trashRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/users', userRoutes);
+
+// 라우트 등록 - 호환성 버전 (prefix 없이도 작동 가능하도록)
+app.use('/auth', authRoutes);
+app.use('/todos', todoRoutes);
+app.use('/trash', trashRoutes);
+app.use('/holidays', holidayRoutes);
+app.use('/users', userRoutes);
 
 // 404 처리
 app.use('*', (req, res) => {
