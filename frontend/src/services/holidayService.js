@@ -1,45 +1,31 @@
-import api from './api';
+/**
+ * 국경일 관련 API 서비스
+ * 국경일 조회 등 국경일 관련 API 호출
+ */
+
+import apiClient from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
-// Holiday service functions
-export const holidayService = {
-  // Get holidays with optional filters
-  getHolidays: async (year, month) => {
-    try {
-      const params = new URLSearchParams();
-      
-      if (year) params.append('year', year);
-      if (month) params.append('month', month);
-      
-      const queryString = params.toString();
-      const endpoint = queryString ? `${API_ENDPOINTS.HOLIDAYS.BASE}?${queryString}` : API_ENDPOINTS.HOLIDAYS.BASE;
-      
-      const response = await api.get(endpoint);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+/**
+ * 국경일 목록 조회
+ * @param {number} year - 연도 (예: 2025)
+ * @param {number} month - 월 (1-12)
+ * @returns {Promise<Array>} 국경일 목록
+ */
+export const getHolidays = async (year, month) => {
+  const params = new URLSearchParams();
 
-  // Create new holiday (admin only)
-  createHoliday: async (holidayData) => {
-    try {
-      const response = await api.post(API_ENDPOINTS.HOLIDAYS.BASE, holidayData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  if (year) {
+    params.append('year', year);
+  }
 
-  // Update holiday (admin only)
-  updateHoliday: async (id, updateData) => {
-    try {
-      const response = await api.put(`${API_ENDPOINTS.HOLIDAYS.BASE}/${id}`, updateData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  if (month) {
+    params.append('month', month);
+  }
+
+  const response = await apiClient.get(
+    `${API_ENDPOINTS.HOLIDAYS.BASE}?${params.toString()}`
+  );
+
+  return response.data.data;
 };
-
-export default holidayService;

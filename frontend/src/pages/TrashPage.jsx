@@ -1,148 +1,245 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, RotateCcw, AlertCircle } from 'lucide-react';
+import { MainLayout } from '../components/layout';
+import { Button, Loading, Modal } from '../components/common';
 import useTodoStore from '../stores/todoStore';
-import TodoList from '../components/todo/TodoList';
-import Button from '../components/common/Button';
-import { TODO_STATUS } from '../constants/todoStatus';
+import { formatRelativeTime } from '../utils/dateFormatter';
 
+/**
+ * 휴지통 페이지
+ * 삭제된 할일 목록 표시, 복원 및 영구 삭제 기능
+ */
 const TrashPage = () => {
-  const { 
-    todos, 
-    isLoading, 
-    error, 
-    fetchTodos,
-    restoreTodo,
-    deleteTodo: permanentDeleteTodo
-  } = useTodoStore();
+  const { todos, isLoading, error, fetchTodos, restoreTodo, setFilters } = useTodoStore();
+  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEmptyModalOpen, setIsEmptyModalOpen] = useState(false);
 
-  // Fetch deleted todos when component mounts
   useEffect(() => {
-    fetchTodos({ status: TODO_STATUS.DELETED });
-  }, [fetchTodos]);
+    // 삭제된 할일만 조회
+    setFilters({ status: 'deleted' });
+  }, [setFilters]);
 
-  // Handle restore todo
-  const handleRestoreTodo = async (todoId) => {
-    await restoreTodo(todoId);
-    // Refresh the list after restore
-    fetchTodos({ status: TODO_STATUS.DELETED });
-  };
-
-  // Handle permanent delete
-  const handlePermanentDelete = async (todoId) => {
-    if (window.confirm('정말로 이 할일을 영구 삭제하시겠습니까? 복구할 수 없습니다.')) {
-      await permanentDeleteTodo(todoId);
-      // Refresh the list after deletion
-      fetchTodos({ status: TODO_STATUS.DELETED });
+  const handleRestore = async (id) => {
+    const success = await restoreTodo(id);
+    if (success) {
+      // 복원 후 목록 갱신
+      await fetchTodos();
     }
   };
 
-  // Filter to only show deleted todos
-  const deletedTodos = todos.filter(todo => todo.status === TODO_STATUS.DELETED);
+  const handleDeleteConfirm = async () => {
+    if (!selectedTodo) return;
+
+    // 영구 삭제 API는 백엔드에서 구현되지 않았으므로
+    // 현재는 목록에서만 제거
+    setIsDeleteModalOpen(false);
+    setSelectedTodo(null);
+
+    // TODO: 영구 삭제 API 구현 시 추가
+    alert('영구 삭제 기능은 아직 구현되지 않았습니다.');
+  };
+
+  const handleEmptyTrash = () => {
+    if (todos.length === 0) return;
+    setIsEmptyModalOpen(true);
+  };
+
+  const handleEmptyConfirm = async () => {
+    // 전체 비우기 API는 백엔드에서 구현되지 않았으므로
+    // 현재는 알림만 표시
+    setIsEmptyModalOpen(false);
+
+    // TODO: 전체 비우기 API 구현 시 추가
+    alert('전체 비우기 기능은 아직 구현되지 않았습니다.');
+  };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <Loading />
+      </MainLayout>
+    );
+  }
 
   return (
-    <div className="w-full max-w-full">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">휴지통</h1>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          삭제된 할일 {deletedTodos.length}개
-        </div>
-      </div>
+    <MainLayout>
+      <div className="space-y-6">
+        {/* 헤더 */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#24292F] dark:text-dark-fg-default">휴지통</h1>
+            <p className="mt-1 text-sm text-[#57606A] dark:text-dark-fg-muted">
+              삭제된 할일을 복원하거나 영구 삭제할 수 있습니다
+            </p>
+          </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start">
-        <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" />
-        <div>
-          <p className="text-sm text-yellow-800">
-            삭제된 할일은 30일 후 자동으로 영구 삭제됩니다.
-          </p>
+          {todos.length > 0 && (
+            <Button
+              variant="danger"
+              size="md"
+              onClick={handleEmptyTrash}
+              className="w-full sm:w-auto"
+            >
+              <Trash2 size={16} className="mr-2" />
+              전체 비우기
+            </Button>
+          )}
         </div>
-      </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">에러 발생</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="bg-[#FFEBE9] dark:bg-[#321C1C] border border-[#CF222E] dark:border-[#F85149] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="text-[#CF222E] dark:text-[#F85149] flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <h3 className="font-medium text-[#CF222E] dark:text-[#F85149]">오류가 발생했습니다</h3>
+                <p className="mt-1 text-sm text-[#82071E] dark:text-[#F85149]">{error}</p>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Todo List */}
-      <div className="space-y-3">
-        {deletedTodos.map(todo => (
-          <div key={todo.todoId} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm bg-gray-50 dark:bg-gray-700/50">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 mt-1 mr-3 opacity-50">
-                <Trash2 size={20} className="text-gray-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-medium text-gray-500 dark:text-gray-400 line-through">
-                    {todo.title}
-                  </h3>
-                  <div className="flex items-center space-x-2">
+        {/* 할일 목록 */}
+        {todos.length === 0 ? (
+          <div className="text-center py-16 bg-[#F6F8FA] dark:bg-dark-canvas-subtle rounded-lg border-2 border-dashed border-[#D0D7DE] dark:border-dark-border-default">
+            <Trash2 className="mx-auto text-[#57606A] dark:text-dark-fg-muted mb-4" size={48} />
+            <h3 className="text-lg font-medium text-[#24292F] dark:text-dark-fg-default mb-2">
+              휴지통이 비어있습니다
+            </h3>
+            <p className="text-[#57606A] dark:text-dark-fg-muted">삭제된 할일이 여기에 표시됩니다</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {todos.map((todo) => (
+              <div
+                key={todo.todo_id || todo._id}
+                className="bg-white dark:bg-dark-canvas-subtle border border-[#D0D7DE] dark:border-dark-border-default rounded-lg p-4 hover:border-[#BBC0C4] dark:hover:border-dark-border-muted hover:shadow-sm transition-all"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-medium text-[#24292F] dark:text-dark-fg-default truncate">
+                      {todo.title}
+                    </h3>
+                    {todo.description && (
+                      <p className="mt-1 text-sm text-[#57606A] dark:text-dark-fg-muted line-clamp-2">
+                        {todo.description}
+                      </p>
+                    )}
+                    <div className="mt-2 flex items-center gap-3 text-xs text-[#57606A] dark:text-dark-fg-muted">
+                      <span>삭제: {formatRelativeTime(todo.deletedAt)}</span>
+                      {todo.dueDate && (
+                        <span className="hidden sm:inline">마감일: {new Date(todo.dueDate).toLocaleDateString('ko-KR')}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
-                      onClick={() => handleRestoreTodo(todo.todoId)}
-                      className="text-green-600 hover:text-green-700 border-green-300"
+                      onClick={() => handleRestore(todo.todo_id || todo._id)}
+                      className="w-full sm:w-auto"
                     >
                       <RotateCcw size={14} className="mr-1" />
                       복원
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="danger"
                       size="sm"
-                      onClick={() => handlePermanentDelete(todo.todoId)}
-                      className="text-red-600 hover:text-red-700 border-red-300"
+                      onClick={() => {
+                        setSelectedTodo(todo);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="w-full sm:w-auto"
                     >
                       <Trash2 size={14} className="mr-1" />
                       영구 삭제
                     </Button>
                   </div>
                 </div>
-
-                {todo.content && (
-                  <p className="mt-1 text-sm text-gray-400 line-through">
-                    {todo.content}
-                  </p>
-                )}
-
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  {todo.startDate || todo.dueDate ? (
-                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                      <span>📅 {todo.startDate} ~ {todo.dueDate}</span>
-                    </div>
-                  ) : null}
-
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                    삭제됨
-                  </span>
-                </div>
               </div>
-            </div>
-          </div>
-        ))}
-
-        {deletedTodos.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
-              <Trash2 className="text-gray-400" size={24} />
-            </div>
-            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">휴지통이 비어있습니다</h3>
+            ))}
           </div>
         )}
       </div>
-    </div>
+
+      {/* 영구 삭제 확인 모달 */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedTodo(null);
+        }}
+        title="영구 삭제"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setSelectedTodo(null);
+              }}
+            >
+              취소
+            </Button>
+            <Button variant="danger" onClick={handleDeleteConfirm}>
+              영구 삭제
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-[#FFF8C5] dark:bg-[#4A3A1A] border border-[#D4A72C] dark:border-[#9A6700] rounded-md">
+            <AlertCircle className="text-[#9A6700] dark:text-[#FFA657] flex-shrink-0 mt-0.5" size={20} />
+            <div className="text-sm text-[#7A5C00] dark:text-[#FFA657]">
+              <p className="font-medium">이 작업은 되돌릴 수 없습니다</p>
+              <p className="mt-1">할일이 영구적으로 삭제됩니다</p>
+            </div>
+          </div>
+          {selectedTodo && (
+            <div>
+              <p className="text-sm text-[#57606A] dark:text-dark-fg-muted mb-2">삭제할 할일:</p>
+              <p className="font-medium text-[#24292F] dark:text-dark-fg-default">{selectedTodo.title}</p>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      {/* 전체 비우기 확인 모달 */}
+      <Modal
+        isOpen={isEmptyModalOpen}
+        onClose={() => setIsEmptyModalOpen(false)}
+        title="휴지통 비우기"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setIsEmptyModalOpen(false)}
+            >
+              취소
+            </Button>
+            <Button variant="danger" onClick={handleEmptyConfirm}>
+              전체 비우기
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-[#FFEBE9] dark:bg-[#321C1C] border border-[#CF222E] dark:border-[#F85149] rounded-md">
+            <AlertCircle className="text-[#CF222E] dark:text-[#F85149] flex-shrink-0 mt-0.5" size={20} />
+            <div className="text-sm text-[#82071E] dark:text-[#F85149]">
+              <p className="font-medium">주의: 이 작업은 되돌릴 수 없습니다</p>
+              <p className="mt-1">
+                휴지통의 모든 할일({todos.length}개)이 영구적으로 삭제됩니다
+              </p>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </MainLayout>
   );
 };
 

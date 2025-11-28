@@ -1,64 +1,102 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import useAuthStore from './stores/authStore';
-import useUiStore from './stores/uiStore';
-import Header from './components/layout/Header';
-import MainLayout from './components/layout/MainLayout';
-import Modal from './components/common/Modal';
-import TodoForm from './components/todo/TodoForm';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useUIStore } from './stores/uiStore';
+
+// Pages
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import TodoListPage from './pages/TodoListPage';
+import TrashPage from './pages/TrashPage';
+import HolidayPage from './pages/HolidayPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
-  const initializeAuth = useAuthStore(state => state.initializeAuth);
-  const initializeDarkMode = useUiStore(state => state.initializeDarkMode);
-  const { isModalOpen, modalType, selectedTodo, closeModal } = useUiStore();
-  const location = useLocation();
+  const { isDarkMode, setDarkMode } = useUIStore();
 
   useEffect(() => {
-    // Initialize authentication state from stored token
-    initializeAuth();
+    // 페이지 로드 시 저장된 다크모드 설정 적용
+    const storedData = localStorage.getItem('ui-store');
 
-    // Initialize dark mode preference
-    initializeDarkMode();
-  }, [initializeAuth, initializeDarkMode]);
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        const storedIsDarkMode = parsedData.state?.isDarkMode ?? false;
 
-  // Get modal title based on modal type
-  const getModalTitle = () => {
-    switch (modalType) {
-      case 'add':
-        return '새 할일 추가';
-      case 'edit':
-        return '할일 수정';
-      default:
-        return '';
+        // 저장된 설정을 DOM에 즉시 적용
+        if (storedIsDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (error) {
+        console.error('Failed to parse stored dark mode setting:', error);
+      }
+    } else {
+      // 저장된 설정이 없으면 시스템 설정 감지
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
     }
-  };
 
-  // Check if current route is auth page
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+    // 시스템 다크모드 설정 변경 감지
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      // LocalStorage에 사용자 설정이 없을 때만 시스템 설정 따름
+      const storedData = localStorage.getItem('ui-store');
+      if (!storedData) {
+        setDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [setDarkMode]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {!isAuthPage && <Header />}
-      {isAuthPage ? (
-        <Outlet />
-      ) : (
-        <MainLayout>
-          <Outlet />
-        </MainLayout>
-      )}
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      {/* Todo Modal */}
-      {isModalOpen && (modalType === 'add' || modalType === 'edit') && (
-        <Modal
-          isOpen={true}
-          onClose={closeModal}
-          title={getModalTitle()}
-          size="md"
-        >
-          <TodoForm todo={selectedTodo} />
-        </Modal>
-      )}
-    </div>
+        {/* Protected Routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <TodoListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trash"
+          element={
+            <ProtectedRoute>
+              <TrashPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/holidays"
+          element={
+            <ProtectedRoute>
+              <HolidayPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback Route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

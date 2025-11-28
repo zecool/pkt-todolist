@@ -1,118 +1,169 @@
-import React, { useEffect, useState } from 'react';
+/**
+ * 할일 목록 페이지
+ * 할일 목록 조회, 필터링, 정렬, 추가/수정 기능 제공
+ */
+
+import { useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import useTodoStore from '../stores/todoStore';
-import useUiStore from '../stores/uiStore';
+import { MainLayout } from '../components/layout';
 import TodoFilter from '../components/todo/TodoFilter';
 import TodoList from '../components/todo/TodoList';
-import Button from '../components/common/Button';
+import TodoForm from '../components/todo/TodoForm';
+import Modal from '../components/common/Modal';
+import useTodoStore from '../stores/todoStore';
+import useUiStore from '../stores/uiStore';
 
 const TodoListPage = () => {
-  const { 
-    todos, 
-    isLoading, 
-    error, 
-    fetchTodos, 
-    completeTodo, 
+  const {
+    todos,
+    isLoading,
+    error,
+    filters,
+    fetchTodos,
+    createTodo,
+    updateTodo,
+    completeTodo,
     deleteTodo,
-    getFilteredTodos
+    setFilters,
   } = useTodoStore();
 
-  const { openModal } = useUiStore();
-  
-  // Initialize filters
-  const [filters, setFilters] = useState({
-    status: null,
-    search: '',
-    sortBy: 'createdAt',
-    order: 'desc'
-  });
+  const {
+    isModalOpen,
+    modalType,
+    selectedTodo,
+    openModal,
+    closeModal,
+  } = useUiStore();
 
-  // Fetch todos when component mounts or filters change
+  // 페이지 마운트 시 필터 초기화
   useEffect(() => {
-    fetchTodos(filters);
-  }, [filters, fetchTodos]);
+    // 다른 페이지에서 돌아올 때 필터를 기본값으로 초기화
+    setFilters({ status: '' });
+  }, []); // 빈 배열 = 컴포넌트 마운트 시 1회만 실행
 
-  // Handle todo completion
-  const handleCompleteTodo = async (todoId) => {
-    await completeTodo(todoId);
+  // 필터 변경 시 할일 목록 조회
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
+  /**
+   * 할일 완료 상태 토글
+   */
+  const handleToggle = async (id) => {
+    await completeTodo(id);
   };
 
-  // Handle todo deletion
-  const handleDeleteTodo = async (todoId) => {
-    await deleteTodo(todoId);
-  };
-
-  // Handle edit todo
-  const handleEditTodo = (todo) => {
+  /**
+   * 할일 수정 모달 열기
+   */
+  const handleEdit = (todo) => {
     openModal('edit', todo);
   };
 
-  // Handle adding a new todo
-  const handleAddTodo = () => {
+  /**
+   * 할일 삭제
+   */
+  const handleDelete = async (id) => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      await deleteTodo(id);
+    }
+  };
+
+  /**
+   * 할일 추가 버튼 클릭
+   */
+  const handleAddClick = () => {
     openModal('add');
   };
 
-  // Get filtered and sorted todos
-  const filteredTodos = getFilteredTodos();
+  /**
+   * 할일 폼 제출
+   */
+  const handleFormSubmit = async (data) => {
+    let result;
+
+    if (modalType === 'edit' && selectedTodo) {
+      const todoId = selectedTodo.todo_id || selectedTodo._id || selectedTodo.id;
+      result = await updateTodo(todoId, data);
+    } else {
+      result = await createTodo(data);
+    }
+
+    if (result) {
+      closeModal();
+    }
+  };
 
   return (
-    <div className="w-full max-w-full relative">
-      <div className="mb-6 flex justify-between items-center flex-wrap gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">할일 목록</h1>
-        <Button
-          onClick={handleAddTodo}
-          variant="primary"
-          className="hidden sm:flex items-center"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          새 할일 추가
-        </Button>
-      </div>
-
-      {/* Filter Section */}
-      <TodoFilter
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
-
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">에러 발생</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
-              </div>
-            </div>
+    <MainLayout>
+      <div className="space-y-4">
+        {/* 페이지 헤더 */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[#24292F] dark:text-dark-fg-default">할일 목록</h1>
+            <p className="text-sm text-[#57606A] dark:text-dark-fg-muted mt-1">
+              총 {todos.length}개의 할일
+            </p>
           </div>
         </div>
-      )}
 
-      {/* Todo List */}
-      <TodoList
-        todos={filteredTodos}
-        onEdit={handleEditTodo}
-        onDelete={handleDeleteTodo}
-        onComplete={handleCompleteTodo}
-        isLoading={isLoading}
-        emptyMessage="할일이 없습니다. 새 할일을 추가해보세요!"
-      />
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="bg-[#FFEBE9] dark:bg-[#321C1C] border border-[#CF222E] dark:border-[#F85149] rounded-md p-3">
+            <p className="text-sm text-[#CF222E] dark:text-[#F85149]">{error}</p>
+          </div>
+        )}
 
-      {/* Floating Action Button (Mobile) */}
-      <button
-        onClick={handleAddTodo}
-        className="sm:hidden fixed bottom-20 right-6 z-50 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        aria-label="새 할일 추가"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
-    </div>
+        {/* 필터 */}
+        <TodoFilter
+          filter={filters.status || 'all'}
+          sortBy={filters.sortBy}
+          searchQuery={filters.search}
+          onFilterChange={(value) => {
+            const statusMap = { all: '', active: 'active', completed: 'completed' };
+            setFilters({ status: statusMap[value] });
+          }}
+          onSortChange={(value) => setFilters({ sortBy: value })}
+          onSearchChange={(value) => setFilters({ search: value })}
+        />
+
+        {/* 할일 목록 */}
+        <TodoList
+          todos={todos}
+          onToggle={handleToggle}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          loading={isLoading}
+        />
+
+        {/* 할일 추가 FAB (Floating Action Button) */}
+        <button
+          onClick={handleAddClick}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-[#2DA44E] text-white rounded-full shadow-lg
+            hover:bg-[#2C974B] active:bg-[#298E46] transition-all duration-200
+            flex items-center justify-center group hover:shadow-xl"
+          aria-label="할일 추가"
+        >
+          <Plus size={24} className="group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* 할일 추가/수정 모달 */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          title={modalType === 'edit' ? '할일 수정' : '새 할일 추가'}
+          size="md"
+        >
+          <TodoForm
+            mode={modalType}
+            initialData={selectedTodo}
+            onSubmit={handleFormSubmit}
+            onCancel={closeModal}
+            loading={isLoading}
+          />
+        </Modal>
+      </div>
+    </MainLayout>
   );
 };
 

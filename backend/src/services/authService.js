@@ -12,7 +12,7 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/jwtHelpe
 const register = async (email, password, username) => {
   // 이메일 중복 체크
   const existingUser = await pool.query(
-    'SELECT email FROM "users" WHERE email = $1',
+    'SELECT email FROM users WHERE email = $1',
     [email]
   );
 
@@ -25,41 +25,18 @@ const register = async (email, password, username) => {
 
   // 사용자 생성
   const result = await pool.query(
-    `INSERT INTO "users" (email, password, username, role)
-     VALUES ($1, $2, $3, $4)
-     RETURNING user_id, email, username, role, created_at, updated_at`,
+    `INSERT INTO users (email, password, username, role) 
+     VALUES ($1, $2, $3, $4) 
+     RETURNING user_id, email, username, role, created_at`,
     [email, hashedPassword, username, 'user']
   );
 
   const user = result.rows[0];
-
-  // Map database column names to JavaScript property names
-  const mappedUser = {
+  return {
     userId: user.user_id,
     email: user.email,
     username: user.username,
-    role: user.role,
-    createdAt: user.created_at,
-    updatedAt: user.updated_at
-  };
-
-  // 회원가입 후 자동 로그인을 위한 토큰 생성
-  const accessToken = generateAccessToken({
-    userId: mappedUser.userId,
-    email: mappedUser.email,
-    username: mappedUser.username,
-    role: mappedUser.role
-  });
-
-  const refreshToken = generateRefreshToken({
-    userId: mappedUser.userId,
-    email: mappedUser.email
-  });
-
-  return {
-    accessToken,
-    refreshToken,
-    user: mappedUser
+    role: user.role
   };
 };
 
@@ -72,7 +49,7 @@ const register = async (email, password, username) => {
 const login = async (email, password) => {
   // 이메일로 사용자 조회
   const result = await pool.query(
-    'SELECT user_id, email, password, username, role, created_at, updated_at FROM "users" WHERE email = $1',
+    'SELECT user_id, email, password, username, role FROM users WHERE email = $1',
     [email]
   );
 
@@ -82,43 +59,32 @@ const login = async (email, password) => {
 
   const user = result.rows[0];
 
-  // Map database column names to JavaScript property names
-  const mappedUser = {
-    userId: user.user_id,
-    email: user.email,
-    username: user.username,
-    password: user.password,
-    role: user.role,
-    createdAt: user.created_at,
-    updatedAt: user.updated_at
-  };
-
   // 비밀번호 검증
-  const isValidPassword = await comparePassword(password, mappedUser.password);
+  const isValidPassword = await comparePassword(password, user.password);
   if (!isValidPassword) {
     throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
   }
 
   // 토큰 생성
   const accessToken = generateAccessToken({
-    userId: mappedUser.userId,
-    email: mappedUser.email,
-    role: mappedUser.role
+    userId: user.user_id,
+    email: user.email,
+    role: user.role
   });
-
+  
   const refreshToken = generateRefreshToken({
-    userId: mappedUser.userId,
-    email: mappedUser.email
+    userId: user.user_id,
+    email: user.email
   });
 
   return {
     accessToken,
     refreshToken,
     user: {
-      userId: mappedUser.userId,
-      email: mappedUser.email,
-      username: mappedUser.username,
-      role: mappedUser.role
+      userId: user.user_id,
+      email: user.email,
+      username: user.username,
+      role: user.role
     }
   };
 };
@@ -142,7 +108,7 @@ const refreshAccessToken = async (refreshToken) => {
 
   // 사용자 존재 여부 확인
   const result = await pool.query(
-    'SELECT user_id, email, role, created_at, updated_at FROM "users" WHERE user_id = $1',
+    'SELECT user_id, email, role FROM users WHERE user_id = $1',
     [decoded.userId]
   );
 
@@ -152,20 +118,11 @@ const refreshAccessToken = async (refreshToken) => {
 
   const user = result.rows[0];
 
-  // Map database column names to JavaScript property names
-  const mappedUser = {
-    userId: user.user_id,
-    email: user.email,
-    role: user.role,
-    createdAt: user.created_at,
-    updatedAt: user.updated_at
-  };
-
   // 새로운 액세스 토큰 생성
   const newAccessToken = generateAccessToken({
-    userId: mappedUser.userId,
-    email: mappedUser.email,
-    role: mappedUser.role
+    userId: user.user_id,
+    email: user.email,
+    role: user.role
   });
 
   return {

@@ -1,124 +1,111 @@
-import React from 'react';
-import { Search, Filter, Calendar, CheckCircle, Circle } from 'lucide-react';
-import { TODO_STATUS, TODO_STATUS_LABELS } from '../../constants/todoStatus';
+/**
+ * 할일 필터 컴포넌트
+ * 상태 필터, 정렬, 검색 기능 제공
+ */
 
-const TodoFilter = ({ 
-  filters, 
-  onFiltersChange,
-  showStatusFilter = true,
-  showSearch = true,
-  showSort = true
+import PropTypes from 'prop-types';
+import { Search } from 'lucide-react';
+
+const TodoFilter = ({
+  filter,
+  sortBy,
+  searchQuery,
+  onFilterChange,
+  onSortChange,
+  onSearchChange,
 }) => {
-  const handleStatusChange = (status) => {
-    const newStatus = filters.status === status ? null : status;
-    onFiltersChange({ ...filters, status: newStatus });
-  };
+  const filterOptions = [
+    { value: 'all', label: '전체' },
+    { value: 'active', label: '진행 중' },
+    { value: 'completed', label: '완료' },
+  ];
 
-  const handleSearchChange = (e) => {
-    onFiltersChange({ ...filters, search: e.target.value });
-  };
-
-  const handleSortChange = (sortBy) => {
-    const newOrder = filters.sortBy === sortBy && filters.order === 'asc' ? 'desc' : 'asc';
-    onFiltersChange({ ...filters, sortBy, order: newOrder });
-  };
+  const sortOptions = [
+    { value: 'createdAt', label: '생성일순' },
+    { value: 'dueDate', label: '만료일순' },
+    { value: 'title', label: '제목순' },
+  ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Status Filters */}
-        {showStatusFilter && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white flex items-center">
-              <Filter className="h-4 w-4 mr-2" />
-              상태
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(TODO_STATUS).map(([key, value]) => (
-                <button
-                  key={`${key}-${value}`}
-                  type="button"
-                  onClick={() => handleStatusChange(value)}
-                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full ${
-                    filters.status === value
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {filters.status === value ? (
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                  ) : (
-                    <Circle className="h-3 w-3 mr-1" />
-                  )}
-                  {TODO_STATUS_LABELS[value]}
-                </button>
-              ))}
-            </div>
+    <div className="bg-white dark:bg-dark-canvas-subtle border border-[#D0D7DE] dark:border-dark-border-default rounded-lg p-4 shadow-sm mb-4 transition-colors">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* 검색 입력 */}
+        <div className="flex-1">
+          <div className="relative">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#57606A] dark:text-dark-fg-muted"
+            />
+            <input
+              type="text"
+              placeholder="할일 검색..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 text-sm border border-[#D0D7DE] dark:border-dark-border-default rounded-md
+                bg-white dark:bg-dark-canvas-default text-[#24292F] dark:text-dark-fg-default
+                focus:outline-none focus:border-[#0969DA] dark:focus:border-[#58A6FF] focus:ring-2 focus:ring-[#0969DA]/30 dark:focus:ring-[#58A6FF]/30
+                hover:border-[#BBC0C4] dark:hover:border-dark-border-muted transition-all"
+            />
           </div>
-        )}
+        </div>
 
-        <div className="space-y-3">
-          {/* Search */}
-          {showSearch && (
-            <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                검색
-              </label>
-              <div className="relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  id="search"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  placeholder="제목 또는 내용 검색"
-                  value={filters.search || ''}
-                  onChange={handleSearchChange}
-                />
-              </div>
-            </div>
-          )}
+        {/* 필터 버튼 그룹 */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hidden md:block">
+            필터:
+          </span>
+          <div className="flex gap-1 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-md p-1">
+            {filterOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => onFilterChange(option.value)}
+                className={`
+                  px-3 py-1.5 text-sm font-medium rounded transition-colors
+                  ${
+                    filter === option.value
+                      ? 'bg-white dark:bg-dark-canvas-subtle text-[#24292F] dark:text-dark-fg-default shadow-sm'
+                      : 'text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default'
+                  }
+                `}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          {/* Sort */}
-          {showSort && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                정렬
-              </label>
-              <div className="flex space-x-2">
-                <button
-                  type="button"
-                  onClick={() => handleSortChange('dueDate')}
-                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded ${
-                    filters.sortBy === 'dueDate'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  <Calendar className="h-3 w-3 mr-1" />
-                  {filters.sortBy === 'dueDate' && (filters.order === 'asc' ? '↑' : '↓')}
-                  날짜
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSortChange('createdAt')}
-                  className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded ${
-                    filters.sortBy === 'createdAt'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {filters.sortBy === 'createdAt' && (filters.order === 'asc' ? '↑' : '↓')}
-                  생성일
-                </button>
-              </div>
-            </div>
-          )}
+        {/* 정렬 선택 */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hidden md:block">
+            정렬:
+          </span>
+          <select
+            value={sortBy}
+            onChange={(e) => onSortChange(e.target.value)}
+            className="px-3 py-2 text-sm border border-[#D0D7DE] dark:border-dark-border-default rounded-md
+              bg-white dark:bg-dark-canvas-default text-[#24292F] dark:text-dark-fg-default
+              focus:outline-none focus:border-[#0969DA] dark:focus:border-[#58A6FF] focus:ring-2 focus:ring-[#0969DA]/30 dark:focus:ring-[#58A6FF]/30
+              hover:border-[#BBC0C4] dark:hover:border-dark-border-muted transition-all cursor-pointer"
+          >
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
   );
+};
+
+TodoFilter.propTypes = {
+  filter: PropTypes.oneOf(['all', 'active', 'completed']).isRequired,
+  sortBy: PropTypes.oneOf(['createdAt', 'dueDate', 'title']).isRequired,
+  searchQuery: PropTypes.string.isRequired,
+  onFilterChange: PropTypes.func.isRequired,
+  onSortChange: PropTypes.func.isRequired,
+  onSearchChange: PropTypes.func.isRequired,
 };
 
 export default TodoFilter;

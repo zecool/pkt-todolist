@@ -8,7 +8,7 @@ const { hashPassword } = require('../utils/passwordHelper');
  */
 const getProfile = async (userId) => {
   const result = await pool.query(
-    'SELECT user_id, email, username, role, created_at, updated_at FROM "users" WHERE user_id = $1',
+    'SELECT user_id, email, username, role, created_at FROM users WHERE user_id = $1',
     [userId]
   );
 
@@ -16,15 +16,7 @@ const getProfile = async (userId) => {
     throw new Error('사용자를 찾을 수 없습니다');
   }
 
-  const user = result.rows[0];
-  return {
-    userId: user.user_id,
-    email: user.email,
-    username: user.username,
-    role: user.role,
-    createdAt: user.created_at,
-    updatedAt: user.updated_at
-  };
+  return result.rows[0];
 };
 
 /**
@@ -36,7 +28,7 @@ const getProfile = async (userId) => {
 const updateProfile = async (userId, updateData) => {
   // 현재 사용자 정보 조회
   const currentUser = await pool.query(
-    'SELECT email, username FROM "users" WHERE user_id = $1',
+    'SELECT email, username FROM users WHERE user_id = $1',
     [userId]
   );
 
@@ -48,12 +40,12 @@ const updateProfile = async (userId, updateData) => {
   const { username, password } = updateData;
   const fields = [];
   const values = [];
-  let paramIndex = 2;
+  let paramIndex = 1;
 
   if (username !== undefined) {
     // 사용자 이름 중복 체크
     const existingUser = await pool.query(
-      'SELECT user_id FROM "users" WHERE username = $1 AND user_id != $2',
+      'SELECT user_id FROM users WHERE username = $1 AND user_id != $2',
       [username, userId]
     );
 
@@ -83,20 +75,14 @@ const updateProfile = async (userId, updateData) => {
   fields.push(`updated_at = CURRENT_TIMESTAMP`);
   values.push(userId);
 
-  const query = `UPDATE "users" SET ${fields.join(', ')} WHERE user_id = $${paramIndex} RETURNING user_id, email, username, role`;
+  const query = `UPDATE users SET ${fields.join(', ')} WHERE user_id = $${paramIndex} RETURNING user_id, email, username, role`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {
     throw new Error('사용자 정보 업데이트에 실패했습니다');
   }
 
-  const user = result.rows[0];
-  return {
-    userId: user.user_id,
-    email: user.email,
-    username: user.username,
-    role: user.role
-  };
+  return result.rows[0];
 };
 
 module.exports = {

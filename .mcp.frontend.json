@@ -11,6 +11,10 @@
     "chrome-devtools": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "chrome-devtools-mcp@latest"]
+    },
+    "postgresql-mcp": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@henkey/postgres-mcp-server"]
     }
   }
 }

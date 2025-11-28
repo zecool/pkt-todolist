@@ -21,16 +21,8 @@ describe('authMiddleware', () => {
     };
     next = jest.fn();
 
-    // console.error 스파이 설정 (테스트 중 에러 로그 숨기기)
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-
     // Mock 함수 초기화
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    // 모든 스파이 복구 (console.error 포함)
-    jest.restoreAllMocks();
   });
 
   describe('authenticate 미들웨어', () => {
@@ -57,7 +49,7 @@ describe('authMiddleware', () => {
 
         expect(verifyAccessToken).toHaveBeenCalledWith(validToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userid", email, username, role, "createdat", "updatedat" FROM "users" WHERE "userid" = $1',
+          'SELECT user_id, email, username, role, created_at FROM users WHERE user_id = $1',
           [decodedToken.userId]
         );
         expect(next).toHaveBeenCalled();
@@ -68,7 +60,7 @@ describe('authMiddleware', () => {
         await authenticate(req, res, next);
 
         expect(req.user).toEqual({
-          userId: validUser.userId,
+          userId: validUser.user_id,
           email: validUser.email,
           username: validUser.username,
           role: validUser.role

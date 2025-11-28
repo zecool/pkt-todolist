@@ -1,187 +1,221 @@
+/**
+ * 인증 상태 관리 스토어 (Zustand)
+ * 사용자 인증, 로그인, 회원가입, 로그아웃 등 인증 관련 전역 상태 관리
+ */
+
 import { create } from 'zustand';
-import { tokenManager } from '../utils/tokenManager';
-import api from '../services/api';
-import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import { userService } from '../services/userService';
+import { devtools } from 'zustand/middleware';
+import * as authService from '../services/authService';
+import * as tokenManager from '../utils/tokenManager';
 
-// Auth store using Zustand
-const useAuthStore = create((set, get) => ({
-  // State
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
+const useAuthStore = create(
+  devtools(
+    (set, get) => ({
+      // State
+      user: null, // 현재 로그인한 사용자 정보
+      isAuthenticated: false, // 인증 상태
+      isLoading: false, // 로딩 상태
+      error: null, // 에러 메시지
 
-  // Actions
-  login: async (email, password) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, {
-        email,
-        password,
-      });
+      // Actions
 
-      if (response.data.success) {
-        const { accessToken, refreshToken, user } = response.data.data;
-        
-        // Store tokens
-        tokenManager.setTokens(accessToken, refreshToken);
-        
-        set({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
-        
-        return { success: true, data: user };
-      } else {
-        throw new Error(response.data.error?.message || 'Login failed');
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || 'Login failed';
-      
-      set({
-        isLoading: false,
-        error: errorMessage,
-      });
-      
-      return { success: false, error: errorMessage };
-    }
-  },
+      /**
+       * 로그인 처리
+       * @param {string} email - 이메일
+       * @param {string} password - 비밀번호
+       * @returns {Promise<boolean>} 성공 여부
+       */
+      login: async (email, password) => {
+        set({ isLoading: true, error: null });
 
-  register: async (email, password, username) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, {
-        email,
-        password,
-        username,
-      });
+        try {
+          const response = await authService.login(email, password);
+          const { user, accessToken, refreshToken } = response;
 
-      if (response.data.success) {
-        const { accessToken, refreshToken, user } = response.data.data;
-        
-        // Store tokens
-        tokenManager.setTokens(accessToken, refreshToken);
-        
-        set({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
-        
-        return { success: true, data: user };
-      } else {
-        throw new Error(response.data.error?.message || 'Registration failed');
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || 'Registration failed';
-      
-      set({
-        isLoading: false,
-        error: errorMessage,
-      });
-      
-      return { success: false, error: errorMessage };
-    }
-  },
+          // 토큰 저장
+          tokenManager.setTokens(accessToken, refreshToken);
 
-  logout: () => {
-    // Remove tokens from storage
-    tokenManager.removeTokens();
-    
-    set({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    });
-  },
-
-  refreshToken: async () => {
-    try {
-      const refreshToken = tokenManager.getRefreshToken();
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const response = await api.post(API_ENDPOINTS.AUTH.REFRESH, {
-        refreshToken,
-      });
-
-      if (response.data.success) {
-        const { accessToken } = response.data.data;
-        
-        // Update access token
-        tokenManager.setTokens(accessToken, refreshToken);
-        
-        // Optionally update user state if needed
-        return { success: true, accessToken };
-      } else {
-        throw new Error(response.data.error?.message || 'Token refresh failed');
-      }
-    } catch (error) {
-      // If refresh fails, log out user
-      get().logout();
-      throw error;
-    }
-  },
-
-  // Initialize auth state from token
-  initializeAuth: () => {
-    const token = tokenManager.getAccessToken();
-    if (token && tokenManager.isAuthenticated()) {
-      try {
-        const decodedToken = tokenManager.decodeToken(token);
-        if (decodedToken) {
+          // 사용자 정보 저장
           set({
-            user: {
-              userId: decodedToken.userId,
-              email: decodedToken.email,
-              username: decodedToken.username,
-              role: decodedToken.role,
-            },
+            user,
             isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+
+          return true;
+        } catch (error) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: error.response?.data?.message || '로그인에 실패했습니다.',
+          });
+
+          return false;
+        }
+      },
+
+      /**
+       * 회원가입 처리
+       * @param {string} email - 이메일
+       * @param {string} password - 비밀번호
+       * @param {string} username - 사용자 이름
+       * @returns {Promise<boolean>} 성공 여부
+       */
+      register: async (email, password, username) => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await authService.register(email, password, username);
+          const { user, accessToken, refreshToken } = response;
+
+          // 토큰 저장
+          tokenManager.setTokens(accessToken, refreshToken);
+
+          // 사용자 정보 저장
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+
+          return true;
+        } catch (error) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: error.response?.data?.message || '회원가입에 실패했습니다.',
+          });
+
+          return false;
+        }
+      },
+
+      /**
+       * 로그아웃 처리
+       */
+      logout: async () => {
+        set({ isLoading: true, error: null });
+
+        try {
+          await authService.logout();
+        } catch (error) {
+          console.error('로그아웃 API 호출 실패:', error);
+        } finally {
+          // API 호출 성공 여부와 관계없이 로컬 상태 초기화
+          tokenManager.clearTokens();
+
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
           });
         }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      }
+      },
+
+      /**
+       * 토큰 갱신
+       * @returns {Promise<boolean>} 성공 여부
+       */
+      refreshToken: async () => {
+        const refreshToken = tokenManager.getRefreshToken();
+
+        if (!refreshToken) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            error: '토큰이 없습니다.',
+          });
+          return false;
+        }
+
+        try {
+          const response = await authService.refreshToken(refreshToken);
+          const { accessToken } = response;
+
+          // 새로운 Access Token 저장
+          tokenManager.setAccessToken(accessToken);
+
+          return true;
+        } catch (error) {
+          // 토큰 갱신 실패 시 로그아웃 처리
+          tokenManager.clearTokens();
+
+          set({
+            user: null,
+            isAuthenticated: false,
+            error: '토큰 갱신에 실패했습니다.',
+          });
+
+          return false;
+        }
+      },
+
+      /**
+       * 초기 인증 상태 확인
+       * 페이지 로드 시 토큰이 있으면 사용자 정보를 가져옴
+       * @returns {Promise<boolean>} 인증 상태
+       */
+      checkAuth: async () => {
+        const hasToken = tokenManager.hasToken();
+
+        if (!hasToken) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          return false;
+        }
+
+        set({ isLoading: true, error: null });
+
+        try {
+          // userService를 사용하여 현재 사용자 정보 조회
+          // userService는 Task 3.6에서 작성될 예정이므로 import는 나중에 추가
+          const { default: apiClient } = await import('../services/api');
+          const response = await apiClient.get('/users/me');
+          const user = response.data.data;
+
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+
+          return true;
+        } catch (error) {
+          // 인증 실패 시 토큰 삭제
+          tokenManager.clearTokens();
+
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+
+          return false;
+        }
+      },
+
+      /**
+       * 에러 초기화
+       */
+      clearError: () => {
+        set({ error: null });
+      },
+    }),
+    {
+      name: 'auth-store',
     }
-  },
+  )
+);
 
-  // Update user profile
-  updateProfile: async (updateData) => {
-    set({ isLoading: true, error: null });
-
-    try {
-      const response = await userService.updateProfile(updateData);
-
-      // Update the user info in the store
-      set((state) => ({
-        user: {
-          ...state.user,
-          ...updateData,
-        },
-        isLoading: false,
-      }));
-
-      return { success: true, data: response.data };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || 'Profile update failed';
-
-      set({
-        isLoading: false,
-        error: errorMessage,
-      });
-
-      return { success: false, error: errorMessage };
-    }
-  },
-}));
-
+export { useAuthStore };
 export default useAuthStore;

@@ -1,138 +1,174 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import useAuthStore from '../../stores/authStore';
-import useUiStore from '../../stores/uiStore';
-import { Menu, X, Sun, Moon, User, LogOut, Calendar, Archive, Home } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut, Settings, Sun, Moon } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
+import { useUIStore } from '../../stores/uiStore';
 
+/**
+ * 헤더 컴포넌트
+ * 로고, 네비게이션 링크, 프로필 드롭다운, 로그아웃 버튼 포함
+ */
 const Header = () => {
-  const { user, logout } = useAuthStore();
-  const { showSidebar, setShowSidebar } = useUiStore();
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Determine page title based on current route
-  const getPageTitle = () => {
-    switch (location.pathname) {
-      case '/':
-        return '할일 목록';
-      case '/trash':
-        return '휴지통';
-      case '/holidays':
-        return '국경일';
-      case '/profile':
-        return '프로필';
-      default:
-        return '';
-    }
-  };
+  const { user, logout } = useAuthStore();
+  const { isDarkMode, toggleDarkMode } = useUIStore();
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  // Close profile menu when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = () => {
-      if (isProfileMenuOpen) {
-        setIsProfileMenuOpen(false);
-      }
-    };
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isProfileMenuOpen]);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
-    <header className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <div className="px-4 sm:px-6 lg:px-8">
+    <header className="bg-white dark:bg-dark-canvas-subtle border-b border-[#D0D7DE] dark:border-dark-border-default sticky top-0 z-40 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left section - Logo and menu button */}
-          <div className="flex items-center">
-            <button
-              type="button"
-              className="mr-2 sm:mr-3 rounded-md p-1 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
-              onClick={() => setShowSidebar(!showSidebar)}
-              aria-label="Toggle sidebar"
+          {/* 로고 */}
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-xl font-semibold text-[#24292F] dark:text-dark-fg-default hover:text-[#2DA44E] dark:hover:text-[#2DA44E] transition-colors"
             >
-              {showSidebar ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-            <Link to="/" className="flex items-center">
-              <Home className="h-8 w-8 text-green-600 mr-2" />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">pkt-TodoList</span>
+              <span className="text-2xl">📋</span>
+              <span className="hidden sm:inline">WHS-TodoList</span>
+              <span className="sm:hidden">WHS</span>
             </Link>
-            <span className="ml-4 text-lg font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
-              {getPageTitle()}
-            </span>
+
+            {/* 데스크톱 네비게이션 */}
+            <nav className="hidden md:flex items-center gap-1 ml-6">
+              <Link
+                to="/"
+                className="px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              >
+                할일 목록
+              </Link>
+              <Link
+                to="/trash"
+                className="px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              >
+                휴지통
+              </Link>
+              <Link
+                to="/holidays"
+                className="px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              >
+                국경일
+              </Link>
+            </nav>
           </div>
 
-          {/* Right section - Profile */}
-          <div className="flex items-center">
-            {/* Dark mode toggle */}
+          {/* 우측 프로필 영역 */}
+          <div className="flex items-center gap-2">
+            {/* 다크모드 토글 버튼 */}
             <button
-              type="button"
-              className="p-1 rounded-full text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none mr-3"
-              onClick={() => useUiStore.getState().toggleDarkMode()}
-              aria-label="Toggle dark mode"
+              onClick={toggleDarkMode}
+              className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
             >
-              {useUiStore.getState().isDarkMode ? (
-                <Sun className="h-6 w-6" />
-              ) : (
-                <Moon className="h-6 w-6" />
-              )}
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            {/* Profile dropdown */}
-            <div className="relative ml-3">
-              <div>
-                <button
-                  type="button"
-                  className="flex rounded-full bg-white text-sm focus:outline-none"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsProfileMenuOpen(!isProfileMenuOpen);
-                  }}
-                  aria-expanded={isProfileMenuOpen}
-                  aria-haspopup="true"
+            {/* 프로필 드롭다운 */}
+            <div className="relative">
+              <button
+                onClick={toggleProfileDropdown}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+                aria-label="프로필 메뉴"
+              >
+                <User size={18} />
+                <span className="hidden sm:inline">{user?.username || '사용자'}</span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
                 >
-                  <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-medium">
-                    {user?.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                </button>
-              </div>
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
 
-              {isProfileMenuOpen && (
-                <div
-                  className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="user-menu-button"
-                >
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    role="menuitem"
-                    onClick={() => setIsProfileMenuOpen(false)}
-                  >
-                    <User className="inline h-4 w-4 mr-2" />
-                    프로필
-                  </Link>
-                  <button
-                    type="button"
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    role="menuitem"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="inline h-4 w-4 mr-2" />
-                    로그아웃
-                  </button>
-                </div>
+              {/* 드롭다운 메뉴 */}
+              {isProfileDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-canvas-subtle border border-[#D0D7DE] dark:border-dark-border-default rounded-md shadow-[0_8px_24px_rgba(140,149,159,0.2)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)] z-20">
+                    <div className="py-2">
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-[#24292F] dark:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default hover:text-[#0969DA] dark:hover:text-[#58A6FF] transition-colors"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        <Settings size={16} />
+                        프로필 설정
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#CF222E] dark:text-[#F85149] hover:bg-[#FFEBE9] dark:hover:bg-[#321C1C] transition-colors"
+                      >
+                        <LogOut size={16} />
+                        로그아웃
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
+
+            {/* 모바일 메뉴 토글 */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              aria-label="메뉴 열기"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+
+        {/* 모바일 네비게이션 */}
+        {isMobileMenuOpen && (
+          <nav className="md:hidden py-4 border-t border-[#D0D7DE] dark:border-dark-border-default">
+            <Link
+              to="/"
+              className="block px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              할일 목록
+            </Link>
+            <Link
+              to="/trash"
+              className="block px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              휴지통
+            </Link>
+            <Link
+              to="/holidays"
+              className="block px-3 py-2 text-sm font-medium text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              국경일
+            </Link>
+          </nav>
+        )}
       </div>
     </header>
   );

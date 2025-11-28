@@ -1,321 +1,351 @@
-import React, { useState, useEffect } from 'react';
-import { format, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { User, Mail, Calendar, Edit3, Save, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Calendar, Moon, Sun, LogOut, Edit2, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { MainLayout } from '../components/layout';
+import { Button, Loading, Modal, Input } from '../components/common';
 import useAuthStore from '../stores/authStore';
-import Input from '../components/common/Input';
-import Button from '../components/common/Button';
-import Modal from '../components/common/Modal';
+import useUIStore from '../stores/uiStore';
+import { getProfile, updateProfile } from '../services/userService';
+import { formatDate } from '../utils/dateFormatter';
 
 const ProfilePage = () => {
-  const { user, isLoading, error, updateProfile } = useAuthStore();
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const { user: authUser, logout } = useAuthStore();
+  const { isDarkMode, toggleDarkMode } = useUIStore();
+
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [editData, setEditData] = useState({
-    username: user?.username || '',
-  });
 
-  // Update editData when user changes
+  const [editUsername, setEditUsername] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   useEffect(() => {
-    if (user) {
-      setEditData({
-        username: user.username || '',
-      });
-    }
-  }, [user]);
+    loadProfile();
+  }, []);
 
-  // Password change form state
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: ''
-  });
-  const [passwordErrors, setPasswordErrors] = useState({});
+  const loadProfile = async () => {
+    setIsLoading(true);
+    setError(null);
 
-  // Handle input changes for user info
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Handle user info edit
-  const handleEdit = () => {
-    if (isEditing) {
-      // Save changes
-      updateProfile({ username: editData.username });
-    }
-    setIsEditing(!isEditing);
-  };
-
-  // Handle password form input changes
-  const handlePasswordFormChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (passwordErrors[name]) {
-      setPasswordErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
+    try {
+      const profileData = await getProfile();
+      setUser(profileData);
+    } catch (err) {
+      setError(err.response?.data?.message || '프로필을 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Validate password form
-  const validatePasswordForm = () => {
-    const errors = {};
-    
-    if (!passwordForm.currentPassword) {
-      errors.currentPassword = '현재 비밀번호를 입력해주세요';
-    }
-    
-    if (passwordForm.newPassword.length < 8) {
-      errors.newPassword = '비밀번호는 최소 8자 이상이어야 합니다';
-    }
-    
-    if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-      errors.confirmNewPassword = '비밀번호가 일치하지 않습니다';
-    }
-    
-    setPasswordErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  // Handle password form submission
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!validatePasswordForm()) {
+  const handleEditUsername = async () => {
+    if (!editUsername.trim()) {
+      setError('이름을 입력해주세요.');
       return;
     }
 
-    // This would typically call an API to change the password
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
     try {
-      // In a real application, this would be:
-      // const result = await userService.changePassword(passwordForm);
-      // if (result.success) {
-      //   setIsPasswordModalOpen(false);
-      //   setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-      //   setPasswordErrors({});
-      // } else {
-      //   setPasswordErrors({ root: result.error });
-      // }
-      
-      // For this example, we'll just close the modal after a simulated delay
-      setIsPasswordModalOpen(false);
-      setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-      setPasswordErrors({});
-    } catch (error) {
-      setPasswordErrors({ root: '비밀번호 변경에 실패했습니다.' });
+      await updateProfile({ username: editUsername });
+      await loadProfile();
+      setIsEditModalOpen(false);
+      setSuccessMessage('이름이 변경되었습니다.');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || '이름 변경에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Format the join date
-  const joinDate = user?.createdAt ? format(parseISO(user.createdAt), 'yyyy년 MM월 dd일', { locale: ko }) : '';
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('새 비밀번호는 6자 이상이어야 합니다.');
+      return;
+    }
+
+    alert('비밀번호 변경 API가 백엔드에 구현되지 않았습니다.');
+    setIsPasswordModalOpen(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  if (isLoading && !user) {
+    return (
+      <MainLayout>
+        <Loading />
+      </MainLayout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <MainLayout>
+        <div className="text-center py-16">
+          <p className="text-[#57606A]">프로필을 불러올 수 없습니다.</p>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
-    <div className="w-full max-w-full">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">프로필</h1>
-      </div>
+    <MainLayout>
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#24292F] dark:text-dark-fg-default">프로필</h1>
+          <p className="mt-1 text-sm text-[#57606A] dark:text-dark-fg-muted">
+            계정 정보를 확인하고 설정을 변경하세요
+          </p>
+        </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
+        {successMessage && (
+          <div className="bg-[#DFF6DD] dark:bg-[#26432F] border border-[#2DA44E] dark:border-[#3FB950] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="text-[#2DA44E] dark:text-[#3FB950] flex-shrink-0 mt-0.5" size={20} />
+              <p className="text-sm text-[#1A7F37] dark:text-[#3FB950]">{successMessage}</p>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">에러 발생</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-[#FFEBE9] dark:bg-[#321C1C] border border-[#CF222E] dark:border-[#F85149] rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="text-[#CF222E] dark:text-[#F85149] flex-shrink-0 mt-0.5" size={20} />
+              <p className="text-sm text-[#82071E] dark:text-[#F85149]">{error}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white dark:bg-dark-canvas-subtle border border-[#D0D7DE] dark:border-dark-border-default rounded-lg divide-y divide-[#D0D7DE] dark:divide-dark-border-default transition-colors">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-[#24292F] dark:text-dark-fg-default mb-4">기본 정보</h2>
+
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg flex items-center justify-center">
+                  <User className="text-[#57606A] dark:text-dark-fg-muted" size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">이름</p>
+                  <p className="text-base font-medium text-[#24292F] dark:text-dark-fg-default">{user.username}</p>
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setEditUsername(user.username);
+                    setIsEditModalOpen(true);
+                  }}
+                >
+                  <Edit2 size={14} className="mr-1" />
+                  수정
+                </Button>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg flex items-center justify-center">
+                  <Mail className="text-[#57606A] dark:text-dark-fg-muted" size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">이메일</p>
+                  <p className="text-base font-medium text-[#24292F] dark:text-dark-fg-default">{user.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg flex items-center justify-center">
+                  <Calendar className="text-[#57606A] dark:text-dark-fg-muted" size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">가입일</p>
+                  <p className="text-base font-medium text-[#24292F] dark:text-dark-fg-default">
+                    {formatDate(user.createdAt, 'yyyy년 MM월 dd일')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Profile Card */}
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-6">
-          <div className="flex items-start justify-between flex-wrap gap-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 h-24 w-24 rounded-full bg-green-100 flex items-center justify-center">
-                <User className="h-12 w-12 text-green-600" />
-              </div>
-              <div className="ml-6">
-                {isEditing ? (
-                  <Input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={editData.username}
-                    onChange={handleInputChange}
-                    error={null}
-                  />
-                ) : (
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {user?.username || '사용자'}
-                  </h3>
-                )}
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  가입일: {joinDate}
-                </p>
-              </div>
-            </div>
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-[#24292F] dark:text-dark-fg-default mb-4">보안</h2>
 
-            <div className="flex space-x-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg flex items-center justify-center">
+                  <Lock className="text-[#57606A] dark:text-dark-fg-muted" size={20} />
+                </div>
+                <div>
+                  <p className="text-base font-medium text-[#24292F] dark:text-dark-fg-default">비밀번호</p>
+                  <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">마지막 변경: 알 수 없음</p>
+                </div>
+              </div>
               <Button
-                type="button"
-                variant="outline"
+                variant="secondary"
+                size="sm"
                 onClick={() => setIsPasswordModalOpen(true)}
               >
-                비밀번호 변경
-              </Button>
-              <Button
-                type="button"
-                variant={isEditing ? "primary" : "outline"}
-                onClick={handleEdit}
-              >
-                {isEditing ? (
-                  <>
-                    <Save className="h-4 w-4 mr-1" />
-                    저장
-                  </>
-                ) : (
-                  <>
-                    <Edit3 className="h-4 w-4 mr-1" />
-                    수정
-                  </>
-                )}
+                <Lock size={14} className="mr-1" />
+                변경
               </Button>
             </div>
           </div>
-        </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-5">
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-start">
-              <dt className="flex items-center text-base font-medium text-gray-500 dark:text-gray-400 mr-4">
-                <Mail className="h-5 w-5 mr-2" />
-                이메일
-              </dt>
-              <dd className="text-base text-gray-900 dark:text-white">
-                {user?.email || '이메일 없음'}
-              </dd>
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-[#24292F] dark:text-dark-fg-default mb-4">환경 설정</h2>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg flex items-center justify-center">
+                  {isDarkMode ? <Moon className="text-[#57606A] dark:text-dark-fg-muted" size={20} /> : <Sun className="text-[#57606A] dark:text-dark-fg-muted" size={20} />}
+                </div>
+                <div>
+                  <p className="text-base font-medium text-[#24292F] dark:text-dark-fg-default">다크 모드</p>
+                  <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">
+                    {isDarkMode ? '어두운 테마 사용 중' : '밝은 테마 사용 중'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={toggleDarkMode}
+                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#0969DA] focus:ring-offset-2"
+                style={{ backgroundColor: isDarkMode ? '#2DA44E' : '#D0D7DE' }}
+              >
+                <span
+                  className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  style={{ transform: isDarkMode ? 'translateX(1.5rem)' : 'translateX(0.25rem)' }}
+                />
+              </button>
             </div>
-            <div className="flex items-start">
-              <dt className="flex items-center text-base font-medium text-gray-500 dark:text-gray-400 mr-4">
-                <Calendar className="h-5 w-5 mr-2" />
-                가입일
-              </dt>
-              <dd className="text-base text-gray-900 dark:text-white">
-                {joinDate || '날짜 없음'}
-              </dd>
-            </div>
-          </dl>
+          </div>
+
+          <div className="p-6">
+            <Button
+              variant="danger"
+              onClick={handleLogout}
+              className="w-full sm:w-auto"
+            >
+              <LogOut size={16} className="mr-2" />
+              로그아웃
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Password Change Modal */}
-      <Modal 
-        isOpen={isPasswordModalOpen}
-        onClose={() => {
-          setIsPasswordModalOpen(false);
-          setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-          setPasswordErrors({});
-        }}
-        title="비밀번호 변경"
-        size="md"
-      >
-        <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <div>
-            <Input
-              id="currentPassword"
-              name="currentPassword"
-              label="현재 비밀번호"
-              type="password"
-              placeholder="현재 비밀번호를 입력하세요"
-              value={passwordForm.currentPassword}
-              onChange={handlePasswordFormChange}
-              error={passwordErrors.currentPassword}
-            />
-          </div>
-          
-          <div>
-            <Input
-              id="newPassword"
-              name="newPassword"
-              label="새 비밀번호"
-              type="password"
-              placeholder="새 비밀번호를 입력하세요"
-              value={passwordForm.newPassword}
-              onChange={handlePasswordFormChange}
-              error={passwordErrors.newPassword}
-            />
-          </div>
-          
-          <div>
-            <Input
-              id="confirmNewPassword"
-              name="confirmNewPassword"
-              label="새 비밀번호 확인"
-              type="password"
-              placeholder="새 비밀번호를 다시 입력하세요"
-              value={passwordForm.confirmNewPassword}
-              onChange={handlePasswordFormChange}
-              error={passwordErrors.confirmNewPassword}
-            />
-          </div>
-          
-          {passwordErrors.root && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{passwordErrors.root}</h3>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="flex justify-end space-x-3 pt-4">
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title="이름 수정"
+        size="sm"
+        footer={
+          <>
             <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsPasswordModalOpen(false);
-                setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-                setPasswordErrors({});
-              }}
+              variant="secondary"
+              onClick={() => setIsEditModalOpen(false)}
             >
-              <X className="h-4 w-4 mr-1" />
               취소
             </Button>
             <Button
-              type="submit"
               variant="primary"
+              onClick={handleEditUsername}
+              loading={isLoading}
             >
-              <Save className="h-4 w-4 mr-1" />
+              저장
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            label="이름"
+            value={editUsername}
+            onChange={(e) => setEditUsername(e.target.value)}
+            placeholder="이름을 입력하세요"
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => {
+          setIsPasswordModalOpen(false);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+        }}
+        title="비밀번호 변경"
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsPasswordModalOpen(false);
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+              }}
+            >
+              취소
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleChangePassword}
+            >
               변경
             </Button>
-          </div>
-        </form>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            type="password"
+            label="현재 비밀번호"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="현재 비밀번호를 입력하세요"
+          />
+          <Input
+            type="password"
+            label="새 비밀번호"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="새 비밀번호를 입력하세요"
+          />
+          <Input
+            type="password"
+            label="새 비밀번호 확인"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="새 비밀번호를 다시 입력하세요"
+          />
+        </div>
       </Modal>
-    </div>
+    </MainLayout>
   );
 };
 

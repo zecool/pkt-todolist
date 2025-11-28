@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "pkt-TodoList API",
+    "title": "WHS-TodoList API",
     "description": "사용자 인증 기반의 개인 할일 관리 애플리케이션 API입니다. JWT 인증을 통해 할일 생성, 조회, 수정, 삭제 및 국경일 관리 기능을 제공합니다.",
     "version": "1.0.0",
     "contact": {
-      "name": "pkt-TodoList Team",
-      "email": "admin@pkt-todolist.com"
+      "name": "WHS-TodoList Team",
+      "email": "admin@whs-todolist.com"
     },
     "license": {
       "name": "MIT",
@@ -19,7 +19,7 @@
       "description": "로컬 개발 서버"
     },
     {
-      "url": "https://pkt-todolist.vercel.app/api",
+      "url": "https://whs-todolist.vercel.app/api",
       "description": "프로덕션 서버"
     }
   ],
@@ -41,7 +41,7 @@
       "description": "국경일 관리 API (조회, 추가, 수정)"
     },
     {
-      "name": "users",
+      "name": "Users",
       "description": "사용자 프로필 관리 API"
     }
   ],
@@ -1017,7 +1017,7 @@
     },
     "/users/me": {
       "get": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "summary": "현재 사용자 프로필 조회",
         "description": "로그인한 사용자의 프로필 정보를 조회합니다.",
         "operationId": "getMyProfile",
@@ -1053,7 +1053,7 @@
         }
       },
       "patch": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "summary": "현재 사용자 프로필 수정",
         "description": "로그인한 사용자의 프로필 정보를 수정합니다.",
         "operationId": "updateMyProfile",

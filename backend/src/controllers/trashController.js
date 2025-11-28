@@ -1,38 +1,7 @@
 const trashService = require('../services/trashService');
 
 /**
- * @swagger
- * tags:
- *   name: Trash
- *   description: 휴지통 관리 API
- */
-
-/**
- * @swagger
- * /trash:
- *   get:
- *     summary: 휴지통 조회
- *     description: 삭제된 할일 목록을 조회합니다.
- *     tags: [Trash]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: 휴지통 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Todo'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
+ * 휴지통 조회 컨트롤러
  */
 const getTrash = async (req, res) => {
   try {
@@ -56,39 +25,7 @@ const getTrash = async (req, res) => {
 };
 
 /**
- * @swagger
- * /trash/{id}:
- *   delete:
- *     summary: 영구 삭제
- *     description: 휴지통의 할일을 데이터베이스에서 완전히 삭제합니다.
- *     tags: [Trash]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: 할일 ID
- *     responses:
- *       200:
- *         description: 영구 삭제 성공
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       400:
- *         description: 잘못된 요청 (활성 상태의 할일은 영구 삭제 불가)
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
- *       404:
- *         $ref: '#/components/responses/NotFound'
+ * 영구 삭제 컨트롤러
  */
 const permanentlyDelete = async (req, res) => {
   try {
@@ -102,11 +39,34 @@ const permanentlyDelete = async (req, res) => {
       message: '할일이 영구적으로 삭제되었습니다'
     });
   } catch (error) {
-    if (error.message === '할일을 찾을 수 없거나 영구 삭제할 수 없는 상태입니다') {
+    // 404: 할일을 찾을 수 없음
+    if (error.message === '할일을 찾을 수 없습니다') {
       return res.status(404).json({
         success: false,
         error: {
           code: 'TODO_NOT_FOUND',
+          message: error.message
+        }
+      });
+    }
+
+    // 403: 권한 없음
+    if (error.code === 'FORBIDDEN' || error.message === '이 할일에 접근할 권한이 없습니다') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: error.message
+        }
+      });
+    }
+
+    // 400: 활성 상태의 할일은 영구 삭제 불가
+    if (error.message === '활성 상태의 할일은 영구 삭제할 수 없습니다') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'BAD_REQUEST',
           message: error.message
         }
       });

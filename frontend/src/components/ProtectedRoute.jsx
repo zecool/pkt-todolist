@@ -1,28 +1,26 @@
-import React from 'react';
 import { Navigate } from 'react-router-dom';
-import useAuthStore from '../stores/authStore';
+import PropTypes from 'prop-types';
+import { useAuthStore } from '../stores/authStore';
 
+/**
+ * 보호된 라우트 컴포넌트
+ * 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - 보호할 컴포넌트
+ */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
-  // If loading authentication state, show loading
-  if (isLoading) {
-    // Return a simple loading component or null
-    // Import Loading component if needed
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-      </div>
-    );
-  }
-
-  // If not authenticated, redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // If authenticated, render the children
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 export default ProtectedRoute;

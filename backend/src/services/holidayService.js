@@ -7,7 +7,16 @@ const { pool } = require('../config/database');
  * @returns {Promise<Array>} 국경일 목록
  */
 const getHolidays = async (year, month) => {
-  let query = 'SELECT * FROM holidays WHERE ';
+  let query = `
+    SELECT
+      holiday_id,
+      title as "dateName",
+      TO_CHAR(date, 'YYYYMMDD') as locdate,
+      description,
+      is_recurring,
+      created_at,
+      updated_at
+    FROM holidays WHERE `;
   const params = [];
 
   if (month) {
@@ -23,15 +32,7 @@ const getHolidays = async (year, month) => {
   query += ' ORDER BY date';
 
   const result = await pool.query(query, params);
-  return result.rows.map(row => ({
-    holidayId: row.holiday_id,
-    title: row.title,
-    date: row.date,
-    description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  }));
+  return result.rows;
 };
 
 /**
@@ -40,25 +41,16 @@ const getHolidays = async (year, month) => {
  * @returns {Promise<Object>} 생성된 국경일 정보
  */
 const createHoliday = async (holidayData) => {
-  const { title, date, description = null, isRecurring = false } = holidayData;
+  const { title, date, description = null, isRecurring = true } = holidayData;
 
   const result = await pool.query(
-    `INSERT INTO holidays (title, date, description, is_recurring)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO holidays (title, date, description, is_recurring) 
+     VALUES ($1, $2, $3, $4) 
      RETURNING *`,
     [title, date, description, isRecurring]
   );
 
-  const row = result.rows[0];
-  return {
-    holidayId: row.holiday_id,
-    title: row.title,
-    date: row.date,
-    description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  };
+  return result.rows[0];
 };
 
 /**
@@ -116,16 +108,7 @@ const updateHoliday = async (holidayId, updateData) => {
     throw new Error('국경일을 찾을 수 없습니다');
   }
 
-  const row = result.rows[0];
-  return {
-    holidayId: row.holiday_id,
-    title: row.title,
-    date: row.date,
-    description: row.description,
-    isRecurring: row.is_recurring,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  };
+  return result.rows[0];
 };
 
 module.exports = {

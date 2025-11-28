@@ -1,33 +1,39 @@
-// API endpoints constants
+/**
+ * API 엔드포인트 상수 정의
+ * 백엔드 API와 통신을 위한 모든 엔드포인트를 중앙에서 관리
+ */
+
 export const API_ENDPOINTS = {
-  // Authentication
+  // 인증 관련 API
   AUTH: {
-    REGISTER: '/api/auth/register',
-    LOGIN: '/api/auth/login',
-    REFRESH: '/api/auth/refresh',
-    LOGOUT: '/api/auth/logout',
+    REGISTER: '/auth/register',
+    LOGIN: '/auth/login',
+    REFRESH: '/auth/refresh',
+    LOGOUT: '/auth/logout',
   },
 
-  // Todos
+  // 할일 관련 API
   TODOS: {
-    BASE: '/api/todos',
-    COMPLETE: (id) => `/api/todos/${id}/complete`,
-    RESTORE: (id) => `/api/todos/${id}/restore`,
+    BASE: '/todos',
+    BY_ID: (id) => `/todos/${id}`,
+    COMPLETE: (id) => `/todos/${id}/complete`,
+    RESTORE: (id) => `/todos/${id}/restore`,
   },
 
-  // Trash
+  // 휴지통 관련 API
   TRASH: {
-    BASE: '/api/trash',
-    PERMANENT_DELETE: (id) => `/api/trash/${id}`,
+    BASE: '/trash',
+    BY_ID: (id) => `/trash/${id}`,
   },
 
-  // Holidays
+  // 국경일 관련 API
   HOLIDAYS: {
-    BASE: '/api/holidays',
+    BASE: '/holidays',
+    BY_ID: (id) => `/holidays/${id}`,
   },
 
-  // Users
+  // 사용자 관련 API
   USERS: {
-    PROFILE: '/api/users/me',
+    ME: '/users/me',
   },
 };

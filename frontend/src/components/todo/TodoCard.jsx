@@ -1,140 +1,159 @@
-import React from 'react';
-import { format, isBefore, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { Calendar, Edit3, Trash2 } from 'lucide-react';
-import { TODO_STATUS, TODO_STATUS_LABELS } from '../../constants/todoStatus';
-import { formatDateRange, isDateOverdue } from '../../utils/dateFormatter';
+/**
+ * 할일 카드 컴포넌트
+ * 할일 항목을 표시하고 완료, 수정, 삭제 기능 제공
+ */
 
-const TodoCard = ({ todo, onEdit, onDelete, onComplete }) => {
-  const {
-    todoId,
-    title,
-    content,
-    startDate,
-    dueDate,
-    isCompleted,
-    status,
-    createdAt,
-    updatedAt,
-  } = todo;
+import PropTypes from 'prop-types';
+import { CheckCircle, Circle, Pencil, Trash2, Calendar } from 'lucide-react';
+import { format, isPast, parseISO } from 'date-fns';
 
-  // Determine the display status
-  const displayStatus = isCompleted ? TODO_STATUS.COMPLETED : status;
-  
-  // Determine if the todo is overdue
-  const isOverdue = isDateOverdue(dueDate, isCompleted);
-  
-  // Determine CSS classes based on status
-  const statusClasses = {
-    [TODO_STATUS.ACTIVE]: isCompleted 
-      ? 'border-l-4 border-l-green-500 bg-green-50 dark:bg-green-900/20' 
-      : isOverdue
-        ? 'border-l-4 border-l-red-500 bg-red-50 dark:bg-red-900/20'
-        : 'border-l-4 border-l-orange-500 bg-orange-50 dark:bg-orange-900/20',
-    [TODO_STATUS.COMPLETED]: 'border-l-4 border-l-green-500 bg-green-50 dark:bg-green-900/20',
-    [TODO_STATUS.DELETED]: 'border-l-4 border-l-gray-500 bg-gray-50 dark:bg-gray-700/20',
-  };
-  
-  // Status badge classes
-  const statusBadgeClasses = {
-    [TODO_STATUS.ACTIVE]: isCompleted 
-      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200' 
-      : isOverdue
-        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
-        : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200',
-    [TODO_STATUS.COMPLETED]: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200',
-    [TODO_STATUS.DELETED]: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+const TodoCard = ({ todo, onToggle, onEdit, onDelete }) => {
+  const isCompleted = todo.status === 'completed';
+  const isDue = todo.dueDate && isPast(parseISO(todo.dueDate)) && !isCompleted;
+  const todoId = todo.todo_id || todo._id || todo.id;
+
+  /**
+   * 날짜 포맷팅
+   */
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    try {
+      return format(parseISO(dateString), 'yyyy년 MM월 dd일');
+    } catch (error) {
+      return dateString;
+    }
   };
 
   return (
-    <div className={`rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm transition-all hover:shadow-md ${statusClasses[status]}`}>
-      <div className="flex items-start">
-        {/* Checkbox */}
+    <div
+      className={`
+        bg-white dark:bg-dark-canvas-subtle border rounded-lg p-4 shadow-sm transition-all duration-200
+        hover:shadow-md hover:border-[#BBC0C4] dark:hover:border-dark-border-muted
+        ${isCompleted ? 'border-[#1A7F37] dark:border-[#3FB950]' : isDue ? 'border-[#FB8500] dark:border-[#FB8500]' : 'border-[#D0D7DE] dark:border-dark-border-default'}
+      `}
+    >
+      <div className="flex items-start gap-3">
+        {/* 완료 체크박스 */}
         <button
-          onClick={() => onComplete && onComplete(todoId)}
-          className="flex-shrink-0 mt-1 mr-3"
-          aria-label={isCompleted ? '할일 미완료로 표시' : '할일 완료로 표시'}
-          disabled={status === TODO_STATUS.DELETED}
+          onClick={() => onToggle(todoId)}
+          className={`
+            flex-shrink-0 mt-1 transition-colors
+            ${isCompleted ? 'text-[#1A7F37] dark:text-[#3FB950]' : 'text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default'}
+          `}
+          aria-label={isCompleted ? '완료 취소' : '완료 처리'}
         >
-          <div className={`h-5 w-5 rounded-full border flex items-center justify-center ${
-            isCompleted 
-              ? 'bg-green-500 border-green-500' 
-              : 'border-gray-300 dark:border-gray-600'
-          }`}>
-            {isCompleted && (
-              <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </div>
+          {isCompleted ? (
+            <CheckCircle size={20} fill="currentColor" />
+          ) : (
+            <Circle size={20} />
+          )}
         </button>
 
-        {/* Todo Content */}
+        {/* 할일 내용 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h3 className={`text-base font-medium truncate ${
-              isCompleted 
-                ? 'text-gray-500 dark:text-gray-400 line-through' 
-                : 'text-gray-900 dark:text-white'
-            }`}>
-              {title}
-            </h3>
-            <div className="flex items-center space-x-2">
-              {status !== TODO_STATUS.DELETED && (
-                <>
-                  <button
-                    onClick={() => onEdit && onEdit(todo)}
-                    className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    aria-label="수정"
-                  >
-                    <Edit3 size={16} />
-                  </button>
-                  <button
-                    onClick={() => onDelete && onDelete(todoId)}
-                    className="text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    aria-label="삭제"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-          
-          {content && (
-            <p className={`mt-1 text-sm truncate ${
-              isCompleted 
-                ? 'text-gray-400 dark:text-gray-500' 
-                : 'text-gray-600 dark:text-gray-400'
-            }`}>
-              {content}
+          {/* 제목 */}
+          <h3
+            className={`
+              text-base font-medium break-words
+              ${isCompleted ? 'text-[#57606A] dark:text-dark-fg-subtle line-through' : 'text-[#24292F] dark:text-dark-fg-default'}
+            `}
+          >
+            {todo.title}
+          </h3>
+
+          {/* 설명 */}
+          {todo.description && (
+            <p
+              className={`
+                text-sm mt-1 break-words
+                ${isCompleted ? 'text-[#8C959F] dark:text-dark-fg-subtle' : 'text-[#57606A] dark:text-dark-fg-muted'}
+              `}
+            >
+              {todo.description}
             </p>
           )}
-          
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {startDate || dueDate ? (
-              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                <Calendar size={12} className="mr-1" />
-                <span>{formatDateRange(startDate, dueDate)}</span>
-              </div>
-            ) : null}
-            
-            {(status === TODO_STATUS.ACTIVE || status === TODO_STATUS.COMPLETED) && (
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClasses[displayStatus]}`}>
-                {TODO_STATUS_LABELS[displayStatus]}
-              </span>
-            )}
-            
-            {isOverdue && !isCompleted && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200">
-                만료됨
-              </span>
-            )}
+
+          {/* 날짜 정보 */}
+          {(todo.startDate || todo.dueDate) && (
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs">
+              {todo.startDate && (
+                <div className="flex items-center gap-1 text-[#57606A] dark:text-dark-fg-muted">
+                  <Calendar size={14} />
+                  <span>시작: {formatDate(todo.startDate)}</span>
+                </div>
+              )}
+              {todo.dueDate && (
+                <div
+                  className={`
+                    flex items-center gap-1
+                    ${isDue ? 'text-[#FB8500] dark:text-[#FFA657] font-medium' : 'text-[#57606A] dark:text-dark-fg-muted'}
+                  `}
+                >
+                  <Calendar size={14} />
+                  <span>만료: {formatDate(todo.dueDate)}</span>
+                  {isDue && <span className="ml-1">(기한 초과)</span>}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 상태 배지 */}
+          <div className="mt-2">
+            <span
+              className={`
+                inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                ${
+                  isCompleted
+                    ? 'bg-[#DAFBE1] dark:bg-[#26432F] text-[#1A7F37] dark:text-[#3FB950]'
+                    : isDue
+                    ? 'bg-[#FFF8C5] dark:bg-[#4A3A1A] text-[#9A6700] dark:text-[#FFA657]'
+                    : 'bg-[#FFF4E5] dark:bg-[#3E2A1F] text-[#FB8500] dark:text-[#FFA657]'
+                }
+              `}
+            >
+              {isCompleted ? '완료' : isDue ? '기한 초과' : '진행 중'}
+            </span>
           </div>
+        </div>
+
+        {/* 액션 버튼 */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {/* 수정 버튼 */}
+          <button
+            onClick={() => onEdit(todo)}
+            className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#0969DA] dark:hover:text-[#58A6FF] hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+            aria-label="할일 수정"
+          >
+            <Pencil size={16} />
+          </button>
+
+          {/* 삭제 버튼 */}
+          <button
+            onClick={() => onDelete(todoId)}
+            className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#CF222E] dark:hover:text-[#F85149] hover:bg-[#FFEBE9] dark:hover:bg-[#321C1C] rounded-md transition-colors"
+            aria-label="할일 삭제"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
     </div>
   );
+};
+
+TodoCard.propTypes = {
+  todo: PropTypes.shape({
+    _id: PropTypes.string,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    status: PropTypes.oneOf(['pending', 'completed', 'active']).isRequired,
+    startDate: PropTypes.string,
+    dueDate: PropTypes.string,
+  }).isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default TodoCard;

@@ -1,4 +1,4 @@
-# pkt-TodoList 기술 아키텍처
+# WHS-TodoList 기술 아키텍처
 
 **버전**: 1.0
 **작성일**: 2025-11-26
@@ -22,10 +22,9 @@
 
 ### 1.1 아키텍처 원칙
 
-pkt-TodoList는 **단순하고 효율적인 3-Layer 아키텍처**를 채택합니다.
+WHS-TodoList는 **단순하고 효율적인 3-Layer 아키텍처**를 채택합니다.
 
 **핵심 원칙**:
-
 - **단순성**: 오버엔지니어링 지양, 필요한 기능만 구현
 - **확장성**: 향후 기능 추가를 위한 모듈화된 구조
 - **보안성**: JWT 기반 인증 및 데이터 보호
@@ -33,12 +32,12 @@ pkt-TodoList는 **단순하고 효율적인 3-Layer 아키텍처**를 채택합�
 
 ### 1.2 기술 스택 요약
 
-| 레이어           | 기술                                         |
-| ---------------- | -------------------------------------------- |
-| **프론트엔드**   | React 18, Vite, Tailwind CSS, Zustand, Axios |
-| **백엔드**       | Node.js, Express.js, JWT, bcrypt             |
-| **데이터베이스** | PostgreSQL (Supabase)                        |
-| **배포**         | Vercel (Frontend + Serverless Functions)     |
+| 레이어         | 기술                                          |
+| -------------- | --------------------------------------------- |
+| **프론트엔드** | React 18, Vite, Tailwind CSS, Zustand, Axios  |
+| **백엔드**     | Node.js, Express.js, JWT, bcrypt              |
+| **데이터베이스** | PostgreSQL (Supabase)                         |
+| **배포**       | Vercel (Frontend + Serverless Functions)      |
 
 ---
 
@@ -140,7 +139,6 @@ graph LR
 **역할**: 사용자 인터페이스 제공 및 사용자 경험 관리
 
 **핵심 기술**:
-
 - **React 18**: UI 컴포넌트 기반 개발
 - **Vite**: 빠른 빌드 및 개발 서버
 - **Tailwind CSS**: 유틸리티 우선 스타일링
@@ -149,7 +147,6 @@ graph LR
 - **Axios**: HTTP 통신 (JWT 토큰 자동 포함)
 
 **주요 디렉토리 구조**:
-
 ```
 frontend/
 ├── src/
@@ -163,7 +160,6 @@ frontend/
 ```
 
 **책임**:
-
 - 사용자 인증 상태 관리
 - 할일 목록 렌더링 및 CRUD 조작
 - 폼 입력 검증 (React Hook Form + Zod)
@@ -175,7 +171,6 @@ frontend/
 **역할**: 비즈니스 로직 처리 및 데이터베이스 연동
 
 **핵심 기술**:
-
 - **Node.js 18+**: JavaScript 런타임
 - **Express.js**: 웹 프레임워크
 - **jsonwebtoken**: JWT 토큰 생성/검증
@@ -186,7 +181,6 @@ frontend/
 - **express-rate-limit**: API 호출 제한
 
 **주요 디렉토리 구조**:
-
 ```
 backend/
 ├── src/
@@ -201,7 +195,6 @@ backend/
 ```
 
 **책임**:
-
 - JWT 기반 사용자 인증/인가
 - RESTful API 엔드포인트 제공
 - 비즈니스 규칙 적용 (날짜 검증, 권한 체크)
@@ -214,28 +207,25 @@ backend/
 **역할**: 영구 데이터 저장 및 관리
 
 **핵심 기술**:
-
 - **PostgreSQL 15+**: 관계형 데이터베이스
 - **Supabase**: PostgreSQL 호스팅 (무료 티어)
 - **Connection Pooling**: 효율적인 연결 관리
 
 **주요 테이블**:
 
-| 테이블    | 설명                           | 관계        |
-| --------- | ------------------------------ | ----------- |
-| `User`    | 사용자 정보 (이메일, 비밀번호) | 1:N → Todo  |
-| `Todo`    | 할일 정보 (제목, 날짜, 상태)   | N:1 ← User  |
-| `Holiday` | 국경일 정보 (제목, 날짜)       | 독립 테이블 |
+| 테이블   | 설명                           | 관계           |
+| -------- | ------------------------------ | -------------- |
+| `User`   | 사용자 정보 (이메일, 비밀번호) | 1:N → Todo     |
+| `Todo`   | 할일 정보 (제목, 날짜, 상태)   | N:1 ← User     |
+| `Holiday` | 국경일 정보 (제목, 날짜)       | 독립 테이블    |
 
 **인덱스 전략**:
-
 - `User.email`: UNIQUE INDEX (로그인 조회)
 - `Todo.userId, Todo.status`: INDEX (사용자별 할일 조회)
 - `Todo.dueDate`: INDEX (날짜 정렬)
 - `Holiday.date`: INDEX (날짜 조회)
 
 **책임**:
-
 - 데이터 영속성 보장
 - 트랜잭션 지원 (ACID 보장)
 - 소프트 삭제 구현 (deletedAt 필드)
@@ -375,22 +365,18 @@ graph TB
 **단계별 배포 흐름**:
 
 1. **개발 → Git Push**
-
    - 로컬 개발 완료 후 GitHub에 코드 푸시
 
 2. **GitHub → Vercel 자동 배포**
-
    - Vercel이 GitHub Webhook 감지
    - 자동으로 빌드 및 배포 시작
 
 3. **프론트엔드 배포**
-
    - Vite로 React 앱 빌드
    - 정적 파일을 Vercel CDN에 배포
-   - 도메인: `https://pkt-todolist.vercel.app`
+   - 도메인: `https://whs-todolist.vercel.app`
 
 4. **백엔드 배포**
-
    - Express API를 Serverless Functions로 변환
    - `/api/*` 경로로 라우팅 설정
    - 환경 변수 주입 (JWT_SECRET, DB 연결 정보)
@@ -402,13 +388,11 @@ graph TB
 ### 5.3 환경 변수 관리
 
 **프론트엔드 (.env)**:
-
 ```bash
-VITE_API_BASE_URL=https://pkt-todolist.vercel.app/api
+VITE_API_BASE_URL=https://whs-todolist.vercel.app/api
 ```
 
 **백엔드 (Vercel 환경 변수)**:
-
 ```bash
 DATABASE_URL=postgresql://user:password@host:5432/database
 JWT_SECRET=your-secret-key
@@ -420,18 +404,15 @@ NODE_ENV=production
 ### 5.4 성능 최적화
 
 **CDN 활용**:
-
 - Vercel CDN을 통한 전 세계 빠른 정적 파일 제공
 - 자동 이미지 최적화
 
 **Serverless 장점**:
-
 - 자동 스케일링 (트래픽에 따라 자동 증감)
 - Cold Start 최소화 (Vercel 최적화)
 - Pay-per-use 요금제 (무료 티어: 100GB 대역폭)
 
 **데이터베이스 최적화**:
-
 - Connection Pooling으로 연결 재사용
 - 인덱스를 통한 쿼리 성능 향상
 - Prepared Statements로 SQL Injection 방어
@@ -439,30 +420,24 @@ NODE_ENV=production
 ### 5.5 보안 구성
 
 **HTTPS 강제**:
-
 - Vercel 자동 SSL/TLS 인증서 발급
 - HTTP → HTTPS 자동 리다이렉트
 
 **CORS 설정**:
-
 ```javascript
 // backend/src/app.js
-app.use(
-  cors({
-    origin: "https://pkt-todolist.vercel.app",
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: 'https://whs-todolist.vercel.app',
+  credentials: true
+}));
 ```
 
 **보안 헤더** (Helmet):
-
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
 
 **Rate Limiting**:
-
 - API 호출 제한: 100 requests/min per IP
 - 로그인 시도 제한: 5 attempts/15min
 
@@ -475,14 +450,12 @@ app.use(
 **결정**: 상태 관리 라이브러리로 Zustand 선택
 
 **근거**:
-
 - 간단한 API (boilerplate 코드 최소화)
 - 번들 크기 작음 (~1KB)
 - TypeScript 지원
 - MVP 규모에 충분한 기능
 
 **대안**:
-
 - Redux: 너무 복잡 (오버엔지니어링)
 - Context API: 성능 이슈 가능성
 
@@ -493,14 +466,12 @@ app.use(
 **결정**: Vercel Serverless Functions로 백엔드 배포
 
 **근거**:
-
 - 무료 티어 활용 가능
 - 자동 스케일링
 - 프론트엔드와 동일 플랫폼 (관리 편의성)
 - CI/CD 자동화
 
 **대안**:
-
 - AWS EC2: 비용 및 관리 부담
 - Heroku: 무료 티어 종료
 
@@ -511,14 +482,12 @@ app.use(
 **결정**: Supabase 호스팅 PostgreSQL 사용
 
 **근거**:
-
 - 관계형 DB 필요 (User-Todo 관계)
 - 무료 티어 (500MB 스토리지)
 - 자동 백업 기능
 - Connection Pooling 지원
 
 **대안**:
-
 - MongoDB: NoSQL은 관계 관리 복잡
 - Firebase: 비용 예측 어려움
 
@@ -529,13 +498,11 @@ app.use(
 **결정**: JWT 기반 Stateless 인증
 
 **근거**:
-
 - Serverless 환경에 적합 (서버 상태 불필요)
 - 수평 확장 용이
 - 모바일 앱 확장 고려
 
 **대안**:
-
 - Session: Serverless에 부적합
 - OAuth: MVP에 과도
 
@@ -546,14 +513,12 @@ app.use(
 ### 7.1 Phase 2 (2차 개발)
 
 **예상 추가 기능**:
-
 - 캘린더 뷰 (월간/주간)
 - 할일 카테고리/태그
 - 알림 기능 (이메일/푸시)
 - 통계 대시보드
 
 **아키텍처 변경 검토**:
-
 - Redis 캐싱 레이어 추가 (자주 조회되는 데이터)
 - WebSocket 실시간 동기화 (협업 기능)
 - CDN 이미지 스토리지 (프로필 사진)
@@ -561,12 +526,10 @@ app.use(
 ### 7.2 확장성 고려사항
 
 **수평 확장**:
-
 - Stateless 아키텍처로 인스턴스 추가 용이
 - Database Read Replica 추가 (읽기 성능 향상)
 
 **모니터링**:
-
 - Vercel Analytics
 - Sentry (에러 추적)
 - DataDog (성능 모니터링) - 선택
@@ -577,17 +540,17 @@ app.use(
 
 ### 8.1 기술 스택 버전
 
-| 기술         | 버전 |
-| ------------ | ---- |
-| React        | 18.x |
-| Vite         | 5.x  |
-| Tailwind CSS | 3.x  |
-| Zustand      | 4.x  |
-| Node.js      | 18+  |
-| Express      | 4.x  |
-| PostgreSQL   | 15+  |
-| jsonwebtoken | 9.x  |
-| bcrypt       | 5.x  |
+| 기술           | 버전      |
+| -------------- | --------- |
+| React          | 18.x      |
+| Vite           | 5.x       |
+| Tailwind CSS   | 3.x       |
+| Zustand        | 4.x       |
+| Node.js        | 18+       |
+| Express        | 4.x       |
+| PostgreSQL     | 15+       |
+| jsonwebtoken   | 9.x       |
+| bcrypt         | 5.x       |
 
 ### 8.2 참조 문서
 

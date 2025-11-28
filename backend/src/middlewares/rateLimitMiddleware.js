@@ -1,12 +1,12 @@
 const rateLimit = require('express-rate-limit');
 
-// 개발 환경에서는 레이트 리미팅 비활성화
-const isDevOrTest = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+// 환경 변수로 개발/프로덕션 환경 구분
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// 일반 API 요청 제한: 100회/분
-const generalRateLimit = isDevOrTest ? (req, res, next) => next() : rateLimit({
-  windowMs: 15 * 60 * 1000, // 15분
-  max: 100, // IP당 100회 요청 제한
+// 일반 API 요청 제한
+const generalRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1분
+  max: isDevelopment ? 1000 : 100, // 개발: 1000회/분, 프로덕션: 100회/분
   message: {
     success: false,
     error: {
@@ -16,12 +16,13 @@ const generalRateLimit = isDevOrTest ? (req, res, next) => next() : rateLimit({
   },
   standardHeaders: true, // `RateLimit-*` 헤더 반환
   legacyHeaders: false, // `X-RateLimit-*` 헤더 반환 비활성화
+  skip: isDevelopment ? () => true : () => false, // 개발 환경에서는 비활성화
 });
 
-// 인증 관련 API 요청 제한: 5회/15분
-const authRateLimit = isDevOrTest ? (req, res, next) => next() : rateLimit({
+// 인증 관련 API 요청 제한
+const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분
-  max: 5, // IP당 5회 요청 제한
+  max: isDevelopment ? 100 : 5, // 개발: 100회/15분, 프로덕션: 5회/15분
   message: {
     success: false,
     error: {
@@ -31,6 +32,7 @@ const authRateLimit = isDevOrTest ? (req, res, next) => next() : rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isDevelopment ? () => true : () => false, // 개발 환경에서는 비활성화
 });
 
 module.exports = {

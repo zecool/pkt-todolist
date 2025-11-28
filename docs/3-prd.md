@@ -1,4 +1,4 @@
-# pkt-TodoList Product Requirements Document (PRD)
+# WHS-TodoList Product Requirements Document (PRD)
 
 **버전**: 1.0
 **작성일**: 2025-11-25
@@ -32,7 +32,7 @@
 
 ### 1.1 제품 설명
 
-**pkt-TodoList**는 사용자 인증 기반의 개인 할일 관리 애플리케이션으로, 사용자별 할일 목록과 공통 국경일 일정을 통합 관리하는 웹 애플리케이션입니다.
+**WHS-TodoList**는 사용자 인증 기반의 개인 할일 관리 애플리케이션으로, 사용자별 할일 목록과 공통 국경일 일정을 통합 관리하는 웹 애플리케이션입니다.
 
 ### 1.2 핵심 가치
 
@@ -444,9 +444,9 @@ Version Control: Git
 | email     | VARCHAR(255)          | UNIQUE, NOT NULL         | 로그인 이메일          |
 | password  | VARCHAR(255)          | NOT NULL                 | bcrypt 해시된 비밀번호 |
 | username  | VARCHAR(100)          | NOT NULL                 | 사용자 이름            |
-| role      | VARCHAR(20)           | NOT NULL, DEFAULT 'user' | 사용자 역할            |
-| createdAt | TIMESTAMP WITH TIME ZONE | NOT NULL                 | 가입일시               |
-| updatedAt | TIMESTAMP WITH TIME ZONE | NOT NULL                 | 최종 수정일시          |
+| role      | ENUM('user', 'admin') | NOT NULL, DEFAULT 'user' | 사용자 역할            |
+| createdAt | TIMESTAMP             | NOT NULL                 | 가입일시               |
+| updatedAt | TIMESTAMP             | NOT NULL                 | 최종 수정일시          |
 
 **인덱스**:
 
@@ -460,20 +460,20 @@ Version Control: Git
 | ----------- | -------------------------------------- | -------------------------- | ---------------------- |
 | todoId      | UUID                                   | PK                         | 할일 고유 ID           |
 | userId      | UUID                                   | FK, NOT NULL               | 소유자 ID              |
-| title       | VARCHAR(255)                           | NOT NULL                   | 할일 제목              |
+| title       | VARCHAR(200)                           | NOT NULL                   | 할일 제목              |
 | content     | TEXT                                   | NULL                       | 할일 상세 내용         |
 | startDate   | DATE                                   | NULL                       | 시작일                 |
 | dueDate     | DATE                                   | NULL                       | 만료일                 |
 | status      | ENUM('active', 'completed', 'deleted') | NOT NULL, DEFAULT 'active' | 할일 상태              |
 | isCompleted | BOOLEAN                                | NOT NULL, DEFAULT false    | 완료 여부              |
-| createdAt   | TIMESTAMP WITH TIME ZONE               | NOT NULL                   | 생성일시               |
-| updatedAt   | TIMESTAMP WITH TIME ZONE               | NOT NULL                   | 최종 수정일시          |
-| deletedAt   | TIMESTAMP WITH TIME ZONE               | NULL                       | 삭제일시 (소프트 삭제) |
+| createdAt   | TIMESTAMP                              | NOT NULL                   | 생성일시               |
+| updatedAt   | TIMESTAMP                              | NOT NULL                   | 최종 수정일시          |
+| deletedAt   | TIMESTAMP                              | NULL                       | 삭제일시 (소프트 삭제) |
 
 **제약 조건**:
 
 - CHECK: dueDate >= startDate (만료일은 시작일 이후)
-- FOREIGN KEY: userId REFERENCES "users"(userId) ON DELETE CASCADE
+- FOREIGN KEY: userId REFERENCES User(userId) ON DELETE CASCADE
 
 **인덱스**:
 
@@ -487,12 +487,12 @@ Version Control: Git
 | 필드        | 타입         | 제약                   | 설명           |
 | ----------- | ------------ | ---------------------- | -------------- |
 | holidayId   | UUID         | PK                     | 국경일 고유 ID |
-| title       | VARCHAR(255) | NOT NULL               | 국경일 이름    |
+| title       | VARCHAR(100) | NOT NULL               | 국경일 이름    |
 | date        | DATE         | NOT NULL               | 국경일 날짜    |
 | description | TEXT         | NULL                   | 설명           |
-| isRecurring | BOOLEAN      | NOT NULL, DEFAULT false | 매년 반복 여부 |
-| createdAt   | TIMESTAMP WITH TIME ZONE | NOT NULL               | 생성일시       |
-| updatedAt   | TIMESTAMP WITH TIME ZONE | NOT NULL               | 최종 수정일시  |
+| isRecurring | BOOLEAN      | NOT NULL, DEFAULT true | 매년 반복 여부 |
+| createdAt   | TIMESTAMP    | NOT NULL               | 생성일시       |
+| updatedAt   | TIMESTAMP    | NOT NULL               | 최종 수정일시  |
 
 **인덱스**:
 
@@ -1308,13 +1308,13 @@ wide: 1440px
 
 ### 12.1 기술적 리스크
 
-| 리스크                      | 영향도 | 확률   | 대응 방안                                                                             |
-| --------------------------- | ------ | ------ | ------------------------------------------------------------------------------------- |
-| **새로운 기술 스택 학습**   | High   | High   | - 공식 문서 우선 참고<br>- 간단한 예제부터 시작<br>- 커뮤니티 활용                    |
+| 리스크                      | 영향도 | 확률   | 대응 방안                                                                          |
+| --------------------------- | ------ | ------ | ---------------------------------------------------------------------------------- |
+| **새로운 기술 스택 학습**   | High   | High   | - 공식 문서 우선 참고<br>- 간단한 예제부터 시작<br>- 커뮤니티 활용                 |
 | **PostgreSQL 연결 및 쿼리** | Medium | Medium | - node-postgres 공식 문서 참조<br>- Connection Pool 설정<br>- Prepared Statement 사용 |
-| **JWT 토큰 관리**           | Medium | Medium | - 토큰 갱신 로직 명확화<br>- Refresh Token 저장 방식 결정 (Cookie vs LocalStorage)    |
-| **CORS 이슈**               | Low    | Medium | - Express CORS 미들웨어 설정<br>- Vercel 환경 변수 확인                               |
-| **성능 최적화**             | Medium | Low    | - 인덱싱 적용<br>- Lazy Loading<br>- 번들 크기 최소화                                 |
+| **JWT 토큰 관리**           | Medium | Medium | - 토큰 갱신 로직 명확화<br>- Refresh Token 저장 방식 결정 (Cookie vs LocalStorage) |
+| **CORS 이슈**               | Low    | Medium | - Express CORS 미들웨어 설정<br>- Vercel 환경 변수 확인                            |
+| **성능 최적화**             | Medium | Low    | - 인덱싱 적용<br>- Lazy Loading<br>- 번들 크기 최소화                              |
 
 ### 12.2 일정 리스크
 
@@ -1365,7 +1365,7 @@ wide: 1440px
 
 **도메인 정의서 5.3 참조**:
 
-- 할일 제목: 필수 입력, VARCHAR(255)
+- 할일 제목: 필수 입력, VARCHAR(200)
 - 이메일: 고유, VARCHAR(255)
 - 비밀번호: bcrypt 해싱, VARCHAR(255)
 - 날짜: dueDate >= startDate

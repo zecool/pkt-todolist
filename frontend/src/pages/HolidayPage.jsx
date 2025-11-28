@@ -1,158 +1,135 @@
-import React, { useEffect, useState } from 'react';
-import { Calendar, AlertCircle } from 'lucide-react';
-import useHolidayStore from '../stores/holidayStore';
+import { useEffect, useState } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { MainLayout } from '../components/layout';
+import { Loading, Button } from '../components/common';
 import HolidayCard from '../components/holiday/HolidayCard';
+import useHolidayStore from '../stores/holidayStore';
 
+/**
+ * 국경일 페이지
+ * 월별 국경일 조회 및 표시
+ */
 const HolidayPage = () => {
-  const { 
-    holidays, 
-    isLoading, 
-    error, 
-    fetchHolidays 
-  } = useHolidayStore();
+  const { holidays, isLoading, error, fetchHolidays, currentYear, currentMonth } = useHolidayStore();
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
-  // Initialize filters
-  const currentYear = new Date().getFullYear();
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(''); // Empty string means all months
-
-  // Fetch holidays when component mounts or filters change
   useEffect(() => {
-    fetchHolidays(year, month || undefined);
-  }, [year, month, fetchHolidays]);
+    fetchHolidays(selectedYear, selectedMonth);
+  }, [selectedYear, selectedMonth, fetchHolidays]);
 
-  // Handle year change
-  const handleYearChange = (e) => {
-    setYear(Number(e.target.value));
+  const handlePrevMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedYear(selectedYear - 1);
+      setSelectedMonth(12);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
   };
 
-  // Handle month change
-  const handleMonthChange = (e) => {
-    setMonth(e.target.value === 'all' ? '' : Number(e.target.value));
+  const handleNextMonth = () => {
+    if (selectedMonth === 12) {
+      setSelectedYear(selectedYear + 1);
+      setSelectedMonth(1);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
   };
 
-  // Generate year options (current year and a few years around it)
-  const yearOptions = [];
-  for (let i = currentYear - 2; i <= currentYear + 2; i++) {
-    yearOptions.push(i);
+  const handleToday = () => {
+    const now = new Date();
+    setSelectedYear(now.getFullYear());
+    setSelectedMonth(now.getMonth() + 1);
+  };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <Loading />
+      </MainLayout>
+    );
   }
 
   return (
-    <div className="w-full max-w-full">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">국경일</h1>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="year" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              연도
-            </label>
-            <select
-              id="year"
-              value={year}
-              onChange={handleYearChange}
-              className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              {yearOptions.map((yearOption) => (
-                <option key={yearOption} value={yearOption}>
-                  {yearOption}년
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label htmlFor="month" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              월
-            </label>
-            <select
-              id="month"
-              value={month || 'all'}
-              onChange={handleMonthChange}
-              className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              <option value="all">전체 월</option>
-              {[...Array(12)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}월
-                </option>
-              ))}
-            </select>
-          </div>
+    <MainLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#24292F] dark:text-dark-fg-default">국경일</h1>
+          <p className="mt-1 text-sm text-[#57606A] dark:text-dark-fg-muted">
+            대한민국의 공휴일과 국경일 정보를 확인하세요
+          </p>
         </div>
-      </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
+        <div className="bg-white dark:bg-dark-canvas-subtle border border-[#D0D7DE] dark:border-dark-border-default rounded-lg p-4 md:p-6 transition-colors">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handlePrevMonth}
+                className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+                aria-label="이전 달"
+              >
+                <ChevronLeft size={20} />
+              </button>
+
+              <h2 className="text-xl md:text-2xl font-bold text-[#24292F] dark:text-dark-fg-default min-w-[160px] text-center">
+                {selectedYear}년 {selectedMonth}월
+              </h2>
+
+              <button
+                onClick={handleNextMonth}
+                className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
+                aria-label="다음 달"
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">에러 발생</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleToday}
+              className="w-full sm:w-auto"
+            >
+              <Calendar size={16} className="mr-2" />
+              이번 달
+            </Button>
+          </div>
+
+          {error && (
+            <div className="bg-[#FFEBE9] dark:bg-[#321C1C] border border-[#CF222E] dark:border-[#F85149] rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-[#CF222E] dark:text-[#F85149] flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <h3 className="font-medium text-[#CF222E] dark:text-[#F85149]">오류가 발생했습니다</h3>
+                  <p className="mt-1 text-sm text-[#82071E] dark:text-[#F85149]">{error}</p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-        </div>
-      )}
-
-      {/* Holiday List */}
-      {!isLoading && (
-        <div className="space-y-4">
           {holidays.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
-                <Calendar className="text-gray-400" size={24} />
-              </div>
-              <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
-                선택한 기간에 국경일이 없습니다
+            <div className="text-center py-16 bg-[#F6F8FA] dark:bg-dark-canvas-default rounded-lg border-2 border-dashed border-[#D0D7DE] dark:border-dark-border-default">
+              <Calendar className="mx-auto text-[#57606A] dark:text-dark-fg-muted mb-4" size={48} />
+              <h3 className="text-lg font-medium text-[#24292F] dark:text-dark-fg-default mb-2">
+                이번 달에는 국경일이 없습니다
               </h3>
+              <p className="text-[#57606A] dark:text-dark-fg-muted">다른 달을 선택해보세요</p>
             </div>
           ) : (
-            // Group holidays by month
-            (() => {
-              // Create a map to group holidays by month
-              const holidaysByMonth = {};
-              holidays.forEach(holiday => {
-                const month = new Date(holiday.date).getMonth() + 1; // getMonth() is 0-indexed
-                if (!holidaysByMonth[month]) {
-                  holidaysByMonth[month] = [];
-                }
-                holidaysByMonth[month].push(holiday);
-              });
-
-              return Object.entries(holidaysByMonth).map(([month, monthHolidays]) => (
-                <div key={month} className="mb-8">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    {month}월
-                  </h2>
-                  <div className="space-y-3">
-                    {monthHolidays.map(holiday => (
-                      <HolidayCard key={holiday.holidayId} holiday={holiday} />
-                    ))}
-                  </div>
-                </div>
-              ));
-            })()
+            <div className="space-y-4">
+              <p className="text-sm text-[#57606A] dark:text-dark-fg-muted">
+                총 {holidays.length}개의 국경일이 있습니다
+              </p>
+              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                {holidays.map((holiday, index) => (
+                  <HolidayCard key={index} holiday={holiday} />
+                ))}
+              </div>
+            </div>
           )}
         </div>
-      )}
-    </div>
+      </div>
+    </MainLayout>
   );
 };
 

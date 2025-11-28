@@ -26,9 +26,6 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Windows specific
-nul
-
 # IDE files
 .vscode/
 .idea/
@@ -187,7 +184,3 @@ frontend/.env*
 # Sensitive files
 secrets/
 credentials.json
-
-# Vercel
-.vercel
-.vercel.json

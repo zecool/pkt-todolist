@@ -1,145 +1,151 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Home } from 'lucide-react';
-import useAuthStore from '../stores/authStore';
-import Input from '../components/common/Input';
-import Button from '../components/common/Button';
+/**
+ * 로그인 페이지
+ * React Hook Form + Zod를 사용한 폼 검증
+ */
+
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Sun, Moon } from "lucide-react";
+import useAuthStore from "../stores/authStore";
+import useUIStore from "../stores/uiStore";
+import Button from "../components/common/Button";
+import Input from "../components/common/Input";
+import { validateLoginForm } from "../utils/validator";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuthStore();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+  const { isDarkMode, toggleDarkMode } = useUIStore();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
-  const [errors, setErrors] = useState({});
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
+  /**
+   * 폼 제출 핸들러
+   */
+  const onSubmit = async (data) => {
+    setErrorMessage("");
 
-  // Validate form
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) {
-      newErrors.email = '이메일을 입력해주세요';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '유효한 이메일 주소를 입력해주세요';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = '비밀번호를 입력해주세요';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
+    // 클라이언트 측 검증
+    const validation = validateLoginForm(data);
+    if (!validation.valid) {
+      const firstError = Object.values(validation.errors)[0];
+      setErrorMessage(firstError);
       return;
     }
-    
-    const result = await login(formData.email, formData.password);
-    if (result.success) {
-      navigate('/');
+
+    // 로그인 API 호출
+    const success = await login(data.email, data.password);
+    if (success) {
+      navigate("/");
+    } else {
+      setErrorMessage(error || "로그인에 실패했습니다");
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl">
-        <div>
-          <div className="mx-auto h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-            <Home className="h-8 w-8 text-green-600" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-canvas-default px-4 transition-colors">
+      {/* 다크모드 토글 버튼 - 우측 상단 고정 */}
+      <button
+        onClick={toggleDarkMode}
+        className="fixed top-4 right-4 p-3 text-gray-600 dark:text-dark-fg-muted hover:text-gray-900 dark:hover:text-dark-fg-default hover:bg-gray-100 dark:hover:bg-dark-canvas-default rounded-lg transition-colors shadow-md"
+        aria-label={isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"}
+      >
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
+      <div className="w-full max-w-md">
+        {/* 로그인 폼 */}
+        <div className="bg-white dark:bg-dark-canvas-subtle border border-gray-300 dark:border-dark-border-default rounded-lg shadow-md overflow-hidden">
+          {/* 카드 헤더 */}
+          <div className="text-center py-8 px-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-fg-default mb-2">
+              강사 할일 관리 앱
+            </h1>
+            <p className="text-gray-600 dark:text-dark-fg-muted">
+              로그인하여 할일을 관리하세요
+            </p>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            할일을 쉽게 관리하세요
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            계정에 로그인하세요
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
+
+          {/* 폼 영역 */}
+          <div className="px-8 pb-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* 에러 메시지 */}
+              {errorMessage && (
+                <div className="bg-red-50 dark:bg-[#321C1C] border border-red-300 dark:border-[#F85149] rounded-md p-3">
+                  <p className="text-sm text-red-600 dark:text-[#F85149]">
+                    {errorMessage}
+                  </p>
+                </div>
+              )}
+
+              {/* 이메일 입력 */}
               <Input
-                id="email"
-                name="email"
-                label="이메일"
                 type="email"
-                placeholder="이메일을 입력하세요"
-                value={formData.email}
-                onChange={handleChange}
-                error={errors.email}
-                icon="📧"
+                label="이메일"
+                placeholder="example@email.com"
+                error={errors.email?.message}
+                required
+                {...register("email", {
+                  required: "이메일을 입력하세요",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "올바른 이메일 형식이 아닙니다",
+                  },
+                })}
               />
-            </div>
-            <div>
+
+              {/* 비밀번호 입력 */}
               <Input
-                id="password"
-                name="password"
-                label="비밀번호"
                 type="password"
+                label="비밀번호"
                 placeholder="비밀번호를 입력하세요"
-                showPasswordToggle
-                value={formData.password}
-                onChange={handleChange}
-                error={errors.password}
-                icon="🔒"
+                error={errors.password?.message}
+                required
+                {...register("password", {
+                  required: "비밀번호를 입력하세요",
+                  minLength: {
+                    value: 8,
+                    message: "비밀번호는 최소 8자 이상이어야 합니다",
+                  },
+                })}
               />
-            </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                </div>
+              {/* 로그인 버튼 */}
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full"
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                로그인
+              </Button>
+
+              {/* 회원가입 링크 */}
+              <div className="text-center pt-2">
+                <p className="text-sm text-gray-600 dark:text-dark-fg-muted">
+                  계정이 없으신가요?{" "}
+                  <Link
+                    to="/register"
+                    className="text-blue-600 dark:text-[#58A6FF] hover:underline font-medium"
+                  >
+                    회원가입
+                  </Link>
+                </p>
               </div>
-            </div>
-          )}
-
-          <div>
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full py-3"
-              loading={isLoading}
-              disabled={isLoading}
-            >
-              {isLoading ? '로그인 중...' : '로그인 하기'}
-            </Button>
+            </form>
           </div>
-        </form>
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          계정이 없으신가요?{' '}
-          <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
-            회원가입
-          </Link>
         </div>
       </div>
     </div>

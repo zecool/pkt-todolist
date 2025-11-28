@@ -9,18 +9,15 @@ Issue #6 백엔드 프로젝트 초기화 작업의 완료 여부를 검증하�
 총 **35개의 테스트 케이스**로 구성되어 있으며, 다음 8개 그룹으로 분류됩니다:
 
 ### 1. 디렉토리 구조 검증 (1개 테스트)
-
 - backend 디렉토리 존재 확인
 
 ### 2. package.json 검증 (7개 테스트)
-
 - 파일 존재 확인
 - name, version, main 필드 존재
 - scripts 필드 존재
 - dev, start 스크립트 존재
 
 ### 3. 필수 dependencies 검증 (10개 테스트)
-
 - dependencies 필드 존재
 - 9개 필수 패키지 설치 확인:
   - express
@@ -34,12 +31,10 @@ Issue #6 백엔드 프로젝트 초기화 작업의 완료 여부를 검증하�
   - dotenv
 
 ### 4. devDependencies 검증 (2개 테스트)
-
 - devDependencies 필드 존재
 - nodemon 설치 확인
 
 ### 5. .env 파일 검증 (8개 테스트)
-
 - .env 파일 존재 확인
 - 6개 필수 환경 변수 존재:
   - DATABASE_URL
@@ -51,15 +46,12 @@ Issue #6 백엔드 프로젝트 초기화 작업의 완료 여부를 검증하�
 - JWT_SECRET 길이 검증 (최소 32자)
 
 ### 6. .env.example 파일 검증 (1개 테스트)
-
 - .env.example 파일 존재 확인
 
 ### 7. node_modules 검증 (1개 테스트)
-
 - node_modules 디렉토리 존재 확인
 
 ### 8. .gitignore 검증 (3개 테스트)
-
 - .gitignore 파일 존재 확인
 - node_modules 포함 확인
 - .env 포함 확인
@@ -105,7 +97,7 @@ cd backend
   백엔드 프로젝트 초기화 테스트 시작
 ================================================================
 
-테스트 대상 디렉토리: C:\test\pkt-todolist\backend
+테스트 대상 디렉토리: C:\test\whs-todolist\backend
 
 ─────────────────────────────────────────────────────────────
 테스트 그룹 1: 디렉토리 구조 검증
@@ -168,22 +160,18 @@ cd backend
 ## 테스트 특징
 
 ### 독립적 실행
-
 - 각 테스트는 독립적으로 실행되며, 하나의 테스트 실패가 다른 테스트에 영향을 주지 않습니다.
 - 모든 테스트 결과를 확인할 수 있습니다.
 
 ### 명확한 오류 메시지
-
 - 각 실패한 테스트에 대해 구체적인 오류 메시지를 제공합니다.
 - 문제 해결을 위한 힌트를 포함합니다.
 
 ### 크로스 플랫폼 지원
-
 - Windows PowerShell 스크립트: `test-init.ps1`
 - Git Bash / Linux / macOS 스크립트: `test-init.sh`
 
 ### JSON 파싱
-
 - PowerShell: 내장 JSON 파서 사용
 - Bash: jq가 설치되어 있으면 사용, 없으면 grep으로 대체
 
@@ -240,7 +228,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '18'
 
       - name: Install dependencies
         run: |

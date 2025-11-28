@@ -1,188 +1,192 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+/**
+ * 회원가입 페이지
+ * React Hook Form + Zod를 사용한 폼 검증
+ */
+
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { Sun, Moon } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
-import Input from '../components/common/Input';
+import useUIStore from '../stores/uiStore';
 import Button from '../components/common/Button';
+import Input from '../components/common/Input';
+import { validateRegisterForm } from '../utils/validator';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { register: registerUser, isLoading, error } = useAuthStore();
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    password: '',
-    passwordConfirm: ''
+  const { isDarkMode, toggleDarkMode } = useUIStore();
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: '',
+      username: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
-  const [errors, setErrors] = useState({});
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
+  const password = watch('password');
 
-  // Validate form
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) {
-      newErrors.email = '이메일을 입력해주세요';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '유효한 이메일 주소를 입력해주세요';
-    }
-    
-    if (!formData.username) {
-      newErrors.username = '사용자 이름을 입력해주세요';
-    } else if (formData.username.length < 2) {
-      newErrors.username = '사용자 이름은 최소 2자 이상이어야 합니다';
-    } else if (formData.username.length > 50) {
-      newErrors.username = '사용자 이름은 50자를 넘을 수 없습니다';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = '비밀번호를 입력해주세요';
-    } else if (formData.password.length < 8) {
-      newErrors.password = '비밀번호는 최소 8자 이상이어야 합니다';
-    }
-    
-    if (!formData.passwordConfirm) {
-      newErrors.passwordConfirm = '비밀번호를 다시 입력해주세요';
-    } else if (formData.password !== formData.passwordConfirm) {
-      newErrors.passwordConfirm = '비밀번호가 일치하지 않습니다';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  /**
+   * 폼 제출 핸들러
+   */
+  const onSubmit = async (data) => {
+    setErrorMessage('');
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
+    // 클라이언트 측 검증
+    const validation = validateRegisterForm(data);
+    if (!validation.valid) {
+      const firstError = Object.values(validation.errors)[0];
+      setErrorMessage(firstError);
       return;
     }
 
-    const result = await registerUser(formData.email, formData.password, formData.username);
-    if (result.success) {
-      // 회원가입 성공 후 메인 페이지로 이동 (이미 토큰이 저장됨)
+    // 회원가입 API 호출
+    const success = await registerUser(data.email, data.password, data.username);
+
+    if (success) {
+      // 회원가입 성공 시 자동 로그인되어 메인 페이지로 이동
       navigate('/');
+    } else {
+      setErrorMessage(error || '회원가입에 실패했습니다');
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 overflow-y-auto">
-      <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl my-8">
-        <div>
-          <div className="mx-auto h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-            <span className="text-2xl text-green-600 font-bold">_pkt</span>
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            새 계정 만들기
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <Input
-                id="email"
-                name="email"
-                label="이메일"
-                type="email"
-                placeholder="이메일을 입력하세요"
-                value={formData.email}
-                onChange={handleChange}
-                error={errors.email}
-                icon="📧"
-              />
-            </div>
-            <div>
-              <Input
-                id="username"
-                name="username"
-                label="사용자 이름"
-                type="text"
-                placeholder="사용자 이름을 입력하세요"
-                value={formData.username}
-                onChange={handleChange}
-                error={errors.username}
-                icon="👤"
-              />
-            </div>
-            <div>
-              <Input
-                id="password"
-                name="password"
-                label="비밀번호"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                showPasswordToggle
-                value={formData.password}
-                onChange={handleChange}
-                error={errors.password}
-                icon="🔒"
-              />
-              <p className="mt-1 text-xs text-gray-500">최소 8자 이상</p>
-            </div>
-            <div>
-              <Input
-                id="passwordConfirm"
-                name="passwordConfirm"
-                label="비밀번호 확인"
-                type="password"
-                placeholder="비밀번호를 다시 입력하세요"
-                showPasswordToggle
-                value={formData.passwordConfirm}
-                onChange={handleChange}
-                error={errors.passwordConfirm}
-                icon="🔒"
-              />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-canvas-default px-4 py-8 transition-colors">
+      {/* 다크모드 토글 버튼 - 우측 상단 고정 */}
+      <button
+        onClick={toggleDarkMode}
+        className="fixed top-4 right-4 p-3 text-gray-600 dark:text-dark-fg-muted hover:text-gray-900 dark:hover:text-dark-fg-default hover:bg-gray-100 dark:hover:bg-dark-canvas-default rounded-lg transition-colors shadow-md"
+        aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+      >
+        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
+      <div className="w-full max-w-md">
+        {/* 회원가입 폼 */}
+        <div className="bg-white dark:bg-dark-canvas-subtle border border-gray-300 dark:border-dark-border-default rounded-lg shadow-md overflow-hidden">
+          {/* 카드 헤더 */}
+          <div className="text-center py-8 px-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-fg-default mb-2">
+              WHS-TodoList
+            </h1>
+            <p className="text-gray-600 dark:text-dark-fg-muted">새 계정을 만들어 시작하세요</p>
           </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
+          {/* 폼 영역 */}
+          <div className="px-8 pb-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* 에러 메시지 */}
+              {errorMessage && (
+                <div className="bg-red-50 dark:bg-[#321C1C] border border-red-300 dark:border-[#F85149] rounded-md p-3">
+                  <p className="text-sm text-red-600 dark:text-[#F85149]">{errorMessage}</p>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          <div>
+            {/* 이메일 입력 */}
+            <Input
+              type="email"
+              label="이메일"
+              placeholder="example@email.com"
+              error={errors.email?.message}
+              required
+              {...register('email', {
+                required: '이메일을 입력하세요',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: '올바른 이메일 형식이 아닙니다',
+                },
+              })}
+            />
+
+            {/* 사용자 이름 입력 */}
+            <Input
+              type="text"
+              label="사용자 이름"
+              placeholder="홍길동"
+              error={errors.username?.message}
+              required
+              {...register('username', {
+                required: '사용자 이름을 입력하세요',
+                minLength: {
+                  value: 2,
+                  message: '사용자 이름은 최소 2자 이상이어야 합니다',
+                },
+                maxLength: {
+                  value: 50,
+                  message: '사용자 이름은 최대 50자까지 가능합니다',
+                },
+              })}
+            />
+
+            {/* 비밀번호 입력 */}
+            <Input
+              type="password"
+              label="비밀번호"
+              placeholder="최소 8자 이상"
+              error={errors.password?.message}
+              required
+              {...register('password', {
+                required: '비밀번호를 입력하세요',
+                minLength: {
+                  value: 8,
+                  message: '비밀번호는 최소 8자 이상이어야 합니다',
+                },
+                maxLength: {
+                  value: 100,
+                  message: '비밀번호는 최대 100자까지 가능합니다',
+                },
+              })}
+            />
+
+            {/* 비밀번호 확인 입력 */}
+            <Input
+              type="password"
+              label="비밀번호 확인"
+              placeholder="비밀번호를 다시 입력하세요"
+              error={errors.confirmPassword?.message}
+              required
+              {...register('confirmPassword', {
+                required: '비밀번호 확인을 입력하세요',
+                validate: (value) =>
+                  value === password || '비밀번호가 일치하지 않습니다',
+              })}
+            />
+
+            {/* 회원가입 버튼 */}
             <Button
               type="submit"
               variant="primary"
-              className="w-full py-3"
+              className="w-full"
               loading={isLoading}
               disabled={isLoading}
             >
-              {isLoading ? '회원가입 중...' : '회원가입'}
+              회원가입
             </Button>
+
+            {/* 로그인 링크 */}
+            <div className="text-center pt-2">
+              <p className="text-sm text-gray-600 dark:text-dark-fg-muted">
+                이미 계정이 있으신가요?{' '}
+                <Link
+                  to="/login"
+                  className="text-blue-600 dark:text-[#58A6FF] hover:underline font-medium"
+                >
+                  로그인
+                </Link>
+              </p>
+            </div>
+          </form>
           </div>
-        </form>
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          이미 계정이 있으신가요?{' '}
-          <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
-            로그인
-          </Link>
         </div>
       </div>
     </div>
