@@ -1,7 +1,7 @@
 {
-  "name": "whs-todolist-backend",
+  "name": "pkt-todolist-backend",
   "version": "1.0.0",
-  "description": "WHS TodoList Backend API Server",
+  "description": "pkt TodoList Backend API Server",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",

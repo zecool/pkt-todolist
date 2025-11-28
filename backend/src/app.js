@@ -30,7 +30,7 @@ app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, {
-    customSiteTitle: "WHS-TodoList API Documentation",
+    customSiteTitle: "pkt-TodoList API Documentation",
     customCss: ".swagger-ui .topbar { display: none }",
   })
 );

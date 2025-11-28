@@ -1,4 +1,4 @@
-# WHS-TodoList Product Requirements Document (PRD)
+# pkt-TodoList Product Requirements Document (PRD)
 
 **버전**: 1.0
 **작성일**: 2025-11-25
@@ -32,7 +32,7 @@
 
 ### 1.1 제품 설명
 
-**WHS-TodoList**는 사용자 인증 기반의 개인 할일 관리 애플리케이션으로, 사용자별 할일 목록과 공통 국경일 일정을 통합 관리하는 웹 애플리케이션입니다.
+**pkt-TodoList**는 사용자 인증 기반의 개인 할일 관리 애플리케이션으로, 사용자별 할일 목록과 공통 국경일 일정을 통합 관리하는 웹 애플리케이션입니다.
 
 ### 1.2 핵심 가치
 
@@ -1308,13 +1308,13 @@ wide: 1440px
 
 ### 12.1 기술적 리스크
 
-| 리스크                      | 영향도 | 확률   | 대응 방안                                                                          |
-| --------------------------- | ------ | ------ | ---------------------------------------------------------------------------------- |
-| **새로운 기술 스택 학습**   | High   | High   | - 공식 문서 우선 참고<br>- 간단한 예제부터 시작<br>- 커뮤니티 활용                 |
+| 리스크                      | 영향도 | 확률   | 대응 방안                                                                             |
+| --------------------------- | ------ | ------ | ------------------------------------------------------------------------------------- |
+| **새로운 기술 스택 학습**   | High   | High   | - 공식 문서 우선 참고<br>- 간단한 예제부터 시작<br>- 커뮤니티 활용                    |
 | **PostgreSQL 연결 및 쿼리** | Medium | Medium | - node-postgres 공식 문서 참조<br>- Connection Pool 설정<br>- Prepared Statement 사용 |
-| **JWT 토큰 관리**           | Medium | Medium | - 토큰 갱신 로직 명확화<br>- Refresh Token 저장 방식 결정 (Cookie vs LocalStorage) |
-| **CORS 이슈**               | Low    | Medium | - Express CORS 미들웨어 설정<br>- Vercel 환경 변수 확인                            |
-| **성능 최적화**             | Medium | Low    | - 인덱싱 적용<br>- Lazy Loading<br>- 번들 크기 최소화                              |
+| **JWT 토큰 관리**           | Medium | Medium | - 토큰 갱신 로직 명확화<br>- Refresh Token 저장 방식 결정 (Cookie vs LocalStorage)    |
+| **CORS 이슈**               | Low    | Medium | - Express CORS 미들웨어 설정<br>- Vercel 환경 변수 확인                               |
+| **성능 최적화**             | Medium | Low    | - 인덱싱 적용<br>- Lazy Loading<br>- 번들 크기 최소화                                 |
 
 ### 12.2 일정 리스크
 

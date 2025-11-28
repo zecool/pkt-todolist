@@ -1,12 +1,12 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "WHS-TodoList API",
+    "title": "pkt-TodoList API",
     "description": "사용자 인증 기반의 개인 할일 관리 애플리케이션 API입니다. JWT 인증을 통해 할일 생성, 조회, 수정, 삭제 및 국경일 관리 기능을 제공합니다.",
     "version": "1.0.0",
     "contact": {
-      "name": "WHS-TodoList Team",
-      "email": "admin@whs-todolist.com"
+      "name": "pkt-TodoList Team",
+      "email": "admin@pkt-todolist.com"
     },
     "license": {
       "name": "MIT",
@@ -19,7 +19,7 @@
       "description": "로컬 개발 서버"
     },
     {
-      "url": "https://whs-todolist.vercel.app/api",
+      "url": "https://pkt-todolist.vercel.app/api",
       "description": "프로덕션 서버"
     }
   ],

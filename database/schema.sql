@@ -1,4 +1,4 @@
--- WHS-TodoList Database Schema
+-- pkt-TodoList Database Schema
 -- 버전: 2.0
 -- 최종 수정: 2025-11-28
 -- 실제 DB 스키마 반영

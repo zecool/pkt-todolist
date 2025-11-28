@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Settings, Sun, Moon } from 'lucide-react';
-import { useAuthStore } from '../../stores/authStore';
-import { useUIStore } from '../../stores/uiStore';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User, LogOut, Settings, Sun, Moon } from "lucide-react";
+import { useAuthStore } from "../../stores/authStore";
+import { useUIStore } from "../../stores/uiStore";
 
 /**
  * 헤더 컴포넌트
@@ -17,7 +17,7 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const toggleProfileDropdown = () => {
@@ -39,8 +39,8 @@ const Header = () => {
               className="flex items-center gap-2 text-xl font-semibold text-[#24292F] dark:text-dark-fg-default hover:text-[#2DA44E] dark:hover:text-[#2DA44E] transition-colors"
             >
               <span className="text-2xl">📋</span>
-              <span className="hidden sm:inline">WHS-TodoList</span>
-              <span className="sm:hidden">WHS</span>
+              <span className="hidden sm:inline">pkt-TodoList</span>
+              <span className="sm:hidden">pkt</span>
             </Link>
 
             {/* 데스크톱 네비게이션 */}
@@ -72,7 +72,9 @@ const Header = () => {
             <button
               onClick={toggleDarkMode}
               className="p-2 text-[#57606A] dark:text-dark-fg-muted hover:text-[#24292F] dark:hover:text-dark-fg-default hover:bg-[#F6F8FA] dark:hover:bg-dark-canvas-default rounded-md transition-colors"
-              aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+              aria-label={
+                isDarkMode ? "라이트 모드로 전환" : "다크 모드로 전환"
+              }
             >
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -85,9 +87,13 @@ const Header = () => {
                 aria-label="프로필 메뉴"
               >
                 <User size={18} />
-                <span className="hidden sm:inline">{user?.username || '사용자'}</span>
+                <span className="hidden sm:inline">
+                  {user?.username || "사용자"}
+                </span>
                 <svg
-                  className={`w-4 h-4 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 transition-transform ${
+                    isProfileDropdownOpen ? "rotate-180" : ""
+                  }`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >

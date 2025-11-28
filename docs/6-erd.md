@@ -1,10 +1,11 @@
-# WHS-TodoList 데이터베이스 ERD
+# pkt-TodoList 데이터베이스 ERD
 
 **버전**: 2.0
 **작성일**: 2025-11-28
 **상태**: 최종 (실제 DB 반영)
 **작성자**: Claude
 **참조 문서**:
+
 - [도메인 정의서](./1-domain-definition.md)
 - [PRD](./3-prd.md)
 
@@ -31,7 +32,7 @@
 
 ### 1.1 데이터베이스 설계 목적
 
-WHS-TodoList 애플리케이션의 데이터 저장 및 관리를 위한 PostgreSQL 15+ 기반 데이터베이스 스키마입니다.
+pkt-TodoList 애플리케이션의 데이터 저장 및 관리를 위한 PostgreSQL 15+ 기반 데이터베이스 스키마입니다.
 
 ### 1.2 설계 원칙
 
@@ -48,14 +49,14 @@ WHS-TodoList 애플리케이션의 데이터 저장 및 관리를 위한 Postgre
 
 ### 1.4 데이터베이스 메타 정보
 
-| 항목              | 내용                   |
-| ----------------- | ---------------------- |
-| DBMS              | PostgreSQL 15+         |
-| 문자 인코딩       | UTF-8                  |
-| 타임존            | UTC (WITH TIME ZONE)   |
-| 기본 ID 타입      | UUID (uuid_generate_v4) |
+| 항목              | 내용                     |
+| ----------------- | ------------------------ |
+| DBMS              | PostgreSQL 15+           |
+| 문자 인코딩       | UTF-8                    |
+| 타임존            | UTC (WITH TIME ZONE)     |
+| 기본 ID 타입      | UUID (uuid_generate_v4)  |
 | 타임스탬프 정밀도 | TIMESTAMP WITH TIME ZONE |
-| 명명 규칙         | snake_case             |
+| 명명 규칙         | snake_case               |
 
 ---
 
@@ -110,15 +111,15 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명    | 데이터 타입           | NULL | 기본값  | 제약 조건             | 설명                             |
-| --------- | --------------------- | ---- | ------- | --------------------- | -------------------------------- |
-| user_id    | UUID                  | NO   | uuid_generate_v4() | PRIMARY KEY           | 사용자 고유 식별자               |
-| email     | VARCHAR(255)          | NO   | -       | UNIQUE, NOT NULL      | 로그인용 이메일 주소             |
-| password  | VARCHAR(255)          | NO   | -       | NOT NULL              | bcrypt 해시된 비밀번호 (salt rounds: 10) |
-| username  | VARCHAR(100)          | NO   | -       | NOT NULL              | 사용자 표시 이름                 |
-| role      | VARCHAR(20) | NO   | 'user'  | NOT NULL, DEFAULT 'user', CHECK (role IN ('user', 'admin')) | 사용자 권한 역할                 |
-| created_at | TIMESTAMP WITH TIME ZONE             | NO   | CURRENT_TIMESTAMP   | NOT NULL              | 계정 생성 일시 (UTC)             |
-| updated_at | TIMESTAMP WITH TIME ZONE             | NO   | CURRENT_TIMESTAMP   | NOT NULL              | 최종 정보 수정 일시 (UTC)        |
+| 필드명     | 데이터 타입              | NULL | 기본값             | 제약 조건                                                   | 설명                                     |
+| ---------- | ------------------------ | ---- | ------------------ | ----------------------------------------------------------- | ---------------------------------------- |
+| user_id    | UUID                     | NO   | uuid_generate_v4() | PRIMARY KEY                                                 | 사용자 고유 식별자                       |
+| email      | VARCHAR(255)             | NO   | -                  | UNIQUE, NOT NULL                                            | 로그인용 이메일 주소                     |
+| password   | VARCHAR(255)             | NO   | -                  | NOT NULL                                                    | bcrypt 해시된 비밀번호 (salt rounds: 10) |
+| username   | VARCHAR(100)             | NO   | -                  | NOT NULL                                                    | 사용자 표시 이름                         |
+| role       | VARCHAR(20)              | NO   | 'user'             | NOT NULL, DEFAULT 'user', CHECK (role IN ('user', 'admin')) | 사용자 권한 역할                         |
+| created_at | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                                                    | 계정 생성 일시 (UTC)                     |
+| updated_at | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                                                    | 최종 정보 수정 일시 (UTC)                |
 
 #### 비즈니스 규칙
 
@@ -142,19 +143,19 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명      | 데이터 타입                            | NULL | 기본값   | 제약 조건                             | 설명                                   |
-| ----------- | -------------------------------------- | ---- | -------- | ------------------------------------- | -------------------------------------- |
-| todo_id      | UUID                                   | NO   | uuid_generate_v4() | PRIMARY KEY                           | 할일 고유 식별자                       |
-| user_id      | UUID                                   | NO   | -        | FOREIGN KEY REFERENCES users(user_id) ON DELETE CASCADE | 할일 소유자 ID                         |
-| title       | VARCHAR(255)                           | NO   | -        | NOT NULL                              | 할일 제목 (최대 255자)                 |
-| content     | TEXT                                   | YES  | NULL     | -                                     | 할일 상세 내용 (선택사항)              |
-| start_date   | DATE                                   | YES  | NULL     | -                                     | 할일 시작일                            |
-| due_date     | DATE                                   | YES  | NULL     | CHECK (due_date IS NULL OR start_date IS NULL OR due_date >= start_date) | 할일 만료일 (시작일 이후여야 함)       |
-| status      | VARCHAR(20) | NO   | 'active' | NOT NULL, DEFAULT 'active', CHECK (status IN ('active', 'completed', 'deleted'))            | 할일 상태 (활성/완료/삭제)             |
-| is_completed | BOOLEAN                                | NO   | false    | NOT NULL, DEFAULT false               | 완료 여부 플래그                       |
-| created_at   | TIMESTAMP WITH TIME ZONE                              | NO   | CURRENT_TIMESTAMP    | NOT NULL                              | 할일 생성 일시 (UTC)                   |
-| updated_at   | TIMESTAMP WITH TIME ZONE                              | NO   | CURRENT_TIMESTAMP    | NOT NULL                              | 할일 최종 수정 일시 (UTC)              |
-| deleted_at   | TIMESTAMP WITH TIME ZONE                              | YES  | NULL     | -                                     | 할일 삭제 일시 (소프트 삭제용)         |
+| 필드명       | 데이터 타입              | NULL | 기본값             | 제약 조건                                                                        | 설명                             |
+| ------------ | ------------------------ | ---- | ------------------ | -------------------------------------------------------------------------------- | -------------------------------- |
+| todo_id      | UUID                     | NO   | uuid_generate_v4() | PRIMARY KEY                                                                      | 할일 고유 식별자                 |
+| user_id      | UUID                     | NO   | -                  | FOREIGN KEY REFERENCES users(user_id) ON DELETE CASCADE                          | 할일 소유자 ID                   |
+| title        | VARCHAR(255)             | NO   | -                  | NOT NULL                                                                         | 할일 제목 (최대 255자)           |
+| content      | TEXT                     | YES  | NULL               | -                                                                                | 할일 상세 내용 (선택사항)        |
+| start_date   | DATE                     | YES  | NULL               | -                                                                                | 할일 시작일                      |
+| due_date     | DATE                     | YES  | NULL               | CHECK (due_date IS NULL OR start_date IS NULL OR due_date >= start_date)         | 할일 만료일 (시작일 이후여야 함) |
+| status       | VARCHAR(20)              | NO   | 'active'           | NOT NULL, DEFAULT 'active', CHECK (status IN ('active', 'completed', 'deleted')) | 할일 상태 (활성/완료/삭제)       |
+| is_completed | BOOLEAN                  | NO   | false              | NOT NULL, DEFAULT false                                                          | 완료 여부 플래그                 |
+| created_at   | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                                                                         | 할일 생성 일시 (UTC)             |
+| updated_at   | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                                                                         | 할일 최종 수정 일시 (UTC)        |
+| deleted_at   | TIMESTAMP WITH TIME ZONE | YES  | NULL               | -                                                                                | 할일 삭제 일시 (소프트 삭제용)   |
 
 #### 비즈니스 규칙
 
@@ -195,15 +196,15 @@ erDiagram
 
 #### 필드 정의
 
-| 필드명      | 데이터 타입  | NULL | 기본값 | 제약 조건    | 설명                             |
-| ----------- | ------------ | ---- | ------ | ------------ | -------------------------------- |
-| holiday_id   | UUID         | NO   | uuid_generate_v4() | PRIMARY KEY  | 국경일 고유 식별자               |
-| title       | VARCHAR(255) | NO   | -      | NOT NULL     | 국경일 이름 (예: 신정, 설날)     |
-| date        | DATE         | NO   | -      | NOT NULL     | 국경일 날짜                      |
-| description | TEXT         | YES  | NULL   | -            | 국경일 설명                      |
-| is_recurring | BOOLEAN      | NO   | false   | NOT NULL, DEFAULT false | 매년 반복 여부                   |
-| created_at   | TIMESTAMP WITH TIME ZONE    | NO   | CURRENT_TIMESTAMP  | NOT NULL     | 국경일 데이터 생성 일시 (UTC)    |
-| updated_at   | TIMESTAMP WITH TIME ZONE    | NO   | CURRENT_TIMESTAMP  | NOT NULL     | 국경일 데이터 최종 수정 일시 (UTC) |
+| 필드명       | 데이터 타입              | NULL | 기본값             | 제약 조건               | 설명                               |
+| ------------ | ------------------------ | ---- | ------------------ | ----------------------- | ---------------------------------- |
+| holiday_id   | UUID                     | NO   | uuid_generate_v4() | PRIMARY KEY             | 국경일 고유 식별자                 |
+| title        | VARCHAR(255)             | NO   | -                  | NOT NULL                | 국경일 이름 (예: 신정, 설날)       |
+| date         | DATE                     | NO   | -                  | NOT NULL                | 국경일 날짜                        |
+| description  | TEXT                     | YES  | NULL               | -                       | 국경일 설명                        |
+| is_recurring | BOOLEAN                  | NO   | false              | NOT NULL, DEFAULT false | 매년 반복 여부                     |
+| created_at   | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                | 국경일 데이터 생성 일시 (UTC)      |
+| updated_at   | TIMESTAMP WITH TIME ZONE | NO   | CURRENT_TIMESTAMP  | NOT NULL                | 국경일 데이터 최종 수정 일시 (UTC) |
 
 #### 비즈니스 규칙
 
@@ -216,11 +217,11 @@ erDiagram
 #### 데이터 예시
 
 | holiday_id | title      | date       | description          | is_recurring |
-| --------- | ---------- | ---------- | -------------------- | ----------- |
-| uuid-1    | 신정       | 2025-01-01 | 새해 첫날            | false        |
-| uuid-2    | 설날       | 2025-01-29 | 음력 1월 1일         | false        |
-| uuid-3    | 광복절     | 2025-08-15 | 대한민국 독립 기념일 | false        |
-| uuid-4    | 크리스마스 | 2025-12-25 | 성탄절               | false        |
+| ---------- | ---------- | ---------- | -------------------- | ------------ |
+| uuid-1     | 신정       | 2025-01-01 | 새해 첫날            | false        |
+| uuid-2     | 설날       | 2025-01-29 | 음력 1월 1일         | false        |
+| uuid-3     | 광복절     | 2025-08-15 | 대한민국 독립 기념일 | false        |
+| uuid-4     | 크리스마스 | 2025-12-25 | 성탄절               | false        |
 
 #### 참고 사항
 
@@ -238,20 +239,24 @@ erDiagram
 **관계 유형**: One-to-Many (일대다)
 
 **관계 설명**:
+
 - 한 명의 사용자(users)는 여러 개의 할일(todos)을 소유할 수 있습니다.
 - 각 할일(todos)은 반드시 한 명의 사용자에게 속합니다.
 
 **외래키**: `todos.user_id` → `users.user_id`
 
 **CASCADE 규칙**:
+
 ```sql
 ON DELETE CASCADE
 ON UPDATE CASCADE
 ```
+
 - 사용자 삭제 시 해당 사용자의 모든 할일도 함께 삭제됩니다.
 - 데이터 정합성을 보장합니다.
 
 **참조 무결성**:
+
 - todos 생성 시 반드시 유효한 user_id가 필요합니다.
 - 존재하지 않는 user_id로는 할일을 생성할 수 없습니다.
 
@@ -262,10 +267,12 @@ ON UPDATE CASCADE
 **관계 유형**: Independent (독립)
 
 **관계 설명**:
+
 - Holiday는 User 및 Todo와 직접적인 외래키 관계가 없습니다.
 - 모든 사용자가 공통으로 조회하는 읽기 전용 데이터입니다.
 
 **활용 방식**:
+
 - 애플리케이션 레이어에서 할일 목록과 국경일을 함께 표시합니다.
 - 날짜(date) 필드를 기준으로 조인하여 UI에서 병합합니다.
 
@@ -275,14 +282,15 @@ ON UPDATE CASCADE
 
 ### 5.1 users 테이블 인덱스
 
-| 인덱스 이름        | 타입         | 컬럼   | 목적                     |
-| ------------------ | ------------ | ------ | ------------------------ |
-| users_pkey          | PRIMARY KEY  | user_id | 기본키 인덱스 (자동 생성) |
-| users_email_key     | UNIQUE INDEX | email  | 이메일 고유성 보장 (자동 생성)      |
-| idx_users_email     | UNIQUE INDEX | email  | 로그인 시 빠른 조회      |
-| idx_users_role      | INDEX        | role   | 관리자 조회 최적화       |
+| 인덱스 이름     | 타입         | 컬럼    | 목적                           |
+| --------------- | ------------ | ------- | ------------------------------ |
+| users_pkey      | PRIMARY KEY  | user_id | 기본키 인덱스 (자동 생성)      |
+| users_email_key | UNIQUE INDEX | email   | 이메일 고유성 보장 (자동 생성) |
+| idx_users_email | UNIQUE INDEX | email   | 로그인 시 빠른 조회            |
+| idx_users_role  | INDEX        | role    | 관리자 조회 최적화             |
 
 **쿼리 최적화 예시**:
+
 ```sql
 -- 로그인 시 이메일 조회 (UNIQUE INDEX 활용)
 SELECT * FROM users WHERE email = 'user@example.com';
@@ -295,21 +303,23 @@ SELECT * FROM users WHERE role = 'admin';
 
 ### 5.2 todos 테이블 인덱스
 
-| 인덱스 이름           | 타입  | 컬럼             | 목적                            |
-| --------------------- | ----- | ---------------- | ------------------------------- |
-| todos_pkey             | PRIMARY KEY | todo_id           | 기본키 인덱스 (자동 생성)       |
-| idx_todos_user_id_status  | INDEX | user_id, status   | 사용자별 상태 조회 최적화       |
-| idx_todos_due_date      | INDEX | due_date          | 만료일 기준 정렬 최적화         |
-| idx_todos_deleted_at    | INDEX | deleted_at        | 휴지통 조회 최적화              |
-| idx_todos_created_at    | INDEX | created_at        | 생성일 기준 정렬 최적화         |
+| 인덱스 이름              | 타입        | 컬럼            | 목적                      |
+| ------------------------ | ----------- | --------------- | ------------------------- |
+| todos_pkey               | PRIMARY KEY | todo_id         | 기본키 인덱스 (자동 생성) |
+| idx_todos_user_id_status | INDEX       | user_id, status | 사용자별 상태 조회 최적화 |
+| idx_todos_due_date       | INDEX       | due_date        | 만료일 기준 정렬 최적화   |
+| idx_todos_deleted_at     | INDEX       | deleted_at      | 휴지통 조회 최적화        |
+| idx_todos_created_at     | INDEX       | created_at      | 생성일 기준 정렬 최적화   |
 
 **복합 인덱스 설명**:
+
 - `idx_todos_user_id_status`: user_id와 status를 함께 조회하는 쿼리 최적화
   ```sql
   SELECT * FROM todos WHERE user_id = ? AND status = 'active';
   ```
 
 **쿼리 최적화 예시**:
+
 ```sql
 -- 활성 할일 조회 (복합 인덱스 활용)
 SELECT * FROM todos
@@ -331,12 +341,13 @@ ORDER BY due_date ASC;
 
 ### 5.3 holidays 테이블 인덱스
 
-| 인덱스 이름      | 타입        | 컬럼 | 목적                      |
-| ---------------- | ----------- | ---- | ------------------------- |
+| 인덱스 이름       | 타입        | 컬럼       | 목적                      |
+| ----------------- | ----------- | ---------- | ------------------------- |
 | holidays_pkey     | PRIMARY KEY | holiday_id | 기본키 인덱스 (자동 생성) |
-| idx_holidays_date | INDEX       | date | 날짜 기준 조회 최적화     |
+| idx_holidays_date | INDEX       | date       | 날짜 기준 조회 최적화     |
 
 **쿼리 최적화 예시**:
+
 ```sql
 -- 특정 연도 국경일 조회 (date 인덱스 활용)
 SELECT * FROM holidays
@@ -354,10 +365,12 @@ ORDER BY date ASC;
 ### 5.4 인덱스 관리 전략
 
 **인덱스 생성 시점**:
+
 - PRIMARY KEY, UNIQUE 제약은 테이블 생성 시 자동으로 인덱스 생성
 - 일반 인덱스는 데이터 삽입 후 생성 (대량 데이터 INSERT 성능 향상)
 
 **인덱스 모니터링**:
+
 ```sql
 -- 인덱스 사용률 확인 (PostgreSQL)
 SELECT
@@ -368,6 +381,7 @@ ORDER BY idx_scan ASC;
 ```
 
 **인덱스 재구성**:
+
 ```sql
 -- 인덱스 재생성 (단편화 해소)
 REINDEX TABLE "Todo";
@@ -388,6 +402,7 @@ ALTER TABLE "Holiday" ADD CONSTRAINT holiday_pkey PRIMARY KEY (holidayId);
 ```
 
 **특징**:
+
 - UUID v4 사용으로 전역적 고유성 보장
 - 자동 증가(AUTO_INCREMENT) 대비 보안성 향상
 - 분산 시스템 환경에서 ID 충돌 방지
@@ -406,6 +421,7 @@ ON UPDATE CASCADE;
 ```
 
 **CASCADE 동작**:
+
 - `ON DELETE CASCADE`: 사용자 삭제 시 해당 사용자의 모든 할일도 삭제
 - `ON UPDATE CASCADE`: userId 변경 시 Todo의 userId도 자동 갱신 (UUID 사용으로 거의 발생 안 함)
 
@@ -419,6 +435,7 @@ ALTER TABLE "User" ADD CONSTRAINT unique_user_email UNIQUE (email);
 ```
 
 **목적**:
+
 - 이메일 중복 가입 방지
 - 로그인 시 고유성 보장
 
@@ -426,11 +443,11 @@ ALTER TABLE "User" ADD CONSTRAINT unique_user_email UNIQUE (email);
 
 ### 6.4 NOT NULL 제약
 
-| 테이블  | 필수 필드                                                |
-| ------- | -------------------------------------------------------- |
-| User    | userId, email, password, username, role, createdAt, updatedAt |
+| 테이블  | 필수 필드                                                        |
+| ------- | ---------------------------------------------------------------- |
+| User    | userId, email, password, username, role, createdAt, updatedAt    |
 | Todo    | todoId, userId, title, status, isCompleted, createdAt, updatedAt |
-| Holiday | holidayId, title, date, isRecurring, createdAt, updatedAt |
+| Holiday | holidayId, title, date, isRecurring, createdAt, updatedAt        |
 
 ---
 
@@ -447,12 +464,14 @@ CHECK (dueDate IS NULL OR startDate IS NULL OR dueDate >= startDate);
 **규칙**: 만료일은 시작일과 같거나 이후여야 함 (BR-12)
 
 **허용 사례**:
+
 - startDate='2025-11-25', dueDate='2025-11-28' ✅
 - startDate='2025-11-25', dueDate='2025-11-25' ✅ (같은 날 허용)
 - startDate=NULL, dueDate='2025-11-28' ✅ (시작일 없음)
 - startDate='2025-11-25', dueDate=NULL ✅ (만료일 없음)
 
 **거부 사례**:
+
 - startDate='2025-11-25', dueDate='2025-11-24' ❌ (만료일이 시작일 이전)
 
 #### 6.5.2 User.role 제약
@@ -479,21 +498,21 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 
 ### 6.6 기본값 제약 (Default)
 
-| 테이블  | 필드        | 기본값      | 설명                |
-| ------- | ----------- | ----------- | ------------------- |
-| User    | userId      | gen_random_uuid() | UUID 자동 생성      |
-| User    | role        | 'user'      | 일반 사용자 역할    |
-| User    | createdAt   | NOW()       | 현재 시각           |
-| User    | updatedAt   | NOW()       | 현재 시각           |
-| Todo    | todoId      | gen_random_uuid() | UUID 자동 생성      |
-| Todo    | status      | 'active'    | 활성 상태           |
-| Todo    | isCompleted | false       | 미완료 상태         |
-| Todo    | createdAt   | NOW()       | 현재 시각           |
-| Todo    | updatedAt   | NOW()       | 현재 시각           |
-| Holiday | holidayId   | gen_random_uuid() | UUID 자동 생성      |
-| Holiday | isRecurring | true        | 매년 반복           |
-| Holiday | createdAt   | NOW()       | 현재 시각           |
-| Holiday | updatedAt   | NOW()       | 현재 시각           |
+| 테이블  | 필드        | 기본값            | 설명             |
+| ------- | ----------- | ----------------- | ---------------- |
+| User    | userId      | gen_random_uuid() | UUID 자동 생성   |
+| User    | role        | 'user'            | 일반 사용자 역할 |
+| User    | createdAt   | NOW()             | 현재 시각        |
+| User    | updatedAt   | NOW()             | 현재 시각        |
+| Todo    | todoId      | gen_random_uuid() | UUID 자동 생성   |
+| Todo    | status      | 'active'          | 활성 상태        |
+| Todo    | isCompleted | false             | 미완료 상태      |
+| Todo    | createdAt   | NOW()             | 현재 시각        |
+| Todo    | updatedAt   | NOW()             | 현재 시각        |
+| Holiday | holidayId   | gen_random_uuid() | UUID 자동 생성   |
+| Holiday | isRecurring | true              | 매년 반복        |
+| Holiday | createdAt   | NOW()             | 현재 시각        |
+| Holiday | updatedAt   | NOW()             | 현재 시각        |
 
 ---
 
@@ -501,35 +520,35 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 
 ### 7.1 인증 및 권한 (Authentication & Authorization)
 
-| 규칙 ID | 내용                                      | 구현 방법                     |
-| ------- | ----------------------------------------- | ----------------------------- |
-| BR-01   | 인증된 사용자만 접근 가능                 | JWT 토큰 검증 (애플리케이션 레이어) |
-| BR-02   | 사용자는 자신의 할일만 조회/수정/삭제 가능 | WHERE userId = 현재_사용자_ID |
-| BR-04   | 관리자만 국경일 추가/수정 권한            | WHERE role = 'admin'          |
-| BR-09   | 관리자만 국경일 추가/수정 가능            | WHERE role = 'admin'          |
+| 규칙 ID | 내용                                       | 구현 방법                           |
+| ------- | ------------------------------------------ | ----------------------------------- |
+| BR-01   | 인증된 사용자만 접근 가능                  | JWT 토큰 검증 (애플리케이션 레이어) |
+| BR-02   | 사용자는 자신의 할일만 조회/수정/삭제 가능 | WHERE userId = 현재\_사용자\_ID     |
+| BR-04   | 관리자만 국경일 추가/수정 권한             | WHERE role = 'admin'                |
+| BR-09   | 관리자만 국경일 추가/수정 가능             | WHERE role = 'admin'                |
 
 ---
 
 ### 7.2 할일 관리 규칙
 
-| 규칙 ID | 내용                                           | 구현 방법                                           |
-| ------- | ---------------------------------------------- | --------------------------------------------------- |
-| BR-05   | 할일 삭제 시 휴지통으로 이동                   | UPDATE status='deleted', deletedAt=NOW()            |
-| BR-06   | 휴지통의 할일은 복원 가능                      | UPDATE status='active', deletedAt=NULL              |
-| BR-07   | 영구 삭제 시 DB에서 완전히 제거                | DELETE FROM "Todo" WHERE todoId=?                   |
-| BR-08   | 할일 완료 시 isCompleted=true, status='completed' | UPDATE isCompleted=true, status='completed'         |
-| BR-12   | 만료일은 시작일과 같거나 이후여야 함           | CHECK (dueDate >= startDate)                        |
-| BR-13   | 만료일 지난 할일은 UI에서 시각적 구분          | WHERE dueDate < CURRENT_DATE (애플리케이션 레이어) |
+| 규칙 ID | 내용                                              | 구현 방법                                          |
+| ------- | ------------------------------------------------- | -------------------------------------------------- |
+| BR-05   | 할일 삭제 시 휴지통으로 이동                      | UPDATE status='deleted', deletedAt=NOW()           |
+| BR-06   | 휴지통의 할일은 복원 가능                         | UPDATE status='active', deletedAt=NULL             |
+| BR-07   | 영구 삭제 시 DB에서 완전히 제거                   | DELETE FROM "Todo" WHERE todoId=?                  |
+| BR-08   | 할일 완료 시 isCompleted=true, status='completed' | UPDATE isCompleted=true, status='completed'        |
+| BR-12   | 만료일은 시작일과 같거나 이후여야 함              | CHECK (dueDate >= startDate)                       |
+| BR-13   | 만료일 지난 할일은 UI에서 시각적 구분             | WHERE dueDate < CURRENT_DATE (애플리케이션 레이어) |
 
 ---
 
 ### 7.3 국경일 관리 규칙
 
-| 규칙 ID | 내용                     | 구현 방법                        |
-| ------- | ------------------------ | -------------------------------- |
-| BR-03   | 모든 인증된 사용자 조회 가능 | WHERE절 없이 전체 조회 허용      |
-| BR-10   | 국경일은 삭제 불가       | DELETE 기능 미구현 (관리자도 불가) |
-| BR-11   | 매년 반복되는 일정 지원  | isRecurring 필드로 플래그 관리   |
+| 규칙 ID | 내용                         | 구현 방법                          |
+| ------- | ---------------------------- | ---------------------------------- |
+| BR-03   | 모든 인증된 사용자 조회 가능 | WHERE절 없이 전체 조회 허용        |
+| BR-10   | 국경일은 삭제 불가           | DELETE 기능 미구현 (관리자도 불가) |
+| BR-11   | 매년 반복되는 일정 지원      | isRecurring 필드로 플래그 관리     |
 
 ---
 
@@ -540,11 +559,13 @@ CHECK (status IN ('active', 'completed', 'deleted'));
 데이터를 물리적으로 삭제하지 않고 논리적으로만 삭제 상태로 표시하는 방식입니다.
 
 **장점**:
+
 - 실수로 삭제한 데이터 복구 가능
 - 데이터 변경 이력 추적 가능
 - 외래키 참조 무결성 유지
 
 **단점**:
+
 - 스토리지 사용량 증가
 - 쿼리 시 deletedAt 조건 추가 필요
 - 인덱스 효율성 저하 가능성
@@ -564,6 +585,7 @@ deletedAt   TIMESTAMP NULL
 #### 8.2.2 삭제 동작
 
 **일반 삭제 (휴지통 이동)**:
+
 ```sql
 UPDATE "Todo"
 SET
@@ -574,6 +596,7 @@ WHERE todoId = ? AND userId = ?;
 ```
 
 **영구 삭제**:
+
 ```sql
 DELETE FROM "Todo"
 WHERE todoId = ? AND userId = ? AND status = 'deleted';
@@ -593,6 +616,7 @@ WHERE todoId = ? AND userId = ? AND status = 'deleted';
 #### 8.2.4 조회 쿼리 패턴
 
 **활성 할일만 조회**:
+
 ```sql
 SELECT * FROM "Todo"
 WHERE userId = ? AND status IN ('active', 'completed')
@@ -600,6 +624,7 @@ ORDER BY createdAt DESC;
 ```
 
 **휴지통 조회**:
+
 ```sql
 SELECT * FROM "Todo"
 WHERE userId = ? AND status = 'deleted'
@@ -607,6 +632,7 @@ ORDER BY deletedAt DESC;
 ```
 
 **전체 조회 (관리 목적)**:
+
 ```sql
 SELECT * FROM "Todo"
 WHERE userId = ?
@@ -782,7 +808,7 @@ EXECUTE FUNCTION update_updated_at_column();
 -- 관리자 계정 (비밀번호: admin123, bcrypt 해시 예시)
 INSERT INTO "User" (email, password, username, role)
 VALUES (
-    'admin@whs-todolist.com',
+    'admin@pkt-todolist.com',
     '$2b$10$rQ8kHZQJ9X5nXZ8qZqZqZuZqZqZqZqZqZqZqZqZqZqZqZqZqZq', -- 실제 bcrypt 해시 필요
     '관리자',
     'admin'
@@ -912,9 +938,9 @@ DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 
 ### A. ERD 버전 관리
 
-| 버전 | 날짜       | 변경 내용         | 작성자 |
-| ---- | ---------- | ----------------- | ------ |
-| 1.0  | 2025-11-26 | 초안 작성 및 최종 | Claude |
+| 버전 | 날짜       | 변경 내용                                                                     | 작성자 |
+| ---- | ---------- | ----------------------------------------------------------------------------- | ------ |
+| 1.0  | 2025-11-26 | 초안 작성 및 최종                                                             | Claude |
 | 2.0  | 2025-11-28 | 실제 DB 스키마 반영, snake_case 명명 규칙 적용, TIMESTAMP WITH TIME ZONE 적용 | Claude |
 
 ---
@@ -922,6 +948,7 @@ DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 ### B. 데이터베이스 마이그레이션 전략
 
 **초기 구축**:
+
 1. User 테이블 생성
 2. Todo 테이블 생성 (외래키 설정)
 3. Holiday 테이블 생성
@@ -930,6 +957,7 @@ DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 6. 초기 데이터 삽입
 
 **향후 변경 시**:
+
 - 마이그레이션 스크립트 작성 (예: Flyway, Knex.js)
 - 백업 후 변경 적용
 - 롤백 스크립트 준비
@@ -951,37 +979,45 @@ DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
 ### 주요 변경 사항
 
 #### 1. 명명 규칙 변경
+
 - **테이블명**: PascalCase → snake_case (`User` → `users`, `Todo` → `todos`, `Holiday` → `holidays`)
 - **컬럼명**: camelCase → snake_case (`userId` → `user_id`, `createdAt` → `created_at`)
 
 #### 2. 데이터 타입 변경
+
 - **TIMESTAMP**: `TIMESTAMP WITHOUT TIME ZONE` → `TIMESTAMP WITH TIME ZONE`
 - **ENUM 타입**: `ENUM('user', 'admin')` → `VARCHAR(20)` + CHECK 제약
 - **UUID 생성**: `gen_random_uuid()` → `uuid_generate_v4()` (확장 사용)
 
 #### 3. 필드 길이 조정
+
 - **todos.title**: `VARCHAR(200)` → `VARCHAR(255)`
 - **holidays.title**: `VARCHAR(100)` → `VARCHAR(255)`
 
 #### 4. 기본값 변경
+
 - **holidays.is_recurring**: `DEFAULT true` → `DEFAULT false`
 
 #### 5. 인덱스 추가
+
 - `idx_users_role` (users 테이블)
 - `idx_todos_created_at` (todos 테이블)
 - `idx_todos_deleted_at` (todos 테이블)
 
 #### 6. CHECK 제약 조건 추가
+
 - `users.role`: `CHECK (role IN ('user', 'admin'))`
 - `todos.status`: `CHECK (status IN ('active', 'completed', 'deleted'))`
 - `todos.due_date`: `CHECK (due_date IS NULL OR start_date IS NULL OR due_date >= start_date)`
 
 #### 7. 트리거 추가
+
 - `trigger_users_updated_at`: users 테이블의 updated_at 자동 갱신
 - `trigger_todos_updated_at`: todos 테이블의 updated_at 자동 갱신
 - `trigger_holidays_updated_at`: holidays 테이블의 updated_at 자동 갱신
 
 ### 실제 DB와의 일치성
+
 이 문서(v2.0)는 로컬 PostgreSQL 데이터베이스의 실제 스키마를 PostgreSQL MCP를 통해 조회하여 반영한 것으로, 100% 일치합니다.
 
 ---

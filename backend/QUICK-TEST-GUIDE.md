@@ -6,7 +6,7 @@
 
 ```bash
 # 1. 프로젝트 루트로 이동
-cd C:\test\whs-todolist
+cd C:\test\pkt-todolist
 
 # 2. 테스트 실행
 bash backend/test-init.sh
@@ -16,7 +16,7 @@ bash backend/test-init.sh
 
 ```bash
 # 1. 프로젝트 루트로 이동
-cd /path/to/whs-todolist
+cd /path/to/pkt-todolist
 
 # 2. 테스트 실행
 bash backend/test-init.sh
@@ -25,6 +25,7 @@ bash backend/test-init.sh
 ## 예상 결과
 
 ### ✓ 성공 (100% 통과)
+
 ```
 ================================================================
   테스트 결과 요약
@@ -39,6 +40,7 @@ bash backend/test-init.sh
 ```
 
 ### ✗ 실패 (80% 미만)
+
 ```
 통과: 25
 실패: 8
@@ -85,10 +87,12 @@ Issue #6 백엔드 초기화 작업이 모두 완료되었는지 확인합니다
 ### 테스트가 실패하는 경우
 
 1. **실패한 테스트 항목 확인**
+
    - 빨간색으로 표시된 [FAIL] 항목을 확인하세요.
    - 각 실패 항목 아래에 오류 메시지가 표시됩니다.
 
 2. **일반적인 문제**
+
    - **package.json 없음**: `npm init -y` 실행 후 내용 수정
    - **패키지 없음**: `npm install <패키지명>` 실행
    - **.env 없음**: `.env` 파일 생성 후 환경 변수 추가
