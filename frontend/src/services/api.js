@@ -7,6 +7,7 @@ import axios from 'axios';
 
 // 환경 변수에서 API Base URL 가져오기
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+console.log('API_BASE_URL:', API_BASE_URL); // 디버깅을 위한 콘솔 로그
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
