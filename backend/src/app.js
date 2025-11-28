@@ -13,6 +13,15 @@ const { generalRateLimit } = require('./middlewares/rateLimitMiddleware');
 
 const app = express();
 
+// 요청 로깅 미들웨어
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log('Query:', req.query);
+  console.log('Body:', req.body);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // CORS 설정
 const corsOptions = {
   origin: [
@@ -40,6 +49,21 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 // 헬스체크 엔드포인트
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
+});
+
+// API 루트 엔드포인트
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'API Server is running',
+    endpoints: {
+      auth: '/api/auth',
+      todos: '/api/todos',
+      trash: '/api/trash',
+      holidays: '/api/holidays',
+      users: '/api/users'
+    }
+  });
 });
 
 // 라우트 등록

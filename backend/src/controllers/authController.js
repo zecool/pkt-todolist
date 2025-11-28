@@ -171,10 +171,14 @@ const authService = require('../services/authService');
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const register = async (req, res) => {
+  console.log('Register endpoint called');
+  console.log('Request body:', req.body);
+
   try {
     // 유효성 검사
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         error: {
@@ -186,16 +190,20 @@ const register = async (req, res) => {
     }
 
     const { email, password, username } = req.body;
+    console.log(`Register attempt with email: ${email}, username: ${username}`);
 
     // 서비스 호출
     const result = await authService.register(email, password, username);
+    console.log('Registration successful:', result);
 
     res.status(201).json({
       success: true,
       data: result
     });
   } catch (error) {
+    console.error('Registration error:', error);
     if (error.message === '이미 사용 중인 이메일입니다') {
+      console.log('Email already exists:', email);
       return res.status(409).json({
         success: false,
         error: {
@@ -255,10 +263,14 @@ const register = async (req, res) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const login = async (req, res) => {
+  console.log('Login endpoint called');
+  console.log('Request body:', req.body);
+
   try {
     // 유효성 검사
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         error: {
@@ -270,15 +282,18 @@ const login = async (req, res) => {
     }
 
     const { email, password } = req.body;
+    console.log(`Login attempt with email: ${email}`);
 
     // 서비스 호출
     const result = await authService.login(email, password);
+    console.log('Login successful:', result);
 
     res.status(200).json({
       success: true,
       data: result
     });
   } catch (error) {
+    console.error('Login error:', error);
     return res.status(401).json({
       success: false,
       error: {
@@ -331,10 +346,14 @@ const login = async (req, res) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 const refresh = async (req, res) => {
+  console.log('Refresh token endpoint called');
+  console.log('Request body:', req.body);
+
   try {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
+      console.log('No refresh token provided');
       return res.status(401).json({
         success: false,
         error: {
@@ -346,12 +365,14 @@ const refresh = async (req, res) => {
 
     // 서비스 호출
     const result = await authService.refreshAccessToken(refreshToken);
+    console.log('Token refresh successful:', result);
 
     res.status(200).json({
       success: true,
       data: result
     });
   } catch (error) {
+    console.error('Token refresh error:', error);
     return res.status(401).json({
       success: false,
       error: {
@@ -382,6 +403,9 @@ const refresh = async (req, res) => {
  *         $ref: '#/components/responses/Unauthorized'
  */
 const logout = async (req, res) => {
+  console.log('Logout endpoint called');
+  console.log('Request headers:', req.headers);
+
   // 클라이언트에서 토큰을 삭제하도록 안내
   res.status(200).json({
     success: true,
