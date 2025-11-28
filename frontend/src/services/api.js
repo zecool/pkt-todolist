@@ -3,18 +3,18 @@
  * 모든 API 요청에 대한 공통 설정 및 인터셉터 구현
  */
 
-import axios from 'axios';
+import axios from "axios";
 
 // 환경 변수에서 API Base URL 가져오기
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-console.log('API_BASE_URL:', API_BASE_URL); // 디버깅을 위한 콘솔 로그
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000, // 10초
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -22,7 +22,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // LocalStorage에서 Access Token 가져오기
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -50,13 +50,13 @@ apiClient.interceptors.response.use(
 
       try {
         // Refresh Token으로 Access Token 갱신
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
           // Refresh Token이 없으면 로그인 페이지로 이동
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/login";
           return Promise.reject(error);
         }
 
@@ -67,7 +67,7 @@ apiClient.interceptors.response.use(
         const { accessToken: newAccessToken } = response.data.data;
 
         // 새로운 Access Token 저장
-        localStorage.setItem('accessToken', newAccessToken);
+        localStorage.setItem("accessToken", newAccessToken);
 
         // 원래 요청에 새로운 토큰 적용
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -76,9 +76,9 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         // 토큰 갱신 실패 시 로그인 페이지로 이동
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
