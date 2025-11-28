@@ -8,7 +8,7 @@ const { hashPassword } = require('../utils/passwordHelper');
  */
 const getProfile = async (userId) => {
   const result = await pool.query(
-    'SELECT "userId", email, username, role, "createdAt" FROM "users" WHERE "userId" = $1',
+    'SELECT "userId", email, username, role, "createdAt", "updatedAt" FROM "users" WHERE "userId" = $1',
     [userId]
   );
 

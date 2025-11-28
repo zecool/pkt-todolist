@@ -6,6 +6,7 @@ const pool = new Pool({
   max: 10,                    // 최대 연결 수
   idleTimeoutMillis: 30000,   // 유휴 연결 타임아웃 (30초)
   connectionTimeoutMillis: 2000, // 연결 타임아웃 (2초)
+  ssl: false                  // Disable SSL for local development
 });
 
 // Connection Pool 이벤트 핸들러

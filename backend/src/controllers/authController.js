@@ -203,7 +203,6 @@ const register = async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     if (error.message === '이미 사용 중인 이메일입니다') {
-      console.log('Email already exists:', email);
       return res.status(409).json({
         success: false,
         error: {

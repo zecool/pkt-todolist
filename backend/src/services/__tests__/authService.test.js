@@ -25,14 +25,17 @@ describe('authService', () => {
           .mockResolvedValueOnce({ rows: [] }) // 이메일 중복 체크
           .mockResolvedValueOnce({ // 사용자 생성
             rows: [{
-              user_id: 'user-123',
+              userId: 'user-123',
               email: validEmail,
               username: validUsername,
               role: 'user',
-              created_at: '2025-11-26T00:00:00Z'
+              createdAt: '2025-11-26T00:00:00Z',
+              updatedAt: '2025-11-26T00:00:00Z'
             }]
           });
         hashPassword.mockResolvedValue('hashed_password_123');
+        generateAccessToken.mockReturnValue('mock_access_token');
+        generateRefreshToken.mockReturnValue('mock_refresh_token');
 
         const result = await authService.register(validEmail, validPassword, validUsername);
 
@@ -43,14 +46,18 @@ describe('authService', () => {
         );
         expect(hashPassword).toHaveBeenCalledWith(validPassword);
         expect(pool.query).toHaveBeenNthCalledWith(2,
-          expect.stringContaining('INSERT INTO "User"'),
+          expect.stringContaining('INSERT INTO "users"'),
           [validEmail, 'hashed_password_123', validUsername, 'user']
         );
         expect(result).toEqual({
-          userId: 'user-123',
-          email: validEmail,
-          username: validUsername,
-          role: 'user'
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+          user: {
+            userId: 'user-123',
+            email: validEmail,
+            username: validUsername,
+            role: 'user'
+          }
         });
       });
 
@@ -91,7 +98,7 @@ describe('authService', () => {
 
         const result = await authService.register(validEmail, validPassword, validUsername);
 
-        expect(result.role).toBe('user');
+        expect(result.user.role).toBe('user');
       });
     });
 
@@ -174,11 +181,13 @@ describe('authService', () => {
     const validEmail = 'test@example.com';
     const validPassword = 'password123';
     const mockUser = {
-      user_id: 'user-123',
+      userId: 'user-123',
       email: validEmail,
       password: 'hashed_password_123',
       username: 'testuser',
-      role: 'user'
+      role: 'user',
+      createdAt: '2025-11-26T00:00:00Z',
+      updatedAt: '2025-11-26T00:00:00Z'
     };
 
     describe('성공 케이스', () => {
@@ -191,7 +200,7 @@ describe('authService', () => {
         const result = await authService.login(validEmail, validPassword);
 
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, password, username, role FROM "users" WHERE email = $1',
+          'SELECT "userId", email, password, username, role, "createdAt", "updatedAt" FROM "users" WHERE email = $1',
           [validEmail]
         );
         expect(comparePassword).toHaveBeenCalledWith(validPassword, mockUser.password);
@@ -227,7 +236,7 @@ describe('authService', () => {
 
         expect(result.user.role).toBe('admin');
         expect(generateAccessToken).toHaveBeenCalledWith({
-          userId: adminUser.user_id,
+          userId: adminUser.userId,
           email: adminUser.email,
           role: 'admin'
         });
@@ -358,7 +367,7 @@ describe('authService', () => {
 
         expect(verifyRefreshToken).toHaveBeenCalledWith(validRefreshToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT "userId", email, role FROM "users" WHERE "userId" = $1',
+          'SELECT "userId", email, role, "createdAt", "updatedAt" FROM "users" WHERE "userId" = $1',
           [mockDecoded.userId]
         );
         expect(generateAccessToken).toHaveBeenCalledWith({
