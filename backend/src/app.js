@@ -15,7 +15,13 @@ const app = express();
 
 // CORS 설정
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000',
+    'https://pkt-be-todolist.vercel.app',  // Add deployed backend URL
+    'https://pkt-fe-todolist.vercel.app'   // Add if frontend is deployed separately
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
