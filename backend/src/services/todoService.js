@@ -7,18 +7,18 @@ const { pool } = require('../config/database');
  * @returns {Promise<Array>} 할일 목록
  */
 const getTodos = async (userId, filters = {}) => {
-  let query = 'SELECT * FROM todos WHERE "userId" = $1';
+  let query = 'SELECT * FROM todos WHERE user_id = $1';
   const params = [userId];
   let paramIndex = 2;
 
   // status 필터
   if (filters.status) {
     query += ` AND status = $${paramIndex}`;
-    params.push(filters.status.toUpperCase());
+    params.push(filters.status);
     paramIndex++;
   } else {
-    // 기본적으로 deleted 상태 제외
-    query += ` AND status != 'DELETED'`;
+    // 기본적으로 deleted 상태 제외 (deletedAt이 NULL인 것만)
+    query += ` AND deleted_at IS NULL`;
   }
 
   // 검색 필터
@@ -29,15 +29,29 @@ const getTodos = async (userId, filters = {}) => {
   }
 
   // 정렬
-  let sortBy = '"createdAt"';
+  let sortBy = 'created_at';
   if (filters.sortBy === 'dueDate') {
-    sortBy = '"dueDate"';
+    sortBy = 'due_date';
   }
   const order = filters.order === 'asc' ? 'ASC' : 'DESC';
   query += ` ORDER BY ${sortBy} ${order}`;
 
   const result = await pool.query(query, params);
-  return result.rows;
+
+  // snake_case를 camelCase로 변환
+  return result.rows.map(row => ({
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  }));
 };
 
 /**
@@ -48,7 +62,7 @@ const getTodos = async (userId, filters = {}) => {
  */
 const getTodoById = async (todoId, userId) => {
   const result = await pool.query(
-    'SELECT * FROM todos WHERE "todoId" = $1 AND "userId" = $2',
+    'SELECT * FROM todos WHERE todo_id = $1 AND user_id = $2',
     [todoId, userId]
   );
 
@@ -56,7 +70,20 @@ const getTodoById = async (todoId, userId) => {
     throw new Error('할일을 찾을 수 없습니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 /**
@@ -79,13 +106,26 @@ const createTodo = async (userId, todoData) => {
   }
 
   const result = await pool.query(
-    `INSERT INTO todos ("userId", title, content, "startDate", "dueDate")
+    `INSERT INTO todos (user_id, title, content, start_date, due_date)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
     [userId, title, content, startDate, dueDate]
   );
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 /**
@@ -111,7 +151,7 @@ const updateTodo = async (todoId, userId, updateData) => {
   // 쿼리 생성
   const fields = [];
   const values = [];
-  let paramIndex = 3;
+  let paramIndex = 1;
 
   if (title !== undefined) {
     fields.push(`title = $${paramIndex}`);
@@ -124,28 +164,45 @@ const updateTodo = async (todoId, userId, updateData) => {
     paramIndex++;
   }
   if (startDate !== undefined) {
-    fields.push(`"startDate" = $${paramIndex}`);
+    fields.push(`start_date = $${paramIndex}`);
     values.push(startDate);
     paramIndex++;
   }
   if (dueDate !== undefined) {
-    fields.push(`"dueDate" = $${paramIndex}`);
+    fields.push(`due_date = $${paramIndex}`);
     values.push(dueDate);
     paramIndex++;
   }
 
   // 최종 업데이트 시간 업데이트
-  fields.push(`"updatedAt" = CURRENT_TIMESTAMP`);
+  fields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+  // WHERE 절의 파라미터 추가
+  const todoIdParam = paramIndex;
+  const userIdParam = paramIndex + 1;
   values.push(todoId, userId);
 
-  const query = `UPDATE todos SET ${fields.join(', ')} WHERE "todoId" = $${paramIndex - 1} AND "userId" = $${paramIndex} RETURNING *`;
+  const query = `UPDATE todos SET ${fields.join(', ')} WHERE todo_id = $${todoIdParam} AND user_id = $${userIdParam} RETURNING *`;
   const result = await pool.query(query, values);
 
   if (result.rows.length === 0) {
     throw new Error('할일을 찾을 수 없거나 권한이 없습니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 /**
@@ -156,8 +213,8 @@ const updateTodo = async (todoId, userId, updateData) => {
  */
 const completeTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'COMPLETED', "isCompleted" = true, "updatedAt" = CURRENT_TIMESTAMP
-     WHERE "todoId" = $1 AND "userId" = $2 AND status != 'DELETED'
+    `UPDATE todos SET status = 'completed', is_completed = true, updated_at = CURRENT_TIMESTAMP
+     WHERE todo_id = $1 AND user_id = $2 AND deleted_at IS NULL
      RETURNING *`,
     [todoId, userId]
   );
@@ -166,7 +223,20 @@ const completeTodo = async (todoId, userId) => {
     throw new Error('할일을 찾을 수 없거나 이미 삭제된 할일입니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 /**
@@ -177,8 +247,8 @@ const completeTodo = async (todoId, userId) => {
  */
 const deleteTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'DELETED', "deletedAt" = CURRENT_TIMESTAMP, "updatedAt" = CURRENT_TIMESTAMP
-     WHERE "todoId" = $1 AND "userId" = $2 AND status != 'DELETED'
+    `UPDATE todos SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+     WHERE todo_id = $1 AND user_id = $2 AND deleted_at IS NULL
      RETURNING *`,
     [todoId, userId]
   );
@@ -187,7 +257,20 @@ const deleteTodo = async (todoId, userId) => {
     throw new Error('할일을 찾을 수 없거나 이미 삭제된 할일입니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 /**
@@ -198,8 +281,8 @@ const deleteTodo = async (todoId, userId) => {
  */
 const restoreTodo = async (todoId, userId) => {
   const result = await pool.query(
-    `UPDATE todos SET status = 'ACTIVE', "deletedAt" = NULL, "updatedAt" = CURRENT_TIMESTAMP
-     WHERE "todoId" = $1 AND "userId" = $2 AND status = 'DELETED'
+    `UPDATE todos SET status = 'active', deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+     WHERE todo_id = $1 AND user_id = $2 AND deleted_at IS NOT NULL
      RETURNING *`,
     [todoId, userId]
   );
@@ -208,7 +291,20 @@ const restoreTodo = async (todoId, userId) => {
     throw new Error('할일을 찾을 수 없거나 복원할 수 없는 상태입니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    todoId: row.todo_id,
+    userId: row.user_id,
+    title: row.title,
+    content: row.content,
+    startDate: row.start_date,
+    dueDate: row.due_date,
+    status: row.status,
+    isCompleted: row.is_completed,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at
+  };
 };
 
 module.exports = {

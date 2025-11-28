@@ -1,26 +1,41 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Loader2 } from 'lucide-react';
 
-const Loading = ({ size = 'md', message = '로딩 중...', className = '' }) => {
+const Loading = ({ 
+  size = 'md', 
+  text = '로딩 중...', 
+  className = '',
+  showText = true,
+  fullScreen = false 
+}) => {
+  // Size classes for different loading sizes
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
+    sm: 'h-4 w-4',
+    md: 'h-8 w-8',
+    lg: 'h-12 w-12',
+    xl: 'h-16 w-16',
   };
 
-  return (
-    <div className={`flex flex-col items-center justify-center ${className}`}>
-      <Loader2 className={`animate-spin text-[#00C73C] ${sizeClasses[size]}`} />
-      {message && <p className="mt-2 text-sm text-[#757575]">{message}</p>}
+  const spinnerClass = `${sizeClasses[size]} animate-spin text-green-600`;
+
+  const loadingContent = (
+    <div className={`flex flex-col items-center justify-center ${fullScreen ? 'min-h-screen' : ''}`}>
+      <Loader2 className={spinnerClass} />
+      {showText && (
+        <p className="mt-2 text-gray-600 dark:text-gray-400">{text}</p>
+      )}
     </div>
   );
-};
 
-Loading.propTypes = {
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
-  message: PropTypes.string,
-  className: PropTypes.string,
+  return fullScreen ? (
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900 ${className}`}>
+      {loadingContent}
+    </div>
+  ) : (
+    <div className={`inline-flex items-center ${className}`}>
+      {loadingContent}
+    </div>
+  );
 };
 
 export default Loading;

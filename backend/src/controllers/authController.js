@@ -188,11 +188,11 @@ const register = async (req, res) => {
     const { email, password, username } = req.body;
 
     // 서비스 호출
-    const user = await authService.register(email, password, username);
+    const result = await authService.register(email, password, username);
 
     res.status(201).json({
       success: true,
-      data: user
+      data: result
     });
   } catch (error) {
     if (error.message === '이미 사용 중인 이메일입니다') {

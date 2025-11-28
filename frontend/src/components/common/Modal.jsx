@@ -1,78 +1,84 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 
-const Modal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  children, 
-  footer, 
-  size = 'md',
-  closeOnOverlayClick = true,
-  ...props 
-}) => {
+const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
   if (!isOpen) return null;
 
+  // Size classes for different modal sizes
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
-    lg: 'max-w-xl',
-    xl: 'max-w-2xl',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
   };
 
-  const handleOverlayClick = (e) => {
-    if (closeOnOverlayClick && e.target === e.currentTarget) {
+  // Handle Escape key press
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  // Handle outside click
+  const modalRef = React.useRef();
+
+  const handleClickOutside = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
       onClose();
     }
   };
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
-      onClick={handleOverlayClick}
+  return ReactDOM.createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-10"
+      onClick={handleClickOutside}
     >
-      <div 
-        className={`relative bg-white rounded-xl shadow-lg w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden flex flex-col`}
+      <div
+        ref={modalRef}
+        className={`w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col`}
         onClick={(e) => e.stopPropagation()}
-        {...props}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#E0E0E0]">
-          {title && <h3 className="text-lg font-semibold text-[#212121]">{title}</h3>}
-          <button 
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          {title && (
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          )}
+          <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-[#757575]" />
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex justify-end p-6 border-t border-[#E0E0E0] bg-gray-50">
+          <div className="flex items-center justify-end p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
             {footer}
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
-Modal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  children: PropTypes.node,
-  footer: PropTypes.node,
-  size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl']),
-  closeOnOverlayClick: PropTypes.bool,
-};
 
 export default Modal;

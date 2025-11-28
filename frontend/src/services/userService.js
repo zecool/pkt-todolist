@@ -1,14 +1,27 @@
 import api from './api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
+// User service functions
 export const userService = {
+  // Get current user profile
   getProfile: async () => {
-    const response = await api.get(API_ENDPOINTS.USER.PROFILE);
-    return response.data;
+    try {
+      const response = await api.get(API_ENDPOINTS.USERS.PROFILE);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
+  // Update user profile
   updateProfile: async (updateData) => {
-    const response = await api.put(API_ENDPOINTS.USER.PROFILE, updateData);
-    return response.data;
+    try {
+      const response = await api.patch(API_ENDPOINTS.USERS.PROFILE, updateData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
+
+export default userService;

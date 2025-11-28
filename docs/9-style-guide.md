@@ -1,242 +1,101 @@
-# GitHub Interface Style Guide
+# 스타일 가이드
 
-## Introduction
+## 개요
+이 문서는 pkt-todolist 프로젝트의 UI/UX 및 코드 스타일 가이드입니다.
 
-This style guide serves as a comprehensive reference for maintaining consistency and usability across GitHub's interface. It covers design principles, visual elements, interaction patterns, and accessibility guidelines that contribute to the cohesive GitHub experience.
+## 프로젝트 구조
 
-## Design Principles
-
-### 1. Clarity First
-- Prioritize information hierarchy to guide users efficiently
-- Use clear, concise language that developers understand
-- Minimize cognitive load by following familiar patterns
-- Avoid unnecessary decorative elements that don't add functional value
-
-### 2. Developer Focus
-- Optimize for developer workflows and efficiency
-- Support keyboard navigation as primary interaction method
-- Provide powerful shortcuts for experienced users
-- Respect developer preferences for customization
-
-### 3. Consistency
-- Maintain consistent patterns across all GitHub products
-- Follow established component behaviors throughout the platform
-- Use standardized spacing, typography, and color palettes
-- Apply uniform interaction patterns for similar functions
-
-### 4. Accessibility
-- Ensure all interface elements meet WCAG 2.1 AA standards
-- Support screen readers and assistive technologies
-- Provide adequate color contrast ratios (minimum 4.5:1)
-- Include keyboard navigation for all interactive elements
-
-## Color Palette
-
-### Primary Colors
-- **GitHub Purple**: #6e40aa (for primary actions and highlights)
-- **Text Colors**:
-  - Primary: #24292f (dark text on light backgrounds)
-  - Secondary: #57606a (subtle text)
-  - Disabled: #8c959f (inactive elements)
-- **Background Colors**:
-  - Page background: #ffffff
-  - Container background: #f6f8fa
-  - Hover states: #f3f4f6
-
-### Status Colors
-- **Positive**: #2da44e (success, positive actions)
-- **Negative**: #cf222e (errors, destructive actions)
-- **Warning**: #d29922 (warnings, cautionary information)
-- **Informational**: #0969da (info, neutral notifications)
-
-### Syntax Highlighting
-- **Keywords**: #cf222e
-- **Functions**: #8250df
-- **Strings**: #0a3069
-- **Comments**: #6e7781
-- **Variables**: #0550ae
-
-## Typography
-
-### Font Stack
-```css
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+### GitHub 저장소 구조
+```
+pkt-todolist/
+├── .claude/          # Claude AI 설정
+├── .gemini/          # Gemini AI 설정
+├── .github/          # GitHub 설정
+├── .qwen/            # Qwen 설정
+├── backend/          # 백엔드 소스
+├── database/         # 데이터베이스 스크립트
+├── docs/             # 문서
+├── frontend/         # 프론트엔드 소스
+├── mockup/           # 디자인 목업
+└── swagger/          # API 문서
 ```
 
-### Font Sizes
-- **Heading 1**: 32px (2rem), bold
-- **Heading 2**: 24px (1.5rem), bold
-- **Heading 3**: 20px (1.25rem), bold
-- **Heading 4**: 16px (1rem), bold
-- **Body Large**: 16px (1rem), regular
-- **Body**: 14px (0.875rem), regular
-- **Small**: 12px (0.75rem), regular
+### 폴더별 역할
+- **.claude/**: Claude AI 관련 설정 파일 및 명령어
+- **.gemini/**: Gemini AI 관련 설정
+- **.github/**: GitHub Actions, 워크플로우 설정
+- **.qwen/**: Qwen AI 관련 설정
+- **backend/**: 서버 사이드 애플리케이션 코드
+- **database/**: 데이터베이스 마이그레이션, 스키마, 시드 데이터
+- **docs/**: 프로젝트 문서 및 가이드
+- **frontend/**: 클라이언트 사이드 애플리케이션 코드
+- **mockup/**: UI/UX 디자인 목업 파일
+- **swagger/**: API 명세서 및 문서
 
-### Line Height
-- Standard: 1.5
-- Dense: 1.25 for compact interfaces
+## 코딩 컨벤션
 
-## Spacing System
-- Based on 8px grid system
-- **Micro**: 4px (0.25rem)
-- **Small**: 8px (0.5rem)
-- **Regular**: 16px (1rem)
-- **Medium**: 24px (1.5rem)
-- **Large**: 32px (2rem)
-- **X-Large**: 40px (2.5rem)
+### 명명 규칙
+- **변수/함수**: camelCase (예: `getUserData`, `userName`)
+- **클래스/컴포넌트**: PascalCase (예: `UserProfile`, `TodoList`)
+- **상수**: UPPER_SNAKE_CASE (예: `MAX_LENGTH`, `API_URL`)
+- **데이터베이스**: snake_case (예: `user_id`, `created_at`)
+- **파일명**: kebab-case (예: `user-profile.tsx`, `api-client.ts`)
 
-## Components
+### 파일 조직
+- 기능별로 폴더 구분
+- 관심사의 분리 (프론트엔드, 백엔드, 데이터베이스)
+- 문서화를 위한 별도 docs 폴더
+- AI 도구별 설정 파일 분리
 
-### Buttons
+## 버전 관리
 
-#### Primary Button
-- Background: GitHub Purple (#6e40aa)
-- Text: White (#ffffff)
-- Border: None
-- Padding: 5px 16px
-- Border-radius: 6px
-- Font-weight: 500
+### GitHub 사용
+- **저장소**: zecool/pkt-todolist
+- **가시성**: Public 저장소
+- **브랜치**: main 브랜치 기준
 
-#### Secondary Button
-- Background: transparent
-- Text: GitHub Purple (#6e40aa)
-- Border: 1px solid #d0d7de
-- Padding: 4px 15px
-- Border-radius: 6px
+### 커밋 메시지
+- 간결하고 명확한 메시지 작성
+- 영어 또는 한국어 일관성 유지
+- 예: "update", "add feature", "fix bug"
 
-#### Destructive Button
-- Background: #cf222e
-- Text: White (#ffffff)
-- Hover: #a4151e
+## 문서화
 
-#### Button Sizes
-- **Small**: 28px height, 12px horizontal padding
-- **Regular**: 32px height, 16px horizontal padding
-- **Large**: 40px height, 24px horizontal padding
+### 필수 문서 위치
+- **README.md**: 프로젝트 루트
+- **API 문서**: swagger/ 폴더
+- **프로젝트 가이드**: docs/ 폴더
+- **디자인 목업**: mockup/ 폴더
 
-### Forms
+### 문서 작성 원칙
+- 복잡한 내용만 문서화
+- 자명한 내용은 생략 (오버엔지니어링 금지)
+- 모든 문서는 한국어로 작성
 
-#### Text Inputs
-- Height: 32px
-- Border: 1px solid #d0d7de
-- Border-radius: 6px
-- Padding: 5px 12px
-- Focus: 3px solid #a4cbff (outline-offset: -3px)
+## AI 도구 통합
 
-#### Text Area
-- Min-height: 32px
-- Vertical resize only
-- Same border and focus styles as text input
+### 지원 AI 도구
+- **Claude**: .claude/ 폴더에 설정
+- **Gemini**: .gemini/ 폴더에 설정
+- **Qwen**: .qwen/ 폴더에 설정
 
-#### Labels
-- Font-weight: 500
-- Margin-bottom: 4px
-- Use for accessibility
+### AI 설정 관리
+- 각 AI 도구별 별도 폴더 유지
+- 설정 파일과 명령어를 도구별로 격리
+- 일관된 디렉토리 구조 유지
 
-### Navigation
+## API 문서화
 
-#### Top Navigation
-- Height: 60px
-- Background: #ffffff
-- Border-bottom: 1px solid #d0d7de
-- Logo/branding left-aligned
-- User navigation right-aligned
+### Swagger 사용
+- API 명세는 swagger/ 폴더에 관리
+- OpenAPI 표준 준수
+- 엔드포인트, 요청/응답 스키마 명시
 
-#### Side Navigation
-- Width: 256px
-- Background: #f6f8fa
-- Border-right: 1px solid #d0d7de
-- Items: 32px height with 8px left border when active
+## 프로젝트 원칙
 
-### Cards
-- Background: #ffffff
-- Border: 1px solid #d0d7de
-- Border-radius: 12px
-- Box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04)
-- Padding: 16px
-
-## Iconography
-
-### Icon Sizes
-- **16x16px**: Inline with text, small UI elements
-- **24x24px**: Default interface icons
-- **32x32px**: Larger action icons
-
-### Icon Colors
-- Primary content: #24292f
-- Secondary content: #57606a
-- Interactive: GitHub Purple (#6e40aa) on hover/focus
-- Disabled: #8c959f
-
-## Responsive Design
-
-### Breakpoints
-- **Mobile**: 0 - 767px
-- **Tablet**: 768px - 1011px
-- **Desktop**: 1012px+
-
-### Mobile Considerations
-- Minimum touch target size: 44px x 44px
-- Reduce horizontal scrolling where possible
-- Prioritize important actions in mobile view
-
-## Accessibility
-
-### Keyboard Navigation
-- Ensure all interactive elements are focusable via Tab key
-- Provide visible focus indicators (minimum 2px outline)
-- Follow logical tab order (header → navigation → main → footer)
-
-### Screen Reader Support
-- Provide alternative text for all meaningful images
-- Use semantic HTML elements appropriately
-- Ensure ARIA attributes are used properly when needed
-
-### Color Accessibility
-- Don't rely on color alone to convey information
-- Test with colorblindness simulators
-- Maintain 4.5:1 contrast ratio for normal text, 3:1 for large text
-
-## Patterns
-
-### Loading States
-- Use consistent loading indicators throughout the interface
-- Preserve layout space during loading to prevent content shift
-- Provide meaningful loading text when appropriate
-
-### Empty States
-- Use illustrations and encouraging language
-- Include clear call-to-action when relevant
-- Provide helpful instructions or next steps
-
-### Error Handling
-- Use consistent error messaging format
-- Place error messages near the relevant form field
-- Provide specific instructions on how to resolve the error
-
-## Motion and Animation
-
-### Duration
-- Quick actions: 100ms
-- Modals/transitions: 200ms
-- Complex animations: 300ms
-
-### Easing
-- Standard: cubic-bezier(0.25, 0.1, 0.25, 1.0)
-- Acceleration: cubic-bezier(0.42, 0, 1, 1)
-- Deceleration: cubic-bezier(0, 0, 0.58, 1)
-
-## Voice and Tone
-
-### Language Guidelines
-- Use clear, action-oriented language
-- Avoid jargon that might not translate across cultures
-- Be concise while remaining descriptive
-- Use active voice as much as possible
-
-### Common Terminology
-- "Repository" instead of "repo" (in UI text)
-- "Commit" instead of "push" when referring to saving changes
-- "Branch" for code branches (not "fork" - that's for repository copies)
-
-This style guide should be applied consistently across all GitHub interfaces to ensure a seamless and familiar experience for developers. Always consider the context and user goals when implementing these guidelines, making adjustments only when necessary for usability.
+1. **간결성**: 불필요한 복잡성 배제
+2. **일관성**: 명명 규칙 및 구조 일관성 유지
+3. **가독성**: 코드와 문서의 가독성 최우선
+4. **분리**: 관심사의 명확한 분리 (프론트엔드/백엔드/데이터베이스)
+5. **한국어 우선**: 모든 문서 및 커뮤니케이션은 한국어로 작성
+6. **오픈소스**: Public 저장소로 투명하게 관리

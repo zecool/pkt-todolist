@@ -1,105 +1,66 @@
-import { format, isToday, isThisWeek, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale'; // Korean locale
+import { format, parseISO, isToday, isThisWeek, isAfter, isBefore, isEqual } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
-/**
- * Format date to YYYY-MM-DD string
- * @param {Date | string} date 
- * @returns {string}
- */
+// Format date to YYYY-MM-DD
 export const formatDate = (date) => {
   if (!date) return '';
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return format(dateObj, 'yyyy-MM-dd');
+  return format(parseISO(date), 'yyyy-MM-dd');
 };
 
-/**
- * Format date to readable format
- * @param {Date | string} date 
- * @param {string} dateFormat 
- * @returns {string}
- */
-export const formatReadableDate = (date, dateFormat = 'yyyy년 M월 d일') => {
+// Format date to readable format
+export const formatReadableDate = (date) => {
   if (!date) return '';
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return format(dateObj, dateFormat, { locale: ko });
+  return format(parseISO(date), 'yyyy년 MM월 dd일', { locale: ko });
 };
 
-/**
- * Format date range for display
- * @param {string | Date} startDate 
- * @param {string | Date} endDate 
- * @returns {string}
- */
-export const formatDueDateRange = (startDate, endDate) => {
-  if (!startDate && !endDate) return '';
-  
-  let startFormatted = '';
-  let endFormatted = '';
-  
-  if (startDate) {
-    const start = typeof startDate === 'string' ? new Date(startDate) : startDate;
-    startFormatted = format(start, 'MM-dd');
-  }
-  
-  if (endDate) {
-    const end = typeof endDate === 'string' ? new Date(endDate) : endDate;
-    endFormatted = format(end, 'MM-dd');
-  }
-  
-  if (startDate && endDate) {
-    return `${startFormatted} ~ ${endFormatted}`;
-  } else if (startDate) {
-    return `시작: ${startFormatted}`;
-  } else if (endDate) {
-    return `~ ${endFormatted}`;
-  }
-  
-  return '';
+// Format date to weekday format
+export const formatWeekdayDate = (date) => {
+  if (!date) return '';
+  return format(parseISO(date), 'MM/dd (eee)', { locale: ko });
 };
 
-/**
- * Check if a date is today
- * @param {Date | string} date 
- * @returns {boolean}
- */
+// Check if date is today
 export const isDateToday = (date) => {
   if (!date) return false;
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return isToday(dateObj);
+  return isToday(parseISO(date));
 };
 
-/**
- * Check if a date is this week
- * @param {Date | string} date 
- * @returns {boolean}
- */
+// Check if date is this week
 export const isDateThisWeek = (date) => {
   if (!date) return false;
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return isThisWeek(dateObj);
+  return isThisWeek(parseISO(date));
 };
 
-/**
- * Get relative time from now
- * @param {Date | string} date 
- * @returns {string}
- */
-export const getRelativeTime = (date) => {
-  if (!date) return '';
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
+// Compare dates (date1 < date2)
+export const isDateBefore = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  return isBefore(parseISO(date1), parseISO(date2));
+};
+
+// Compare dates (date1 > date2)
+export const isDateAfter = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  return isAfter(parseISO(date1), parseISO(date2));
+};
+
+// Compare dates (date1 === date2)
+export const isDateEqual = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  return isEqual(parseISO(date1), parseISO(date2));
+};
+
+// Format date range (start to end date)
+export const formatDateRange = (startDate, endDate) => {
+  if (!startDate && !endDate) return '';
+  if (!startDate) return `~ ${formatWeekdayDate(endDate)}`;
+  if (!endDate) return `${formatWeekdayDate(startDate)} ~`;
+  return `${formatWeekdayDate(startDate)} ~ ${formatWeekdayDate(endDate)}`;
+};
+
+// Check if date is overdue (past due and not completed)
+export const isDateOverdue = (dueDate, isCompleted) => {
+  if (!dueDate || isCompleted) return false;
+  const due = parseISO(dueDate);
   const now = new Date();
-  const diffMs = dateObj - now;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) {
-    return '오늘';
-  } else if (diffDays === 1) {
-    return '내일';
-  } else if (diffDays === -1) {
-    return '어제';
-  } else if (diffDays > 0) {
-    return `${diffDays}일 후`;
-  } else {
-    return `${Math.abs(diffDays)}일 전`;
-  }
+  return isBefore(due, now);
 };

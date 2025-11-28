@@ -1,40 +1,38 @@
 import { create } from 'zustand';
 import { todoService } from '../services/todoService';
+import { TODO_STATUS } from '../constants/todoStatus';
 
-export const useTodoStore = create((set, get) => ({
+// Todo store using Zustand
+const useTodoStore = create((set, get) => ({
   // State
   todos: [],
   isLoading: false,
   error: null,
   filters: {
-    status: 'active', // Default to active todos
+    status: null, // 'active', 'completed', 'deleted', or null for all
     search: '',
-    sortBy: 'createdAt', // Default sort by creation date
-    order: 'desc', // Default descending order
+    sortBy: 'createdAt', // 'dueDate', 'createdAt'
+    order: 'desc', // 'asc', 'desc'
   },
 
   // Actions
-  fetchTodos: async () => {
+  fetchTodos: async (additionalFilters = {}) => {
     set({ isLoading: true, error: null });
-
+    
     try {
-      // Only send status filter to the API if it's not null
-      const { status, ...otherFilters } = get().filters;
-      const apiFilters = status ? { status, ...otherFilters } : { ...otherFilters };
-
-      const response = await todoService.getTodos(apiFilters);
+      // Combine current filters with additional filters
+      const filters = { ...get().filters, ...additionalFilters };
+      const response = await todoService.getTodos(filters);
+      
       set({
-        todos: response.data,
+        todos: response.data || [],
         isLoading: false,
-        error: null,
       });
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일 목록을 불러오는데 실패했습니다';
       set({
         isLoading: false,
-        error: errorMessage,
+        error: error.response?.data?.error?.message || error.message || 'Failed to fetch todos',
       });
-      throw error;
     }
   },
 
@@ -45,21 +43,22 @@ export const useTodoStore = create((set, get) => ({
       const response = await todoService.createTodo(todoData);
       const newTodo = response.data;
       
-      // Add the new todo to the list
-      set((state) => ({
+      // Add new todo to the list
+      set(state => ({
         todos: [newTodo, ...state.todos],
         isLoading: false,
-        error: null,
       }));
       
       return { success: true, data: newTodo };
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일을 생성하는데 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to create todo';
+      
       set({
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -71,22 +70,51 @@ export const useTodoStore = create((set, get) => ({
       const updatedTodo = response.data;
       
       // Update the todo in the list
-      set((state) => ({
+      set(state => ({
         todos: state.todos.map(todo => 
           todo.todoId === id ? updatedTodo : todo
         ),
         isLoading: false,
-        error: null,
       }));
       
       return { success: true, data: updatedTodo };
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일을 수정하는데 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to update todo';
+      
       set({
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  completeTodo: async (id) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const response = await todoService.completeTodo(id);
+      const updatedTodo = response.data;
+      
+      // Update the todo in the list
+      set(state => ({
+        todos: state.todos.map(todo => 
+          todo.todoId === id ? updatedTodo : todo
+        ),
+        isLoading: false,
+      }));
+      
+      return { success: true, data: updatedTodo };
+    } catch (error) {
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to complete todo';
+      
+      set({
+        isLoading: false,
+        error: errorMessage,
+      });
+      
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -97,25 +125,24 @@ export const useTodoStore = create((set, get) => ({
       const response = await todoService.deleteTodo(id);
       const deletedTodo = response.data;
       
-      // Update the todo status in the list (soft delete)
-      set((state) => ({
+      // Update the todo in the list
+      set(state => ({
         todos: state.todos.map(todo => 
-          todo.todoId === id 
-            ? { ...todo, status: 'deleted', deletedAt: deletedTodo.deletedAt } 
-            : todo
+          todo.todoId === id ? deletedTodo : todo
         ),
         isLoading: false,
-        error: null,
       }));
       
       return { success: true, data: deletedTodo };
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일을 삭제하는데 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to delete todo';
+      
       set({
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -126,78 +153,90 @@ export const useTodoStore = create((set, get) => ({
       const response = await todoService.restoreTodo(id);
       const restoredTodo = response.data;
       
-      // Update the todo status in the list (restore)
-      set((state) => ({
+      // Update the todo in the list
+      set(state => ({
         todos: state.todos.map(todo => 
-          todo.todoId === id 
-            ? { ...todo, status: 'active', deletedAt: null } 
-            : todo
+          todo.todoId === id ? restoredTodo : todo
         ),
         isLoading: false,
-        error: null,
       }));
       
       return { success: true, data: restoredTodo };
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일을 복원하는데 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to restore todo';
+      
       set({
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
     }
   },
 
-  setFilters: (filters) => {
-    set((state) => ({
-      filters: { ...state.filters, ...filters },
+  setFilters: (newFilters) => {
+    set(state => ({
+      filters: { ...state.filters, ...newFilters },
     }));
-
-    // Fetch todos with new filters
-    get().fetchTodos();
   },
 
-  resetFilters: () => {
-    set({
-      filters: {
-        status: 'active',
-        search: '',
-        sortBy: 'createdAt',
-        order: 'desc',
+  // Filter todos based on current filters
+  getFilteredTodos: () => {
+    const { todos, filters } = get();
+    let filteredTodos = [...todos];
+
+    // Apply status filter
+    if (filters.status) {
+      filteredTodos = filteredTodos.filter(todo => 
+        todo.status === filters.status
+      );
+    }
+
+    // Apply search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filteredTodos = filteredTodos.filter(todo =>
+        todo.title.toLowerCase().includes(searchTerm) ||
+        (todo.content && todo.content.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Apply sorting
+    filteredTodos.sort((a, b) => {
+      let aValue, bValue;
+      
+      if (filters.sortBy === 'dueDate') {
+        aValue = a.dueDate ? new Date(a.dueDate) : new Date(8640000000000000); // Max date if no due date
+        bValue = b.dueDate ? new Date(b.dueDate) : new Date(8640000000000000);
+      } else { // createdAt
+        aValue = new Date(a.createdAt);
+        bValue = new Date(b.createdAt);
+      }
+      
+      if (filters.order === 'asc') {
+        return aValue - bValue;
+      } else {
+        return bValue - aValue;
       }
     });
 
-    // Fetch todos with default filters
-    get().fetchTodos();
+    return filteredTodos;
   },
 
-  // Set todo as complete
-  completeTodo: async (id) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const response = await todoService.completeTodo(id);
-      const completedTodo = response.data;
-      
-      // Update the todo status in the list
-      set((state) => ({
-        todos: state.todos.map(todo => 
-          todo.todoId === id 
-            ? { ...todo, isCompleted: true, status: completedTodo.status } 
-            : todo
-        ),
-        isLoading: false,
-        error: null,
-      }));
-      
-      return { success: true, data: completedTodo };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '할일 완료 처리에 실패했습니다';
-      set({
-        isLoading: false,
-        error: errorMessage,
-      });
-      throw error;
-    }
+  // Get todo by ID
+  getTodoById: (id) => {
+    return get().todos.find(todo => todo.todoId === id);
+  },
+
+  // Get count of active todos
+  getActiveCount: () => {
+    return get().todos.filter(todo => todo.status === TODO_STATUS.ACTIVE && !todo.isCompleted).length;
+  },
+
+  // Get count of completed todos
+  getCompletedCount: () => {
+    return get().todos.filter(todo => todo.status === TODO_STATUS.ACTIVE && todo.isCompleted).length;
   },
 }));
+
+export default useTodoStore;

@@ -21,9 +21,17 @@ const getHolidays = async (year, month) => {
   }
   
   query += ' ORDER BY date';
-  
+
   const result = await pool.query(query, params);
-  return result.rows;
+  return result.rows.map(row => ({
+    holidayId: row.holiday_id,
+    title: row.title,
+    date: row.date,
+    description: row.description,
+    isRecurring: row.is_recurring,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  }));
 };
 
 /**
@@ -35,13 +43,22 @@ const createHoliday = async (holidayData) => {
   const { title, date, description = null, isRecurring = true } = holidayData;
 
   const result = await pool.query(
-    `INSERT INTO holidays (title, date, description, is_recurring) 
-     VALUES ($1, $2, $3, $4) 
+    `INSERT INTO holidays (title, date, description, is_recurring)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
     [title, date, description, isRecurring]
   );
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    holidayId: row.holiday_id,
+    title: row.title,
+    date: row.date,
+    description: row.description,
+    isRecurring: row.is_recurring,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
 };
 
 /**
@@ -99,7 +116,16 @@ const updateHoliday = async (holidayId, updateData) => {
     throw new Error('국경일을 찾을 수 없습니다');
   }
 
-  return result.rows[0];
+  const row = result.rows[0];
+  return {
+    holidayId: row.holiday_id,
+    title: row.title,
+    date: row.date,
+    description: row.description,
+    isRecurring: row.is_recurring,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
 };
 
 module.exports = {

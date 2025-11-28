@@ -1,55 +1,52 @@
-const ACCESS_TOKEN_KEY = 'pkt_todolist_access_token';
-const REFRESH_TOKEN_KEY = 'pkt_todolist_refresh_token';
-
+// Token management utility functions
 export const tokenManager = {
-  /**
-   * Set access token
-   * @param {string} token 
-   */
-  setAccessToken: (token) => {
-    if (!token) return;
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  // Store tokens in localStorage
+  setTokens: (accessToken, refreshToken) => {
+    if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
   },
 
-  /**
-   * Get access token
-   * @returns {string | null}
-   */
+  // Get access token
   getAccessToken: () => {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return localStorage.getItem('accessToken');
   },
 
-  /**
-   * Set refresh token
-   * @param {string} token 
-   */
-  setRefreshToken: (token) => {
-    if (!token) return;
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  },
-
-  /**
-   * Get refresh token
-   * @returns {string | null}
-   */
+  // Get refresh token
   getRefreshToken: () => {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return localStorage.getItem('refreshToken');
   },
 
-  /**
-   * Clear all tokens
-   */
-  clearTokens: () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  // Remove tokens
+  removeTokens: () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
   },
 
-  /**
-   * Check if user is authenticated
-   * @returns {boolean}
-   */
+  // Check if user is authenticated
   isAuthenticated: () => {
-    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    const token = tokenManager.getAccessToken();
     return !!token;
+  },
+
+  // Decode JWT token to get user info
+  decodeToken: (token) => {
+    if (!token) return null;
+    
+    try {
+      // Remove 'Bearer ' prefix if present
+      const tokenString = token.startsWith('Bearer ') ? token.slice(7) : token;
+      
+      // Decode the token (without verification, just for user info)
+      const payload = tokenString.split('.')[1];
+      const decodedPayload = atob(payload);
+      return JSON.parse(decodedPayload);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
   },
 };

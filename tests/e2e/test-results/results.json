@@ -1,0 +1,1232 @@
+{
+  "config": {
+    "configFile": "C:\\pkt-todolist-main\\tests\\e2e\\playwright.config.js",
+    "rootDir": "C:/pkt-todolist-main/tests/e2e/specs",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/pkt-todolist-main/tests/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/pkt-todolist-main/tests/e2e/specs",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.spec.js",
+      "file": "auth.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "회원가입 및 로그인",
+          "file": "auth.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "시나리오 3.1.1: 신규 사용자 회원가입 성공",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1470,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:51.760Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-9a1fb252484976b995ff",
+              "file": "auth.spec.js",
+              "line": 14,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.1.1: 회원가입 - 이메일 중복 오류",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1711,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:51.751Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-88047c2ce56064f028ee",
+              "file": "auth.spec.js",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.1.1: 회원가입 - 비밀번호 불일치",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1263,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:51.778Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-4de77d30978e3199831e",
+              "file": "auth.spec.js",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.1.2: 기존 사용자 로그인 성공",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2063,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:51.765Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-d7a6b3bc98a791848a63",
+              "file": "auth.spec.js",
+              "line": 75,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.1.2: 로그인 - 잘못된 비밀번호",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 1386,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:53.274Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-1c544765ec9eb04ea0d9",
+              "file": "auth.spec.js",
+              "line": 95,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.1.2: 로그인 - 등록되지 않은 이메일",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1022,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:53.447Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-8ed2d753413d7859d54e",
+              "file": "auth.spec.js",
+              "line": 111,
+              "column": 3
+            },
+            {
+              "title": "로그아웃 기능",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1353,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:53.621Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-f32a5161fc5bf8608c92",
+              "file": "auth.spec.js",
+              "line": 122,
+              "column": 3
+            },
+            {
+              "title": "시나리오 4.1.1: 토큰 자동 갱신 (로그인 상태 유지)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 4729,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\auth.spec.js:148:22",
+                        "location": {
+                          "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\auth.spec.js",
+                          "column": 22,
+                          "line": 148
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 146 |\u001b[39m     \u001b[90m// Then: 로그인 상태 유지\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mconst\u001b[39m loggedIn \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m isLoggedIn(page)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 148 |\u001b[39m     expect(loggedIn)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 149 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 150 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 151 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\auth.spec.js",
+                            "column": 22,
+                            "line": 148
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  146 |     // Then: 로그인 상태 유지\n  147 |     const loggedIn = await isLoggedIn(page);\n> 148 |     expect(loggedIn).toBe(true);\n      |                      ^\n  149 |   });\n  150 | });\n  151 |\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\auth.spec.js:148:22"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:54.030Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\auth-회원가입-및-로그인-시나리오-4-1-1-토큰-자동-갱신-로그인-상태-유지--chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\auth-회원가입-및-로그인-시나리오-4-1-1-토큰-자동-갱신-로그인-상태-유지--chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\auth-회원가입-및-로그인-시나리오-4-1-1-토큰-자동-갱신-로그인-상태-유지--chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\auth.spec.js",
+                        "column": 22,
+                        "line": 148
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d5ed79a6b333c2ba7209-248ef3f41be9c70fa71a",
+              "file": "auth.spec.js",
+              "line": 134,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "todo-crud.spec.js",
+      "file": "todo-crud.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "할일 생성 및 관리",
+          "file": "todo-crud.spec.js",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "시나리오 2.1.1: 할일 추가 - 간단한 할일",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 31546,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 28
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed !bg-green-600 hover:!bg-green-700 active:!bg-green-800 !text-white !border-2 !border-green-600 shadow-lg text-base px-4 py-2 hidden sm:flex items-center \">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  26 |     // + 버튼 또는 \"새 할일 추가\" 버튼 클릭\n  27 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 28 |     await addButton.click();\n     |                     ^\n  29 |\n  30 |     // 모달이나 폼이 표시될 때까지 대기\n  31 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:28:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:54.493Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-추가---간단한-할일-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-추가---간단한-할일-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-추가---간단한-할일-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-6f66ff02d510d6f8b1ff",
+              "file": "todo-crud.spec.js",
+              "line": 17,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.2.1: 상세 정보 포함 할일 추가",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 31608,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 55
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  53 |\n  54 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 55 |     await addButton.click();\n     |                     ^\n  56 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  57 |\n  58 |     await page.fill('input[name=\"title\"]', 'Q4 프로젝트 최종 보고서 제출');\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:55:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:54.681Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-1-상세-정보-포함-할일-추가-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-1-상세-정보-포함-할일-추가-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-1-상세-정보-포함-할일-추가-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-45c57db158e42ac6469f",
+              "file": "todo-crud.spec.js",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "시나리오 2.1.2: 할일 완료 처리",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 31610,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 79
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  77 |\n  78 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 79 |     await addButton.click();\n     |                     ^\n  80 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  81 |     await page.fill('input[name=\"title\"]', '보고서 제출 완료');\n  82 |     await page.fill('input[name=\"startDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:79:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:54.999Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-2-할일-완료-처리-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-2-할일-완료-처리-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-2-할일-완료-처리-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-6dec239d67e96b54fc95",
+              "file": "todo-crud.spec.js",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.2.2: 할일 수정 - 일정 변경",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 31258,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 113
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  111 |     // 할일 생성\n  112 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 113 |     await addButton.click();\n      |                     ^\n  114 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  115 |     await page.fill('input[name=\"title\"]', '알고리즘 중간고사 준비');\n  116 |     await page.fill('input[name=\"startDate\"]', today.toISOString().split('T')[0]);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:113:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:56:59.656Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-2-할일-수정---일정-변경-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-2-할일-수정---일정-변경-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-3-2-2-할일-수정---일정-변경-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-52f8af6acd9394832213",
+              "file": "todo-crud.spec.js",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "시나리오 2.1.1: 할일 조회 - 오늘 할일 확인",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 31521,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 150
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  148 |     // 오늘 할일 추가\n  149 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 150 |     await addButton.click();\n      |                     ^\n  151 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  152 |     await page.fill('input[name=\"title\"]', '오늘 할 일');\n  153 |     await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:150:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:57:27.059Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-조회---오늘-할일-확인-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-조회---오늘-할일-확인-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-1-1-할일-조회---오늘-할일-확인-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-c39871c92afc58dd362b",
+              "file": "todo-crud.spec.js",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "시나리오 4.2.1: 데이터 검증 - 만료일이 시작일보다 이전",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 31555,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 177
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  175 |\n  176 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 177 |     await addButton.click();\n      |                     ^\n  178 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  179 |\n  180 |     // When: 만료일을 시작일보다 이전으로 설정\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:177:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:57:27.268Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-1-데이터-검증---만료일이-시작일보다-이전-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-1-데이터-검증---만료일이-시작일보다-이전-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-1-데이터-검증---만료일이-시작일보다-이전-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-66dc372ad23e8881d1b1",
+              "file": "todo-crud.spec.js",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "시나리오 4.2.2: 데이터 검증 - 제목 누락",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 31593,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 21,
+                            "line": 204
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  202 |\n  203 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 204 |     await addButton.click();\n      |                     ^\n  205 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  206 |\n  207 |     // When: 제목 없이 저장 시도\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:204:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:57:27.816Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-2-데이터-검증---제목-누락-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-2-데이터-검증---제목-누락-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-4-2-2-데이터-검증---제목-누락-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-3465d06db1820c084e4b",
+              "file": "todo-crud.spec.js",
+              "line": 197,
+              "column": 3
+            },
+            {
+              "title": "시나리오 2.2.4: 할일 검색 기능",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 31354,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js",
+                            "column": 18,
+                            "line": 235
+                          },
+                          "message": "Error: page.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"+\")')\u001b[22m\n\n\n  233 |\n  234 |     for (const todo of todos) {\n> 235 |       await page.click('button:has-text(\"+\")');\n      |                  ^\n  236 |       await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  237 |       await page.fill('input[name=\"title\"]', todo);\n  238 |       await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\todo-crud.spec.js:235:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:57:31.895Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-2-4-할일-검색-기능-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-2-4-할일-검색-기능-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\todo-crud-할일-생성-및-관리-시나리오-2-2-4-할일-검색-기능-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1426c747b0f8d249d71b-2a941f4c2cd8cb0f96bf",
+              "file": "todo-crud.spec.js",
+              "line": 219,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "trash.spec.js",
+      "file": "trash.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "휴지통 기능",
+          "file": "trash.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "시나리오 2.1.3: 실수로 삭제한 할일 복원",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 31421,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js",
+                            "column": 21,
+                            "line": 24
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  22 |     // 할일 추가\n  23 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 24 |     await addButton.click();\n     |                     ^\n  25 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  26 |     await page.fill('input[name=\"title\"]', '주간 보고서 작성');\n  27 |     await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js:24:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:57:59.772Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-2-1-3-실수로-삭제한-할일-복원-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-2-1-3-실수로-삭제한-할일-복원-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-2-1-3-실수로-삭제한-할일-복원-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2e2349c1e1e2b7b6b5b-e89f737e3ce24bf323cf",
+              "file": "trash.spec.js",
+              "line": 14,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.3.1: 할일 삭제 및 휴지통 확인",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 31507,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js",
+                            "column": 21,
+                            "line": 73
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed !bg-green-600 hover:!bg-green-700 active:!bg-green-800 !text-white !border-2 !border-green-600 shadow-lg text-base px-4 py-2 hidden sm:flex items-center \">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  71 |\n  72 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 73 |     await addButton.click();\n     |                     ^\n  74 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  75 |     await page.fill('input[name=\"title\"]', 'Q2 보고서 작성');\n  76 |     await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js:73:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:58:00.114Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-할일-삭제-및-휴지통-확인-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-할일-삭제-및-휴지통-확인-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-할일-삭제-및-휴지통-확인-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2e2349c1e1e2b7b6b5b-a01041c47d319a6279ac",
+              "file": "trash.spec.js",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "시나리오 3.3.1: 영구 삭제",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 1,
+                      "status": "timedOut",
+                      "duration": 31449,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js",
+                            "column": 21,
+                            "line": 112
+                          },
+                          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first()\u001b[22m\n\n\n  110 |     // 할일 추가\n  111 |     const addButton = page.locator('button:has-text(\"새 할일 추가\"), button[aria-label=\"새 할일 추가\"]').first();\n> 112 |     await addButton.click();\n      |                     ^\n  113 |     await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  114 |     await page.fill('input[name=\"title\"]', '오래된 할일');\n  115 |     await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js:112:21"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:58:00.949Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-영구-삭제-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-영구-삭제-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-시나리오-3-3-1-영구-삭제-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2e2349c1e1e2b7b6b5b-ea08df1d2704c926ba05",
+              "file": "trash.spec.js",
+              "line": 102,
+              "column": 3
+            },
+            {
+              "title": "휴지통 비우기 기능",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 31275,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js",
+                            "column": 18,
+                            "line": 161
+                          },
+                          "message": "Error: page.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"+\")')\u001b[22m\n\n\n  159 |\n  160 |     for (const todoTitle of todosToDelete) {\n> 161 |       await page.click('button:has-text(\"+\")');\n      |                  ^\n  162 |       await page.waitForSelector('input[name=\"title\"]', { timeout: 5000 });\n  163 |       await page.fill('input[name=\"title\"]', todoTitle);\n  164 |       await page.fill('input[name=\"dueDate\"]', today);\n    at C:\\pkt-todolist-main\\tests\\e2e\\specs\\trash.spec.js:161:18"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-27T22:58:04.229Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-휴지통-비우기-기능-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-휴지통-비우기-기능-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\pkt-todolist-main\\tests\\e2e\\test-results\\trash-휴지통-기능-휴지통-비우기-기능-chromium\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f2e2349c1e1e2b7b6b5b-470ce4491a1fcb5d80e5",
+              "file": "trash.spec.js",
+              "line": 150,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-11-27T22:56:50.686Z",
+    "duration": 105019.46800000001,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 13,
+    "flaky": 0
+  }
+}

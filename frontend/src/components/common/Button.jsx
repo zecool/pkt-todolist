@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Loader2 } from 'lucide-react';
 
 const Button = ({ 
@@ -8,43 +7,39 @@ const Button = ({
   size = 'md', 
   loading = false, 
   disabled = false, 
-  onClick, 
   className = '', 
-  type = 'button', 
+  type = 'button',
+  onClick,
   ...props 
 }) => {
   // Define variant classes
   const variantClasses = {
-    primary: 'bg-[#00C73C] text-white hover:bg-[#00A832] active:bg-[#008A28] border-transparent',
-    secondary: 'bg-white text-[#00C73C] border-[#00C73C] hover:bg-[#00C73C] hover:text-white',
-    danger: 'bg-[#F44336] text-white hover:bg-[#D32F2F] active:bg-[#B71C1C] border-transparent',
-    outline: 'bg-white text-[#424242] border-[#E0E0E0] hover:bg-gray-50',
-    ghost: 'bg-transparent text-[#424242] hover:bg-gray-100 border-transparent',
+    primary: '!bg-green-600 hover:!bg-green-700 active:!bg-green-800 !text-white !border-2 !border-green-600 shadow-lg',
+    secondary: 'bg-white hover:bg-gray-50 text-green-600 border-2 border-green-600',
+    danger: 'bg-red-500 hover:bg-red-600 text-white border-2 border-red-500',
+    outline: 'bg-transparent hover:bg-gray-50 text-gray-700 border-2 border-gray-300',
+    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 border border-transparent',
   };
 
   // Define size classes
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: 'text-sm px-3 py-1.5',
+    md: 'text-base px-4 py-2',
+    lg: 'text-lg px-6 py-3',
   };
 
-  // Combine classes
-  const classes = `
-    inline-flex items-center justify-center font-medium rounded-lg border
-    transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#00C73C] focus:ring-offset-2
-    disabled:opacity-50 disabled:cursor-not-allowed
-    ${variantClasses[variant]}
-    ${sizeClasses[size]}
-    ${className}
-  `;
+  // Construct class names
+  const baseClasses = 'inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed';
+  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className} ${
+    loading ? 'cursor-not-allowed' : ''
+  }`;
 
   return (
     <button
       type={type}
-      className={classes}
-      onClick={onClick}
+      className={buttonClasses}
       disabled={disabled || loading}
+      onClick={onClick}
       {...props}
     >
       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -53,15 +48,5 @@ const Button = ({
   );
 };
 
-Button.propTypes = {
-  children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'outline', 'ghost']),
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
-  loading: PropTypes.bool,
-  disabled: PropTypes.bool,
-  onClick: PropTypes.func,
-  className: PropTypes.string,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-};
 
 export default Button;

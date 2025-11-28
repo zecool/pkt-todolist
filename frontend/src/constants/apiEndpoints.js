@@ -1,6 +1,6 @@
-// API Endpoints
+// API endpoints constants
 export const API_ENDPOINTS = {
-  // Auth
+  // Authentication
   AUTH: {
     REGISTER: '/auth/register',
     LOGIN: '/auth/login',
@@ -8,32 +8,26 @@ export const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
   },
   
-  // Todo
+  // Todos
   TODOS: {
-    GET_ALL: '/todos',
-    GET_BY_ID: (id) => `/todos/${id}`,
-    CREATE: '/todos',
-    UPDATE: (id) => `/todos/${id}`,
+    BASE: '/todos',
     COMPLETE: (id) => `/todos/${id}/complete`,
-    DELETE: (id) => `/todos/${id}`,
     RESTORE: (id) => `/todos/${id}/restore`,
   },
   
   // Trash
   TRASH: {
-    GET: '/trash',
+    BASE: '/trash',
     PERMANENT_DELETE: (id) => `/trash/${id}`,
   },
   
   // Holidays
   HOLIDAYS: {
-    GET: '/holidays',
-    CREATE: '/holidays',
-    UPDATE: (id) => `/holidays/${id}`,
+    BASE: '/holidays',
   },
   
-  // User
-  USER: {
+  // Users
+  USERS: {
     PROFILE: '/users/me',
   },
 };

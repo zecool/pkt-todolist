@@ -1,11 +1,14 @@
 import { create } from 'zustand';
-import { authService } from '../services/authService';
 import { tokenManager } from '../utils/tokenManager';
+import api from '../services/api';
+import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import { userService } from '../services/userService';
 
-export const useAuthStore = create((set) => ({
+// Auth store using Zustand
+const useAuthStore = create((set, get) => ({
   // State
   user: null,
-  isAuthenticated: tokenManager.isAuthenticated(),
+  isAuthenticated: false,
   isLoading: false,
   error: null,
 
@@ -14,31 +17,37 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response = await authService.login(email, password);
-      const { data } = response;
-      
-      // Save tokens
-      tokenManager.setAccessToken(data.accessToken);
-      tokenManager.setRefreshToken(data.refreshToken);
-      
-      // Set user data and authentication state
-      set({
-        user: data.user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
+      const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, {
+        email,
+        password,
       });
-      
-      return { success: true, data };
+
+      if (response.data.success) {
+        const { accessToken, refreshToken, user } = response.data.data;
+        
+        // Store tokens
+        tokenManager.setTokens(accessToken, refreshToken);
+        
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        
+        return { success: true, data: user };
+      } else {
+        throw new Error(response.data.error?.message || 'Login failed');
+      }
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '로그인에 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Login failed';
+      
       set({
-        user: null,
-        isAuthenticated: false,
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -46,39 +55,45 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response = await authService.register(email, password, username);
-      const { data } = response;
-      
-      // Save tokens
-      tokenManager.setAccessToken(data.accessToken);
-      tokenManager.setRefreshToken(data.refreshToken);
-      
-      // Set user data and authentication state
-      set({
-        user: data.user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
+      const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, {
+        email,
+        password,
+        username,
       });
-      
-      return { success: true, data };
+
+      if (response.data.success) {
+        const { accessToken, refreshToken, user } = response.data.data;
+        
+        // Store tokens
+        tokenManager.setTokens(accessToken, refreshToken);
+        
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        
+        return { success: true, data: user };
+      } else {
+        throw new Error(response.data.error?.message || 'Registration failed');
+      }
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '회원가입에 실패했습니다';
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Registration failed';
+      
       set({
-        user: null,
-        isAuthenticated: false,
         isLoading: false,
         error: errorMessage,
       });
-      throw error;
+      
+      return { success: false, error: errorMessage };
     }
   },
 
   logout: () => {
-    // Clear tokens
-    tokenManager.clearTokens();
+    // Remove tokens from storage
+    tokenManager.removeTokens();
     
-    // Reset state
     set({
       user: null,
       isAuthenticated: false,
@@ -88,70 +103,85 @@ export const useAuthStore = create((set) => ({
   },
 
   refreshToken: async () => {
-    set({ isLoading: true });
-    
     try {
       const refreshToken = tokenManager.getRefreshToken();
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
-      
-      const response = await authService.refreshToken(refreshToken);
-      const { data } = response;
-      
-      // Update access token
-      tokenManager.setAccessToken(data.accessToken);
-      
-      // Update loading state
-      set({ isLoading: false });
-      
-      return { success: true, data };
+
+      const response = await api.post(API_ENDPOINTS.AUTH.REFRESH, {
+        refreshToken,
+      });
+
+      if (response.data.success) {
+        const { accessToken } = response.data.data;
+        
+        // Update access token
+        tokenManager.setTokens(accessToken, refreshToken);
+        
+        // Optionally update user state if needed
+        return { success: true, accessToken };
+      } else {
+        throw new Error(response.data.error?.message || 'Token refresh failed');
+      }
     } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message || '토큰 갱신에 실패했습니다';
-      set({
-        isLoading: false,
-        error: errorMessage,
-      });
-      
-      // Clear tokens if refresh fails
-      tokenManager.clearTokens();
-      set({
-        user: null,
-        isAuthenticated: false,
-      });
-      
+      // If refresh fails, log out user
+      get().logout();
       throw error;
     }
   },
 
-  // Initialize auth state from stored tokens
-  initializeAuth: async () => {
-    try {
-      set({isLoading: true}); // Set loading state initially
-
-      if (tokenManager.isAuthenticated()) {
-        // Optionally fetch user info here to set the user state
-        // For now, just set the authentication state
-        set({
-          isAuthenticated: true,
-          isLoading: false
-        });
-      } else {
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false
-        });
+  // Initialize auth state from token
+  initializeAuth: () => {
+    const token = tokenManager.getAccessToken();
+    if (token && tokenManager.isAuthenticated()) {
+      try {
+        const decodedToken = tokenManager.decodeToken(token);
+        if (decodedToken) {
+          set({
+            user: {
+              userId: decodedToken.userId,
+              email: decodedToken.email,
+              username: decodedToken.username,
+              role: decodedToken.role,
+            },
+            isAuthenticated: true,
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
       }
+    }
+  },
+
+  // Update user profile
+  updateProfile: async (updateData) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await userService.updateProfile(updateData);
+
+      // Update the user info in the store
+      set((state) => ({
+        user: {
+          ...state.user,
+          ...updateData,
+        },
+        isLoading: false,
+      }));
+
+      return { success: true, data: response.data };
     } catch (error) {
-      // In case of any error during initialization, reset state safely
-      console.error("Error during auth initialization:", error);
-      tokenManager.clearTokens();
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Profile update failed';
+
       set({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false
+        isLoading: false,
+        error: errorMessage,
       });
+
+      return { success: false, error: errorMessage };
     }
   },
 }));
+
+export default useAuthStore;

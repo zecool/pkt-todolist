@@ -1,82 +1,77 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Input = ({
   label,
-  id,
   type = 'text',
-  as = 'input',
-  placeholder,
-  value,
-  onChange,
+  id,
   error,
-  required = false,
-  disabled = false,
+  helpText,
+  showPasswordToggle = false,
   className = '',
-  rows = 3,
+  inputClassName = '',
+  rows,
   ...props
 }) => {
-  const baseClasses = `
-    w-full px-4 py-3 text-base font-normal text-[#212121]
-    bg-white border rounded-lg appearance-none
-    focus:outline-none focus:ring-2 focus:ring-[#00C73C] focus:ring-offset-2 focus:border-transparent
-    disabled:opacity-50 disabled:cursor-not-allowed
-    ${error ? 'border-[#F44336] focus:ring-[#F44336]' : 'border-[#E0E0E0]'}
-    ${className}
-  `;
+  const [showPassword, setShowPassword] = React.useState(false);
+  const isPasswordWithToggle = type === 'password' && showPasswordToggle;
+  const isTextarea = type === 'textarea';
 
-  const InputComponent = as;
+  const handleTogglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const inputType = isPasswordWithToggle && showPassword ? 'text' : type;
+
+  const baseInputClasses = `w-full px-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:text-gray-500 ${
+    error
+      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+      : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+  } ${inputClassName}`;
 
   return (
-    <div className="w-full">
+    <div className={`mb-4 ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-[#212121] mb-2">
-          {label} {required && <span className="text-[#F44336]">*</span>}
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {label}
         </label>
       )}
-      {as === 'textarea' ? (
-        <textarea
-          id={id}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-          required={required}
-          rows={rows}
-          className={baseClasses}
-          {...props}
-        />
-      ) : (
-        <input
-          id={id}
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-          required={required}
-          className={baseClasses}
-          {...props}
-        />
-      )}
-      {error && <p className="mt-1 text-sm text-[#F44336]">{error}</p>}
+      <div className="relative">
+        {isTextarea ? (
+          <textarea
+            id={id}
+            rows={rows || 4}
+            className={baseInputClasses}
+            {...props}
+          />
+        ) : (
+          <input
+            type={inputType}
+            id={id}
+            className={baseInputClasses}
+            {...props}
+          />
+        )}
+        {isPasswordWithToggle && (
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            onClick={handleTogglePassword}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            ) : (
+              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            )}
+          </button>
+        )}
+      </div>
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {helpText && !error && <p className="mt-1 text-sm text-gray-500">{helpText}</p>}
     </div>
   );
 };
 
-Input.propTypes = {
-  label: PropTypes.string,
-  id: PropTypes.string,
-  type: PropTypes.string,
-  as: PropTypes.oneOf(['input', 'textarea']),
-  placeholder: PropTypes.string,
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  error: PropTypes.string,
-  required: PropTypes.bool,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-  rows: PropTypes.number,
-};
 
 export default Input;

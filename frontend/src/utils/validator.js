@@ -1,60 +1,63 @@
-/**
- * Validate email format
- * @param {string} email 
- * @returns {boolean}
- */
+// Validation utility functions
+
+// Email validation
 export const validateEmail = (email) => {
-  if (!email) return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-/**
- * Validate password strength
- * @param {string} password 
- * @returns {boolean}
- */
+// Password validation
 export const validatePassword = (password) => {
-  if (!password) return false;
-  // At least 8 characters, contain at least one letter and one number
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
   return passwordRegex.test(password);
 };
 
-/**
- * Validate password match
- * @param {string} password 
- * @param {string} confirmPassword 
- * @returns {boolean}
- */
-export const validatePasswordMatch = (password, confirmPassword) => {
+// Confirm password validation
+export const validateConfirmPassword = (password, confirmPassword) => {
   return password === confirmPassword;
 };
 
-/**
- * Validate required field
- * @param {string} value 
- * @returns {boolean}
- */
-export const validateRequired = (value) => {
-  if (!value) return false;
-  if (typeof value === 'string') {
-    return value.trim().length > 0;
-  }
-  return true;
+// Username validation
+export const validateUsername = (username) => {
+  // At least 2 characters, alphanumeric and spaces/dashes/underscores allowed
+  const usernameRegex = /^[a-zA-Z0-9 _-]{2,50}$/;
+  return usernameRegex.test(username);
 };
 
-/**
- * Validate date range (start date should not be after end date)
- * @param {string | Date} startDate 
- * @param {string | Date} endDate 
- * @returns {boolean}
- */
+// Date validation
+export const validateDate = (dateString) => {
+  if (!dateString) return true; // Allow empty dates
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date);
+};
+
+// Date range validation (start date should be before or equal to end date)
 export const validateDateRange = (startDate, endDate) => {
-  if (!startDate || !endDate) return true; // If either is empty, validation passes
+  if (!startDate || !endDate) return true; // Allow if either date is empty
   
-  const start = typeof startDate === 'string' ? new Date(startDate) : startDate;
-  const end = typeof endDate === 'string' ? new Date(endDate) : endDate;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
   
+  // Check if dates are valid
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return false;
+  }
+  
+  // Check if start date is before or equal to end date
   return start <= end;
+};
+
+// Validate todo title (required, max 200 chars)
+export const validateTodoTitle = (title) => {
+  if (!title || title.trim().length === 0) {
+    return false;
+  }
+  return title.length <= 200;
+};
+
+// Validate todo content (max 1000 chars)
+export const validateTodoContent = (content) => {
+  if (!content) return true; // Content is optional
+  return content.length <= 1000;
 };
