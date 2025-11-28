@@ -12,8 +12,8 @@ describe('todoService', () => {
   describe('getTodos', () => {
     const userId = 'user-123';
     const mockTodos = [
-      { todo_id: 'todo-1', title: 'Test Todo 1', user_id: userId },
-      { todo_id: 'todo-2', title: 'Test Todo 2', user_id: userId }
+      { todoId: 'todo-1', title: 'Test Todo 1', userId: userId },
+      { todoId: 'todo-2', title: 'Test Todo 2', userId: userId }
     ];
 
     test('사용자의 모든 할일 목록을 조회해야 함', async () => {
@@ -22,7 +22,7 @@ describe('todoService', () => {
       const result = await todoService.getTodos(userId);
 
       expect(pool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM todos WHERE user_id = $1'),
+        expect.stringContaining('SELECT * FROM "Todo" WHERE "userId" = $1'),
         expect.arrayContaining([userId])
       );
       expect(result).toEqual(mockTodos);
@@ -65,7 +65,7 @@ describe('todoService', () => {
   describe('getTodoById', () => {
     const userId = 'user-123';
     const todoId = 'todo-1';
-    const mockTodo = { todo_id: todoId, title: 'Test Todo', user_id: userId };
+    const mockTodo = { todoId: todoId, title: 'Test Todo', userId: userId };
 
     test('특정 할일을 조회해야 함', async () => {
       pool.query.mockResolvedValue({ rows: [mockTodo] });
@@ -73,7 +73,7 @@ describe('todoService', () => {
       const result = await todoService.getTodoById(todoId, userId);
 
       expect(pool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE todo_id = $1 AND user_id = $2'),
+        expect.stringContaining('WHERE "todoId" = $1 AND "userId" = $2'),
         [todoId, userId]
       );
       expect(result).toEqual(mockTodo);
@@ -97,7 +97,7 @@ describe('todoService', () => {
     };
 
     test('새로운 할일을 생성해야 함', async () => {
-      const createdTodo = { ...todoData, todo_id: 'new-id', user_id: userId };
+      const createdTodo = { ...todoData, todoId: 'new-id', userId: userId };
       pool.query.mockResolvedValue({ rows: [createdTodo] });
 
       const result = await todoService.createTodo(userId, todoData);
@@ -130,7 +130,7 @@ describe('todoService', () => {
     const userId = 'user-123';
     const todoId = 'todo-1';
     const updateData = { title: 'Updated Title' };
-    const mockTodo = { todo_id: todoId, user_id: userId, title: 'Old Title' };
+    const mockTodo = { todoId: todoId, userId: userId, title: 'Old Title' };
 
     test('할일을 수정해야 함', async () => {
       // getTodoById mock

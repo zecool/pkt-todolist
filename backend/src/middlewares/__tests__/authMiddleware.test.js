@@ -57,7 +57,7 @@ describe('authMiddleware', () => {
 
         expect(verifyAccessToken).toHaveBeenCalledWith(validToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT user_id, email, username, role, created_at FROM users WHERE user_id = $1',
+          'SELECT "userId", email, username, role, "createdAt" FROM "User" WHERE "userId" = $1',
           [decodedToken.userId]
         );
         expect(next).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('authMiddleware', () => {
         await authenticate(req, res, next);
 
         expect(req.user).toEqual({
-          userId: validUser.user_id,
+          userId: validUser.userId,
           email: validUser.email,
           username: validUser.username,
           role: validUser.role

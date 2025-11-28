@@ -38,12 +38,12 @@ describe('authService', () => {
 
         expect(pool.query).toHaveBeenCalledTimes(2);
         expect(pool.query).toHaveBeenNthCalledWith(1,
-          'SELECT email FROM users WHERE email = $1',
+          'SELECT email FROM "User" WHERE email = $1',
           [validEmail]
         );
         expect(hashPassword).toHaveBeenCalledWith(validPassword);
         expect(pool.query).toHaveBeenNthCalledWith(2,
-          expect.stringContaining('INSERT INTO users'),
+          expect.stringContaining('INSERT INTO "User"'),
           [validEmail, 'hashed_password_123', validUsername, 'user']
         );
         expect(result).toEqual({
@@ -191,24 +191,24 @@ describe('authService', () => {
         const result = await authService.login(validEmail, validPassword);
 
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT user_id, email, password, username, role FROM users WHERE email = $1',
+          'SELECT "userId", email, password, username, role FROM "User" WHERE email = $1',
           [validEmail]
         );
         expect(comparePassword).toHaveBeenCalledWith(validPassword, mockUser.password);
         expect(generateAccessToken).toHaveBeenCalledWith({
-          userId: mockUser.user_id,
+          userId: mockUser.userId,
           email: mockUser.email,
           role: mockUser.role
         });
         expect(generateRefreshToken).toHaveBeenCalledWith({
-          userId: mockUser.user_id,
+          userId: mockUser.userId,
           email: mockUser.email
         });
         expect(result).toEqual({
           accessToken: 'access_token_123',
           refreshToken: 'refresh_token_123',
           user: {
-            userId: mockUser.user_id,
+            userId: mockUser.userId,
             email: mockUser.email,
             username: mockUser.username,
             role: mockUser.role
@@ -358,11 +358,11 @@ describe('authService', () => {
 
         expect(verifyRefreshToken).toHaveBeenCalledWith(validRefreshToken);
         expect(pool.query).toHaveBeenCalledWith(
-          'SELECT user_id, email, role FROM users WHERE user_id = $1',
+          'SELECT "userId", email, role FROM "User" WHERE "userId" = $1',
           [mockDecoded.userId]
         );
         expect(generateAccessToken).toHaveBeenCalledWith({
-          userId: mockUser.user_id,
+          userId: mockUser.userId,
           email: mockUser.email,
           role: mockUser.role
         });
@@ -380,7 +380,7 @@ describe('authService', () => {
         const result = await authService.refreshAccessToken(validRefreshToken);
 
         expect(generateAccessToken).toHaveBeenCalledWith({
-          userId: adminUser.user_id,
+          userId: adminUser.userId,
           email: adminUser.email,
           role: 'admin'
         });
@@ -395,7 +395,7 @@ describe('authService', () => {
         await authService.refreshAccessToken(validRefreshToken);
 
         expect(generateAccessToken).toHaveBeenCalledWith({
-          userId: mockUser.user_id,
+          userId: mockUser.userId,
           email: mockUser.email,
           role: mockUser.role
         });

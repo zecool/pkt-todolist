@@ -20,7 +20,7 @@ async function testHolidayAPI() {
     // 1. 테스트 사용자 생성 또는 조회
     console.log('1️⃣ 테스트 사용자 확인 중...');
     let user = await pool.query(
-      "SELECT user_id, email, username, role FROM users WHERE email = 'test@example.com'"
+      "SELECT \"userId\", email, username, role FROM \"User\" WHERE email = 'test@example.com'"
     );
 
     if (user.rows.length === 0) {
@@ -29,9 +29,9 @@ async function testHolidayAPI() {
       const hashedPassword = await bcrypt.hash('test1234', 10);
 
       user = await pool.query(
-        `INSERT INTO users (email, password, username, role)
+        `INSERT INTO "User" (email, password, username, role)
          VALUES ('test@example.com', $1, 'Test User', 'user')
-         RETURNING user_id, email, username, role`,
+         RETURNING "userId", email, username, role`,
         [hashedPassword]
       );
       console.log('   ✅ 테스트 사용자 생성 완료');
@@ -40,13 +40,13 @@ async function testHolidayAPI() {
     }
 
     const testUser = user.rows[0];
-    console.log(`   사용자 ID: ${testUser.user_id}`);
+    console.log(`   사용자 ID: ${testUser.userId}`);
     console.log(`   이메일: ${testUser.email}\n`);
 
     // 2. JWT 토큰 생성
     console.log('2️⃣ JWT 토큰 생성 중...');
     const token = generateAccessToken({
-      userId: testUser.user_id,
+      userId: testUser.userId,
       email: testUser.email,
       role: testUser.role
     });

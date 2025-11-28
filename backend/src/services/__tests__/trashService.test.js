@@ -11,8 +11,8 @@ describe('trashService', () => {
   describe('getTrash', () => {
     const userId = 'user-123';
     const mockTrashItems = [
-      { todo_id: 'todo-1', title: 'Deleted Todo 1', status: 'deleted' },
-      { todo_id: 'todo-2', title: 'Deleted Todo 2', status: 'deleted' }
+      { todoId: 'todo-1', title: 'Deleted Todo 1', status: 'deleted' },
+      { todoId: 'todo-2', title: 'Deleted Todo 2', status: 'deleted' }
     ];
 
     test('삭제된 할일 목록을 조회해야 함', async () => {
@@ -33,12 +33,12 @@ describe('trashService', () => {
     const todoId = 'todo-1';
 
     test('할일을 영구 삭제해야 함', async () => {
-      pool.query.mockResolvedValue({ rows: [{ todo_id: todoId }] });
+      pool.query.mockResolvedValue({ rows: [{ todoId: todoId }] });
 
       const result = await trashService.permanentlyDelete(todoId, userId);
 
       expect(pool.query).toHaveBeenCalledWith(
-        expect.stringContaining('DELETE FROM todos'),
+        expect.stringContaining('DELETE FROM "Todo"'),
         [todoId, userId, 'deleted']
       );
       expect(result).toBe(true);

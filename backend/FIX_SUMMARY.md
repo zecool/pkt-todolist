@@ -26,7 +26,7 @@
 **변경 전:**
 ```javascript
 const { rows } = await pool.query(
-  'SELECT "userId", email, username, role, "createdAt" FROM users WHERE "userId" = $1',
+  'SELECT "userId", email, username, role, "createdAt" FROM "User" WHERE "userId" = $1',
   [decoded.userId]
 );
 

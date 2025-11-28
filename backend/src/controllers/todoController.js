@@ -566,9 +566,9 @@ const completeTodo = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        todoId: todo.todo_id,
+        todoId: todo.todoId,
         status: todo.status,
-        isCompleted: todo.is_completed
+        isCompleted: todo.isCompleted
       }
     });
   } catch (error) {
@@ -653,9 +653,9 @@ const deleteTodo = async (req, res) => {
       success: true,
       message: '할일이 휴지통으로 이동되었습니다',
       data: {
-        todoId: todo.todo_id,
+        todoId: todo.todoId,
         status: todo.status,
-        deletedAt: todo.deleted_at
+        deletedAt: todo.deletedAt
       }
     });
   } catch (error) {
@@ -740,9 +740,9 @@ const restoreTodo = async (req, res) => {
       success: true,
       message: '할일이 복원되었습니다',
       data: {
-        todoId: todo.todo_id,
+        todoId: todo.todoId,
         status: todo.status,
-        deletedAt: todo.deleted_at
+        deletedAt: todo.deletedAt
       }
     });
   } catch (error) {
